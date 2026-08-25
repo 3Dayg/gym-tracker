@@ -1,0 +1,66 @@
+import Foundation
+
+enum Formatters {
+    /// "82.5" — up to one decimal, no trailing ".0".
+    static func weight(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(0...1)))
+    }
+
+    /// "82.5 kg"
+    static func weight(_ value: Double, unit: WeightUnit) -> String {
+        "\(weight(value)) \(unit.rawValue)"
+    }
+
+    /// "1h 12m" / "45m" / "0m"
+    static func duration(_ interval: TimeInterval) -> String {
+        let totalMinutes = Int(interval) / 60
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+    }
+
+    /// "45 sec" / "3 min" / "1:30 min"
+    static func durationSeconds(_ value: Int) -> String {
+        let seconds = max(0, value)
+        if seconds < 60 { return "\(seconds) sec" }
+        if seconds.isMultiple(of: 60) { return "\(seconds / 60) min" }
+        return String(format: "%d:%02d min", seconds / 60, seconds % 60)
+    }
+
+    /// "5 km/h"
+    static func speed(_ value: Double, unit: WeightUnit) -> String {
+        "\(weight(value)) \(unit.speedLabel)"
+    }
+
+    /// "12%"
+    static func incline(_ value: Double) -> String {
+        "\(weight(value))%"
+    }
+
+    /// "2.5 km"
+    static func distance(_ value: Double, unit: WeightUnit) -> String {
+        "\(value.formatted(.number.precision(.fractionLength(0...2)))) \(unit.distanceLabel)"
+    }
+
+    /// One line for a logged row, built from the metrics of its kind,
+    /// e.g. "10 × 80 kg" or "10 min · 5 km/h · 12% · 0.83 km".
+    static func setSummary(_ set: SetEntry, kind: ExerciseKind, weightUnit: WeightUnit) -> String {
+        kind.metrics.compactMap { metric -> String? in
+            switch metric {
+            case .weight: "\(set.reps) × \(weight(set.weight, unit: weightUnit))"
+            case .reps: nil // Shown together with the weight.
+            case .duration: durationSeconds(set.durationSeconds)
+            case .speed: speed(set.speed, unit: weightUnit)
+            case .incline: incline(set.incline)
+            case .distance: set.distance.map { distance($0, unit: weightUnit) }
+            }
+        }
+        .joined(separator: " · ")
+    }
+
+    /// "1:30" — minutes:seconds countdown display.
+    static func countdown(_ seconds: Int) -> String {
+        let clamped = max(0, seconds)
+        return String(format: "%d:%02d", clamped / 60, clamped % 60)
+    }
+}

@@ -1,0 +1,36 @@
+# History and progress
+
+## History
+
+The **History** tab lists every finished workout, newest first, grouped by month. Each row shows the plan name (or "Workout"), the date, and:
+
+- wall-clock duration of the session,
+- for lifting: completed sets and total volume (weight × reps),
+- for cardio: total time logged.
+
+Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance.
+
+## Progress charts
+
+The **Progress** tab charts one exercise at a time — pick it from the dropdown. Only exercises you've actually logged appear there.
+
+**Strength exercises** show two lines per workout day:
+
+- **Top set** (solid) — the heaviest weight you lifted that day.
+- **Est. 1RM** (dashed orange) — your estimated one-rep max, calculated with the Epley formula: weight × (1 + reps ÷ 30).
+
+Plus personal records: heaviest set, best estimated 1RM, most reps.
+
+**Timed exercises** (plank, jump rope, bag rounds) show total minutes per day, plus records for the longest round and the longest session.
+
+**Cardio exercises** show minutes and average incline, a distance-per-day chart, and records for longest session, steepest incline, top speed, and longest distance.
+
+## Body weight
+
+Set height and today's weight on first launch, then update them anytime in **[Profile](profile.md)** (person icon).
+
+The Progress tab still has the trend chart:
+
+- **Log Body Weight** — record a weight for any date.
+- Once you have two or more entries, a trend chart appears.
+- **All entries** opens the full list, where you can swipe to delete mistakes.

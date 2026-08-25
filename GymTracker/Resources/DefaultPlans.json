@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Boxing Conditioning",
+    "notes": "Ring stamina plus a bit of muscle. Boxing work is logged in rounds with a real duration — tick a round when it ends. Rest 60 seconds between rounds; for strength work rest 60–90 seconds. Aim for 2–3 sessions a week on non-sparring days.",
+    "exercises": [
+      { "name": "Jump Rope", "targetSets": 5, "targetDurationSeconds": 180 },
+      { "name": "Shadow Boxing", "targetSets": 3, "targetDurationSeconds": 180 },
+      { "name": "Heavy Bag Rounds", "targetSets": 4, "targetDurationSeconds": 180 },
+      { "name": "Push-Up", "targetSets": 4, "targetReps": 15 },
+      { "name": "Dumbbell Row", "targetSets": 3, "targetReps": 10 },
+      { "name": "Walking Lunge", "targetSets": 3, "targetReps": 12 },
+      { "name": "Burpee", "targetSets": 3, "targetReps": 12 },
+      { "name": "Russian Twist", "targetSets": 3, "targetReps": 20 },
+      { "name": "Plank", "targetSets": 3, "targetDurationSeconds": 45 }
+    ]
+  },
+  {
+    "name": "Incline Walk",
+    "notes": "Fat-loss incline walking only. Each block has time, speed, and incline; distance fills in automatically when you tick a block, or type what the treadmill shows. Tick a block when it ends and keep walking — the rest timer does not start for cardio work. Aim for 4–5 sessions a week, and log body weight on the Progress tab.",
+    "exercises": [
+      { "name": "Treadmill Walk", "targetSets": 1, "targetDurationSeconds": 300, "targetSpeed": 4.5, "targetIncline": 1 },
+      { "name": "Incline Treadmill Walk", "targetSets": 3, "targetDurationSeconds": 600, "targetSpeed": 5, "targetIncline": 12 },
+      { "name": "Treadmill Walk", "targetSets": 1, "targetDurationSeconds": 300, "targetSpeed": 4, "targetIncline": 1 }
+    ]
+  }
+]
