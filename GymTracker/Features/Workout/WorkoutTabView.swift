@@ -7,12 +7,12 @@ struct WorkoutTabView: View {
     @Query(filter: #Predicate<WorkoutSession> { $0.endedAt == nil })
     private var activeSessions: [WorkoutSession]
 
-    @State private var restTimer = RestTimer()
+    @State private var sessionTimer = SessionTimer()
 
     var body: some View {
         NavigationStack {
             if let session = activeSessions.first {
-                ActiveWorkoutView(session: session, restTimer: restTimer)
+                ActiveWorkoutView(session: session, sessionTimer: sessionTimer)
             } else {
                 StartWorkoutView()
             }
@@ -69,7 +69,11 @@ private struct StartWorkoutView: View {
 
     private func planSummary(_ plan: WorkoutPlan) -> String {
         let count = plan.exercises.count
-        return count == 1 ? "1 exercise" : "\(count) exercises"
+        let exercises = count == 1 ? "1 exercise" : "\(count) exercises"
+        if let rest = plan.targetRestSeconds {
+            return "\(exercises) · \(Formatters.countdown(rest)) rest"
+        }
+        return exercises
     }
 }
 

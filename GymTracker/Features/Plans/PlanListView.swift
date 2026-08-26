@@ -56,7 +56,11 @@ struct PlanListView: View {
 
     private func exerciseSummary(for plan: WorkoutPlan) -> String {
         let names = plan.orderedExercises.map(\.exerciseName)
-        return names.isEmpty ? "No exercises" : names.joined(separator: " · ")
+        let base = names.isEmpty ? "No exercises" : names.joined(separator: " · ")
+        if let rest = plan.targetRestSeconds {
+            return "\(base) · \(Formatters.countdown(rest)) rest"
+        }
+        return base
     }
 
     private func addPlan() {

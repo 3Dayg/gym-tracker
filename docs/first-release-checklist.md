@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, but unit switching can mislabel saved values, the promoted boxing plan does not time work rounds, timed and mixed sessions are summarized incorrectly, and relaunch loses the visible rest countdown. First-run copy promises calories that do not exist, destructive actions are under-protected, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, and first-run units plus Boxing work/rest timing are in place, but timed and mixed sessions are summarized incorrectly, relaunch still loses the visible countdown, destructive actions are under-protected, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -24,7 +24,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 - **Effort:** M
 - **Acceptance:** A privacy-conscious user can reach Quick Start without entering body measurements; a user who enters them understands exactly where they are used.
 
-### - [ ] 3. Make Boxing Conditioning usable without another timer
+### - [x] 3. Make Boxing Conditioning usable without another timer
 
 - **User problem:** The seeded plan specifies 3-minute rounds, but the app only records a duration after a manual check; it never times the work interval. Its 60-second coaching also conflicts with the global 90-second default.
 - **Why it matters:** Boxing is a promoted ready-made plan, yet a boxer still needs another timer.

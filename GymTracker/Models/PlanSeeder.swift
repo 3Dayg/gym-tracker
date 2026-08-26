@@ -10,6 +10,7 @@ enum PlanSeeder {
     struct SeedPlan: Decodable {
         let name: String
         let notes: String
+        let targetRestSeconds: Int?
         let exercises: [SeedPlannedExercise]
     }
 
@@ -61,7 +62,11 @@ enum PlanSeeder {
             guard !alreadySeeded.contains(seed.name) else { continue }
             guard !existingPlanNames.contains(seed.name) else { continue }
 
-            let plan = WorkoutPlan(name: seed.name, notes: seed.notes)
+            let plan = WorkoutPlan(
+                name: seed.name,
+                notes: seed.notes,
+                targetRestSeconds: seed.targetRestSeconds
+            )
             context.insert(plan)
 
             for (index, item) in seed.exercises.enumerated() {
@@ -85,6 +90,21 @@ enum PlanSeeder {
         }
 
         defaults.set(Array(alreadySeeded).sorted(), forKey: seededNamesKey)
+        applyBoxingRestIfNeeded(in: context, defaults: defaults)
+    }
+
+    /// Existing installs seeded Boxing before rest lived on the plan.
+    private static let boxingRestUpgradeKey = "upgradedBoxingPlanRest"
+
+    private static func applyBoxingRestIfNeeded(in context: ModelContext, defaults: UserDefaults) {
+        guard !defaults.bool(forKey: boxingRestUpgradeKey) else { return }
+        let plans = (try? context.fetch(FetchDescriptor<WorkoutPlan>())) ?? []
+        if let boxing = plans.first(where: { $0.name == "Boxing Conditioning" }),
+           boxing.targetRestSeconds == nil
+        {
+            boxing.targetRestSeconds = 60
+        }
+        defaults.set(true, forKey: boxingRestUpgradeKey)
     }
 
     static func loadSeedPlans(from bundle: Bundle = .main) -> [SeedPlan] {

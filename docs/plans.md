@@ -13,7 +13,8 @@ You can edit them or add your own.
 
 1. Go to the **Plans** tab and tap **+**.
 2. Give the plan a name (and optional notes).
-3. Tap **Add Exercise** and pick from the library. Repeat for each exercise.
+3. Optionally set **Rest between sets**. Boxing Conditioning ships at 1:00; leave it on “Use app setting” to follow the Workout tab gear (default 1:30). Timed rounds start this rest when their countdown hits zero.
+4. Tap **Add Exercise** and pick from the library. Repeat for each exercise.
 
 ## Setting targets
 

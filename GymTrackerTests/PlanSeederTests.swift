@@ -45,6 +45,7 @@ final class PlanSeederTests: XCTestCase {
         let jumpRope = boxing.orderedExercises[0]
         XCTAssertEqual(jumpRope.kind, .timed)
         XCTAssertEqual(jumpRope.targetDurationSeconds, 180)
+        XCTAssertEqual(boxing.targetRestSeconds, 60)
         let plank = try XCTUnwrap(boxing.orderedExercises.last)
         XCTAssertEqual(plank.kind, .timed)
         XCTAssertEqual(plank.targetDurationSeconds, 45)
@@ -69,6 +70,7 @@ final class PlanSeederTests: XCTestCase {
         XCTAssertEqual(walk.orderedExercises[1].targetSpeed, 5)
         XCTAssertEqual(walk.orderedExercises[1].targetIncline, 12)
         XCTAssertEqual(walk.orderedExercises[1].exercise?.kind, .cardio)
+        XCTAssertNil(walk.targetRestSeconds)
     }
 
     func testDoesNotRecreateADeletedPlan() throws {
@@ -86,6 +88,20 @@ final class PlanSeederTests: XCTestCase {
         let names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
         XCTAssertFalse(names.contains("Boxing Conditioning"))
         XCTAssertTrue(names.contains("Incline Walk"))
+    }
+
+    func testUpgradesExistingBoxingPlanRestOnce() throws {
+        ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
+        let boxing = WorkoutPlan(name: "Boxing Conditioning")
+        context.insert(boxing)
+        XCTAssertNil(boxing.targetRestSeconds)
+
+        PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
+        XCTAssertEqual(boxing.targetRestSeconds, 60)
+
+        boxing.targetRestSeconds = nil
+        PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
+        XCTAssertNil(boxing.targetRestSeconds, "A later seed must not restore rest the user cleared")
     }
 
     func testSeedPlanExercisesAllExistInTheLibrary() {

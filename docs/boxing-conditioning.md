@@ -2,7 +2,7 @@
 
 The app includes a ready-made **Boxing Conditioning** plan. It is built for people who box and want better round stamina, plus a bit of muscle — not a bodybuilding split.
 
-Find it on the **Plans** tab, or start it directly from the **Workout** tab.
+Find it on the **Plans** tab, or start it directly from the **Workout** tab — the list shows **9 exercises · 1:00 rest**. You do not need a second timer.
 
 ## How to read the numbers
 
@@ -10,7 +10,7 @@ Boxing work is logged as **timed rounds** with a real duration — no reps invol
 
 - **Rounds** = how many rounds
 - **Time** = the length of one round (3:00 for bag and shadow work, 0:45 for the plank)
-- Tick a round when it ends; the rest timer starts for a normal **60-second** round break.
+- Tap **Start** on a round and let the phone count down. At 0:00 the round is ticked and a **1:00** rest starts. Tick the circle yourself only if you finish early.
 
 Strength work is normal sets and reps. Rest **60–90 seconds** between those.
 

@@ -6,6 +6,9 @@ final class WorkoutPlan {
     var name: String
     var notes: String
     var createdAt: Date
+    /// Seconds of rest after a completed set or timed round. Nil uses the
+    /// app-wide rest setting.
+    var targetRestSeconds: Int?
 
     @Relationship(deleteRule: .cascade, inverse: \PlannedExercise.plan)
     var exercises: [PlannedExercise] = []
@@ -16,10 +19,16 @@ final class WorkoutPlan {
         exercises.sorted { $0.sortOrder < $1.sortOrder }
     }
 
-    init(name: String, notes: String = "", createdAt: Date = .now) {
+    init(
+        name: String,
+        notes: String = "",
+        createdAt: Date = .now,
+        targetRestSeconds: Int? = nil
+    ) {
         self.name = name
         self.notes = notes
         self.createdAt = createdAt
+        self.targetRestSeconds = targetRestSeconds
     }
 }
 

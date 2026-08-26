@@ -9,6 +9,9 @@ final class WorkoutSession {
     /// Name of the plan this session was started from, if any. Stored as a
     /// plain string so history survives plan deletion.
     var planName: String?
+    /// Rest used for this session when the plan specified one. Nil falls
+    /// back to the app rest-timer setting.
+    var restSeconds: Int?
 
     @Relationship(deleteRule: .cascade, inverse: \SessionExercise.session)
     var exercises: [SessionExercise] = []
@@ -34,9 +37,10 @@ final class WorkoutSession {
         exercises.reduce(0) { $0 + $1.completedDurationSeconds }
     }
 
-    init(startedAt: Date = .now, planName: String? = nil) {
+    init(startedAt: Date = .now, planName: String? = nil, restSeconds: Int? = nil) {
         self.startedAt = startedAt
         self.planName = planName
+        self.restSeconds = restSeconds
     }
 }
 

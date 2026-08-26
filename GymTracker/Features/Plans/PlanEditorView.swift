@@ -8,12 +8,30 @@ struct PlanEditorView: View {
     @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
     @State private var isPickingExercise = false
 
+    private var restSelection: Binding<Int> {
+        Binding(
+            get: { plan.targetRestSeconds ?? -1 },
+            set: { plan.targetRestSeconds = $0 < 0 ? nil : $0 }
+        )
+    }
+
     var body: some View {
         Form {
             Section {
                 TextField("Plan name", text: $plan.name)
                 TextField("Notes", text: $plan.notes, axis: .vertical)
                     .lineLimit(2...4)
+            }
+
+            Section {
+                Picker("Rest between sets", selection: restSelection) {
+                    Text("Use app setting").tag(-1)
+                    ForEach([30, 60, 90, 120, 180, 240, 300], id: \.self) { seconds in
+                        Text(Formatters.countdown(seconds)).tag(seconds)
+                    }
+                }
+            } footer: {
+                Text("Timed rounds start this rest automatically when the work countdown hits zero.")
             }
 
             Section("Exercises") {

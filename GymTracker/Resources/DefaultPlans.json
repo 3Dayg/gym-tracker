@@ -1,7 +1,8 @@
 [
   {
     "name": "Boxing Conditioning",
-    "notes": "Ring stamina plus a bit of muscle. Boxing work is logged in rounds with a real duration — tick a round when it ends. Rest 60 seconds between rounds; for strength work rest 60–90 seconds. Aim for 2–3 sessions a week on non-sparring days.",
+    "targetRestSeconds": 60,
+    "notes": "Ring stamina plus a bit of muscle. Tap Start on a timed round — when it hits zero, rest starts automatically (1:00). You can still tick a round by hand if you finish early. Aim for 2–3 sessions a week on non-sparring days.",
     "exercises": [
       { "name": "Jump Rope", "targetSets": 5, "targetDurationSeconds": 180 },
       { "name": "Shadow Boxing", "targetSets": 3, "targetDurationSeconds": 180 },

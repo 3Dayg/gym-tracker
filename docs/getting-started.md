@@ -8,13 +8,14 @@ On first launch the app asks you to pick **Metric or Imperial**. Height and body
 
 Tap the gear icon in the top-right of the **Workout** tab:
 
-- **Rest timer** — how long the countdown runs after you complete a set (30 seconds to 5 minutes, default 1:30).
+- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses 1:00.
+- Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Round over” and “Rest over” still fire when the phone is locked.
 - **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
 
 ## A typical flow
 
 1. **Build a plan** (optional but recommended). Go to **Plans**, create "Push Day", add exercises, and set target sets/reps/weights. See [Workout plans](plans.md).
-2. **Train.** On the **Workout** tab, tap your plan. Every exercise appears with its sets pre-filled. Do a set, tick it off, rest while the timer counts down, repeat. See [Logging a workout](workouts.md).
+2. **Train.** On the **Workout** tab, tap your plan. Every exercise appears with its sets pre-filled. Strength: tick a set when it is done. Timed rounds: tap **Start** and let the countdown finish. See [Logging a workout](workouts.md).
 3. **Finish.** Tap **Finish** when you're done. The session is saved to **History**.
 4. **Watch your progress.** After a few workouts, the **Progress** tab shows charts of your top set weight and estimated one-rep max per exercise. See [History and progress](history-and-progress.md).
 

@@ -6,7 +6,7 @@ Gym Tracker is a fully offline workout companion. Everything you log stays on yo
 
 | Tab | What it's for |
 |---|---|
-| **Workout** | Start and log a training session, with a rest timer |
+| **Workout** | Start and log a training session, with work and rest timers |
 | **Plans** | Build reusable workout templates |
 | **Exercises** | Browse the exercise library and add your own |
 | **History** | Look back at every finished workout |

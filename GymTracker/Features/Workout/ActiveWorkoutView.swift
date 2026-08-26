@@ -3,9 +3,10 @@ import SwiftUI
 
 struct ActiveWorkoutView: View {
     @Bindable var session: WorkoutSession
-    let restTimer: RestTimer
+    let sessionTimer: SessionTimer
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage(SettingsKeys.unitSystem)
     private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
@@ -14,15 +15,34 @@ struct ActiveWorkoutView: View {
     @State private var isPickingExercise = false
     @State private var isConfirmingCancel = false
 
+    private var effectiveRestSeconds: Int {
+        session.restSeconds ?? restDuration
+    }
+
+    private var hasTimedExercise: Bool {
+        session.exercises.contains { $0.kind == .timed }
+    }
+
     var body: some View {
         List {
+            if hasTimedExercise {
+                Section {
+                    LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
+                        .accessibilityIdentifier("timedRestHint")
+                    Text("Tap Start on a timed round. When the countdown hits zero, rest begins. You can still tick a round by hand.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             ForEach(session.orderedExercises) { sessionExercise in
                 SessionExerciseSection(
                     sessionExercise: sessionExercise,
                     unitSystem: unitSystem,
+                    sessionTimer: sessionTimer,
                     onSetCompleted: {
-                        if sessionExercise.kind.startsRestTimer {
-                            restTimer.start(seconds: restDuration)
+                        if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
+                            sessionTimer.startRest(seconds: effectiveRestSeconds)
                         }
                     }
                 )
@@ -51,8 +71,10 @@ struct ActiveWorkoutView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            if restTimer.isRunning {
-                RestTimerBar(restTimer: restTimer)
+            if sessionTimer.phase == .work {
+                WorkTimerBar(sessionTimer: sessionTimer)
+            } else if sessionTimer.phase == .rest {
+                RestTimerBar(sessionTimer: sessionTimer)
             }
         }
         .sheet(isPresented: $isPickingExercise) {
@@ -68,15 +90,28 @@ struct ActiveWorkoutView: View {
             Button("Discard Workout", role: .destructive) { cancelWorkout() }
             Button("Keep Going", role: .cancel) {}
         }
+        .onAppear {
+            sessionTimer.onWorkFinished = { [weak sessionTimer] set in
+                guard let sessionTimer, !set.isCompleted else { return }
+                set.isCompleted = true
+                sessionTimer.startRest(seconds: effectiveRestSeconds)
+            }
+            sessionTimer.refresh()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                sessionTimer.refresh()
+            }
+        }
     }
 
     private func finishWorkout() {
-        restTimer.stop()
+        sessionTimer.stop()
         WorkoutSessionService.finish(session, in: modelContext)
     }
 
     private func cancelWorkout() {
-        restTimer.stop()
+        sessionTimer.stop()
         WorkoutSessionService.cancel(session, in: modelContext)
     }
 }
@@ -85,6 +120,7 @@ struct ActiveWorkoutView: View {
 private struct SessionExerciseSection: View {
     let sessionExercise: SessionExercise
     let unitSystem: UnitSystem
+    let sessionTimer: SessionTimer
     let onSetCompleted: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -97,6 +133,7 @@ private struct SessionExerciseSection: View {
                     setNumber: (sessionExercise.orderedSets.firstIndex(where: { $0 === set }) ?? 0) + 1,
                     kind: sessionExercise.kind,
                     unitSystem: unitSystem,
+                    sessionTimer: sessionTimer,
                     onCompleted: onSetCompleted
                 )
             }
@@ -116,57 +153,125 @@ private struct SessionExerciseSection: View {
     private func deleteSets(at offsets: IndexSet) {
         let ordered = sessionExercise.orderedSets
         for index in offsets {
+            if sessionTimer.isTiming(ordered[index]) {
+                sessionTimer.stop()
+            }
             modelContext.delete(ordered[index])
         }
-        // Removing the last set removes the whole exercise from the session.
         if sessionExercise.sets.count == offsets.count {
             modelContext.delete(sessionExercise)
         }
     }
 }
 
-/// Editable metrics with a completion checkmark. Which fields appear is
-/// driven entirely by the kind's metric list. Each value is a tappable
-/// chip that opens a native wheel picker.
+/// Editable metrics with a completion checkmark. Timed rows also get a
+/// Start/Pause work countdown.
 private struct SetRow: View {
     @Bindable var set: SetEntry
     let setNumber: Int
     let kind: ExerciseKind
     let unitSystem: UnitSystem
+    let sessionTimer: SessionTimer
     let onCompleted: () -> Void
 
     @State private var activeMetric: SetMetric?
 
+    private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text("\(setNumber)")
-                .font(.subheadline.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(width: 24)
-                .padding(.top, 10)
-
-            // One or two metrics fit on a single line; more get a labeled
-            // row each.
-            if kind.metrics.count <= 2 {
-                compactFields
+        Group {
+            if kind == .timed {
+                timedLayout
             } else {
-                labeledFields
+                standardLayout
             }
-
-            Button {
-                toggleCompleted()
-            } label: {
-                Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
-                    .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 8)
         }
         .listRowBackground(set.isCompleted ? Color.accentColor.opacity(0.08) : nil)
         .sheet(item: $activeMetric) { metric in
             pickerSheet(for: metric)
         }
+    }
+
+    private var standardLayout: some View {
+        HStack(alignment: .top, spacing: 12) {
+            setIndexLabel
+            if kind.metrics.count <= 2 {
+                compactFields
+            } else {
+                labeledFields
+            }
+            completeButton
+        }
+    }
+
+    private var timedLayout: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 12) {
+                setIndexLabel
+                if isTimingThisSet {
+                    Text(Formatters.countdown(sessionTimer.remainingSeconds))
+                        .font(.title.monospacedDigit())
+                        .accessibilityIdentifier("workCountdown")
+                    Text(sessionTimer.isPaused ? "Paused" : "Work")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    chip(for: .duration)
+                        .disabled(set.isCompleted)
+                }
+                Spacer()
+                completeButton
+            }
+
+            if !set.isCompleted {
+                workControls
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var workControls: some View {
+        HStack {
+            if isTimingThisSet && sessionTimer.isPaused {
+                Button("Resume") { sessionTimer.resume() }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .accessibilityIdentifier("resumeWork")
+            } else if isTimingThisSet {
+                Button("Pause") { sessionTimer.pause() }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .accessibilityIdentifier("pauseWork")
+            } else {
+                Button("Start") {
+                    sessionTimer.startWork(seconds: set.durationSeconds, set: set)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(set.durationSeconds <= 0)
+                .accessibilityIdentifier("startWork")
+            }
+            Spacer()
+        }
+    }
+
+    private var setIndexLabel: some View {
+        Text("\(setNumber)")
+            .font(.subheadline.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .frame(width: 24)
+    }
+
+    private var completeButton: some View {
+        Button {
+            toggleCompleted()
+        } label: {
+            Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
+                .font(.title3)
+                .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("completeSet")
     }
 
     private var compactFields: some View {
@@ -194,8 +299,6 @@ private struct SetRow: View {
         }
     }
 
-    /// Weight, reps, and time open wheel pickers; machine settings
-    /// (speed, incline, distance) are free keyboard input.
     @ViewBuilder
     private func chip(for metric: SetMetric) -> some View {
         switch metric {
@@ -276,11 +379,14 @@ private struct SetRow: View {
                 value: Binding(get: { Double(set.reps) }, set: { set.reps = Int($0 ?? 0) })
             )
         case .speed, .incline, .distance:
-            EmptyView() // Edited inline with the keyboard.
+            EmptyView()
         }
     }
 
     private func toggleCompleted() {
+        if sessionTimer.isTiming(set) {
+            sessionTimer.stop()
+        }
         set.isCompleted.toggle()
         if set.isCompleted {
             fillDerivedDistanceIfNeeded()
@@ -288,8 +394,6 @@ private struct SetRow: View {
         }
     }
 
-    /// A cardio block the user completed without typing a distance gets one
-    /// derived from speed and duration; the field stays editable afterwards.
     private func fillDerivedDistanceIfNeeded() {
         guard
             kind.metrics.contains(.distance),
@@ -301,21 +405,50 @@ private struct SetRow: View {
     }
 }
 
-/// Bottom bar showing the running rest countdown with a skip button.
+private struct WorkTimerBar: View {
+    let sessionTimer: SessionTimer
+
+    var body: some View {
+        HStack {
+            Image(systemName: "figure.boxing")
+            Text(sessionTimer.isPaused ? "Paused" : "Work")
+            Text(Formatters.countdown(sessionTimer.remainingSeconds))
+                .font(.headline.monospacedDigit())
+                .accessibilityIdentifier("workBarCountdown")
+
+            Spacer()
+
+            if sessionTimer.isPaused {
+                Button("Resume") { sessionTimer.resume() }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            } else {
+                Button("Pause") { sessionTimer.pause() }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+            }
+        }
+        .padding()
+        .background(.bar)
+    }
+}
+
 private struct RestTimerBar: View {
-    let restTimer: RestTimer
+    let sessionTimer: SessionTimer
 
     var body: some View {
         HStack {
             Image(systemName: "timer")
-            Text("Rest: \(Formatters.countdown(restTimer.remainingSeconds))")
+            Text("Rest: \(Formatters.countdown(sessionTimer.remainingSeconds))")
                 .font(.headline.monospacedDigit())
+                .accessibilityIdentifier("restBarCountdown")
 
             Spacer()
 
-            Button("Skip") { restTimer.stop() }
+            Button("Skip rest") { sessionTimer.stop() }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
+                .accessibilityIdentifier("skipRest")
         }
         .padding()
         .background(.bar)

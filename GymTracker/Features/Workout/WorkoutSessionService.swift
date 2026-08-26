@@ -7,7 +7,7 @@ enum WorkoutSessionService {
     /// Starts a session pre-filled from a plan.
     @discardableResult
     static func startSession(from plan: WorkoutPlan, in context: ModelContext) -> WorkoutSession {
-        let session = WorkoutSession(planName: plan.name)
+        let session = WorkoutSession(planName: plan.name, restSeconds: plan.targetRestSeconds)
         context.insert(session)
 
         for (index, planned) in plan.orderedExercises.enumerated() {
