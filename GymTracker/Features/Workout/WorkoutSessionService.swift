@@ -86,19 +86,32 @@ enum WorkoutSessionService {
         return set
     }
 
-    /// Finishes the session, discarding rows that were never completed and
-    /// exercises that end up with no completed rows.
-    static func finish(_ session: WorkoutSession, in context: ModelContext) {
+    /// Snapshot of what Finish will keep, skip, or drop.
+    static func finishPreview(for session: WorkoutSession) -> WorkoutFinishPreview {
+        let sets = session.exercises.flatMap(\.sets)
+        return WorkoutFinishPreview(
+            completedCount: sets.filter(\.isCompleted).count,
+            failedCount: sets.filter(\.isFailed).count,
+            skippedCount: sets.filter(\.isSkipped).count,
+            incompleteCount: sets.filter(\.isPending).count
+        )
+    }
+
+    /// Finishes the session. Incomplete rows are discarded; skipped and
+    /// completed (including failed) rows are kept. Exercises with nothing
+    /// left are dropped.
+    static func finish(_ session: WorkoutSession, in context: ModelContext) throws {
         for sessionExercise in session.exercises {
-            for set in sessionExercise.sets where !set.isCompleted {
+            let kept = sessionExercise.sets.filter { $0.isCompleted || $0.isSkipped }
+            for set in sessionExercise.sets where set.isPending {
                 context.delete(set)
             }
-            if sessionExercise.sets.allSatisfy({ !$0.isCompleted }) {
+            if kept.isEmpty {
                 context.delete(sessionExercise)
             }
         }
         session.endedAt = .now
-        try? context.save()
+        try context.save()
     }
 
     static func cancel(_ session: WorkoutSession, in context: ModelContext) {

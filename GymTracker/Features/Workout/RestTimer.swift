@@ -35,7 +35,7 @@ final class SessionTimer {
     }
 
     func startWork(seconds: Int, set: SetEntry) {
-        guard seconds > 0, !set.isCompleted else { return }
+        guard seconds > 0, set.isPending else { return }
         begin(phase: .work, seconds: seconds, set: set)
         scheduleNotification(
             identifier: Self.workNotificationID,

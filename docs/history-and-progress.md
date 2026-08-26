@@ -8,7 +8,7 @@ The **History** tab lists every finished workout, newest first, grouped by month
 - for lifting: completed sets and total volume (weight × reps),
 - for cardio: total time logged.
 
-Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance.
+Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance. Skipped rows say **Skipped**. Failed rows keep the numbers you logged and are marked **Failed** — they do not count toward personal records.
 
 ## Progress charts
 
@@ -19,7 +19,7 @@ The **Progress** tab charts one exercise at a time — pick it from the dropdown
 - **Top set** (solid) — the heaviest weight you lifted that day.
 - **Est. 1RM** (dashed orange) — your estimated one-rep max, calculated with the Epley formula: weight × (1 + reps ÷ 30).
 
-Plus personal records: heaviest set, best estimated 1RM, most reps.
+Plus personal records: heaviest set, best estimated 1RM, most reps. Failed sets are left out of these records.
 
 **Timed exercises** (plank, jump rope, bag rounds) show total minutes per day, plus records for the longest round and the longest session.
 

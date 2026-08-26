@@ -4,6 +4,7 @@ import SwiftUI
 struct ActiveWorkoutView: View {
     @Bindable var session: WorkoutSession
     let sessionTimer: SessionTimer
+    var onWorkoutSaved: (SavedWorkoutNotice) -> Void
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -13,7 +14,10 @@ struct ActiveWorkoutView: View {
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
 
     @State private var isPickingExercise = false
-    @State private var isConfirmingCancel = false
+    @State private var isConfirmingDiscard = false
+    @State private var isConfirmingFinish = false
+    @State private var nothingToSaveAlert = false
+    @State private var saveErrorMessage: String?
 
     private var effectiveRestSeconds: Int {
         session.restSeconds ?? restDuration
@@ -23,8 +27,27 @@ struct ActiveWorkoutView: View {
         session.exercises.contains { $0.kind == .timed }
     }
 
+    private var finishPreview: WorkoutFinishPreview {
+        WorkoutSessionService.finishPreview(for: session)
+    }
+
     var body: some View {
         List {
+            if session.exercises.isEmpty {
+                Section {
+                    Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("emptyWorkoutHint")
+                }
+            } else if finishPreview.completedCount == 0 {
+                Section {
+                    Text("Tick a set you did to save. Skip leaves a marker in History. Incomplete rows are dropped when you finish.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("finishHint")
+                }
+            }
+
             if hasTimedExercise {
                 Section {
                     LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
@@ -40,7 +63,7 @@ struct ActiveWorkoutView: View {
                     sessionExercise: sessionExercise,
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
-                    onSetCompleted: {
+                    onDidWork: {
                         if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
                             sessionTimer.startRest(seconds: effectiveRestSeconds)
                         }
@@ -54,20 +77,22 @@ struct ActiveWorkoutView: View {
                 } label: {
                     Label("Add Exercise", systemImage: "plus")
                 }
+                .accessibilityIdentifier("addExercise")
             }
         }
         .navigationTitle(session.planName ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel", role: .destructive) {
-                    isConfirmingCancel = true
+                Button("Discard", role: .destructive) {
+                    isConfirmingDiscard = true
                 }
+                .accessibilityIdentifier("discardWorkout")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Finish") { finishWorkout() }
+                Button("Finish") { attemptFinish() }
                     .fontWeight(.semibold)
-                    .disabled(session.completedSetCount == 0)
+                    .accessibilityIdentifier("finishWorkout")
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -82,18 +107,43 @@ struct ActiveWorkoutView: View {
                 WorkoutSessionService.addExercise(exercise, to: session, in: modelContext)
             }
         }
+        .sheet(isPresented: $isConfirmingFinish) {
+            FinishWorkoutSheet(
+                preview: finishPreview,
+                planName: session.planName,
+                onConfirm: confirmFinish,
+                onCancel: { isConfirmingFinish = false }
+            )
+            .presentationDetents([.medium])
+        }
         .confirmationDialog(
             "Discard this workout?",
-            isPresented: $isConfirmingCancel,
+            isPresented: $isConfirmingDiscard,
             titleVisibility: .visible
         ) {
-            Button("Discard Workout", role: .destructive) { cancelWorkout() }
+            Button("Discard Workout", role: .destructive) { discardWorkout() }
+                .accessibilityIdentifier("confirmDiscard")
             Button("Keep Going", role: .cancel) {}
+        } message: {
+            Text("Nothing will be saved.")
+        }
+        .alert("Nothing to save", isPresented: $nothingToSaveAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Tick a set you did, or Discard this workout. Skip marks a set you passed on; incomplete rows are dropped.")
+        }
+        .alert("Couldn’t save workout", isPresented: Binding(
+            get: { saveErrorMessage != nil },
+            set: { if !$0 { saveErrorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(saveErrorMessage ?? "")
         }
         .onAppear {
             sessionTimer.onWorkFinished = { [weak sessionTimer] set in
-                guard let sessionTimer, !set.isCompleted else { return }
-                set.isCompleted = true
+                guard let sessionTimer, set.isPending else { return }
+                set.markCompleted()
                 sessionTimer.startRest(seconds: effectiveRestSeconds)
             }
             sessionTimer.refresh()
@@ -105,14 +155,123 @@ struct ActiveWorkoutView: View {
         }
     }
 
-    private func finishWorkout() {
-        sessionTimer.stop()
-        WorkoutSessionService.finish(session, in: modelContext)
+    private func attemptFinish() {
+        sessionTimer.refresh()
+        if finishPreview.canSave {
+            isConfirmingFinish = true
+        } else {
+            nothingToSaveAlert = true
+        }
     }
 
-    private func cancelWorkout() {
+    private func confirmFinish() {
+        sessionTimer.stop()
+        let preview = finishPreview
+        do {
+            try WorkoutSessionService.finish(session, in: modelContext)
+            isConfirmingFinish = false
+            onWorkoutSaved(
+                SavedWorkoutNotice(
+                    session: session,
+                    preview: preview,
+                    planName: session.planName,
+                    duration: session.duration
+                )
+            )
+        } catch {
+            saveErrorMessage = error.localizedDescription
+        }
+    }
+
+    private func discardWorkout() {
         sessionTimer.stop()
         WorkoutSessionService.cancel(session, in: modelContext)
+    }
+}
+
+private struct FinishWorkoutSheet: View {
+    let preview: WorkoutFinishPreview
+    let planName: String?
+    let onConfirm: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    LabeledContent("Completed", value: "\(preview.completedCount)")
+                    if preview.failedCount > 0 {
+                        LabeledContent("Failed (kept, not in PRs)", value: "\(preview.failedCount)")
+                    }
+                    LabeledContent("Skipped", value: "\(preview.skippedCount)")
+                    LabeledContent("Incomplete", value: "\(preview.incompleteCount)")
+                } header: {
+                    Text(planName ?? "Workout")
+                } footer: {
+                    Text(footerCopy)
+                }
+            }
+            .navigationTitle("Save workout?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Keep Going", action: onCancel)
+                        .accessibilityIdentifier("keepGoing")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { onConfirm() }
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("confirmFinish")
+                }
+            }
+        }
+    }
+
+    private var footerCopy: String {
+        var parts: [String] = []
+        if preview.incompleteCount > 0 {
+            parts.append("Incomplete rows will not be saved.")
+        }
+        parts.append("Missed a target? Lower the reps (or time), tick the set, then mark Failed so it stays out of PRs.")
+        return parts.joined(separator: " ")
+    }
+}
+
+struct WorkoutSavedSheet: View {
+    let notice: SavedWorkoutNotice
+    let onViewHistory: () -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    LabeledContent("Completed", value: "\(notice.preview.completedCount)")
+                    if notice.preview.failedCount > 0 {
+                        LabeledContent("Failed", value: "\(notice.preview.failedCount)")
+                    }
+                    if notice.preview.skippedCount > 0 {
+                        LabeledContent("Skipped", value: "\(notice.preview.skippedCount)")
+                    }
+                    LabeledContent("Duration", value: Formatters.duration(notice.duration))
+                } footer: {
+                    Text("Open History to review the breakdown.")
+                }
+            }
+            .navigationTitle("Workout saved")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                        .accessibilityIdentifier("savedDone")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("View in History", action: onViewHistory)
+                        .accessibilityIdentifier("viewInHistory")
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }
 
@@ -121,7 +280,7 @@ private struct SessionExerciseSection: View {
     let sessionExercise: SessionExercise
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
-    let onSetCompleted: () -> Void
+    let onDidWork: () -> Void
 
     @Environment(\.modelContext) private var modelContext
 
@@ -134,7 +293,7 @@ private struct SessionExerciseSection: View {
                     kind: sessionExercise.kind,
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
-                    onCompleted: onSetCompleted
+                    onDidWork: onDidWork
                 )
             }
             .onDelete(perform: deleteSets)
@@ -145,6 +304,7 @@ private struct SessionExerciseSection: View {
                 Label("Add \(sessionExercise.kind.setLabel)", systemImage: "plus")
                     .font(.subheadline)
             }
+            .accessibilityIdentifier("addSet")
         } header: {
             Text(sessionExercise.exerciseName)
         }
@@ -164,35 +324,58 @@ private struct SessionExerciseSection: View {
     }
 }
 
-/// Editable metrics with a completion checkmark. Timed rows also get a
-/// Start/Pause work countdown.
+/// Editable metrics with complete / skip / fail, plus a work countdown
+/// on timed rows.
 private struct SetRow: View {
     @Bindable var set: SetEntry
     let setNumber: Int
     let kind: ExerciseKind
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
-    let onCompleted: () -> Void
+    let onDidWork: () -> Void
 
     @State private var activeMetric: SetMetric?
 
     private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 10) {
             if kind == .timed {
-                timedLayout
+                timedMetrics
             } else {
-                standardLayout
+                standardMetrics
+            }
+
+            if set.isPending {
+                pendingControls
+            } else if set.isSkipped {
+                Button("Undo skip") { set.clearOutcome() }
+                    .font(.subheadline)
+                    .accessibilityIdentifier("undoSkip")
+            } else {
+                Button(set.isFailed ? "Failed — tap to undo" : "Mark failed") {
+                    set.isFailed.toggle()
+                }
+                .font(.subheadline)
+                .foregroundStyle(set.isFailed ? .orange : .secondary)
+                .accessibilityIdentifier("markFailed")
             }
         }
-        .listRowBackground(set.isCompleted ? Color.accentColor.opacity(0.08) : nil)
+        .padding(.vertical, 4)
+        .listRowBackground(rowBackground)
         .sheet(item: $activeMetric) { metric in
             pickerSheet(for: metric)
         }
     }
 
-    private var standardLayout: some View {
+    private var rowBackground: Color? {
+        if set.isSkipped { return Color.secondary.opacity(0.08) }
+        if set.isFailed { return Color.orange.opacity(0.10) }
+        if set.isCompleted { return Color.accentColor.opacity(0.08) }
+        return nil
+    }
+
+    private var standardMetrics: some View {
         HStack(alignment: .top, spacing: 12) {
             setIndexLabel
             if kind.metrics.count <= 2 {
@@ -202,36 +385,52 @@ private struct SetRow: View {
             }
             completeButton
         }
+        .disabled(set.isSkipped)
     }
 
-    private var timedLayout: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 12) {
-                setIndexLabel
-                if isTimingThisSet {
-                    Text(Formatters.countdown(sessionTimer.remainingSeconds))
-                        .font(.title.monospacedDigit())
-                        .accessibilityIdentifier("workCountdown")
-                    Text(sessionTimer.isPaused ? "Paused" : "Work")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    chip(for: .duration)
-                        .disabled(set.isCompleted)
-                }
-                Spacer()
-                completeButton
+    private var timedMetrics: some View {
+        HStack(alignment: .center, spacing: 12) {
+            setIndexLabel
+            if isTimingThisSet {
+                Text(Formatters.countdown(sessionTimer.remainingSeconds))
+                    .font(.title.monospacedDigit())
+                    .accessibilityIdentifier("workCountdown")
+                Text(sessionTimer.isPaused ? "Paused" : "Work")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else if set.isSkipped {
+                Text("Skipped")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("skippedLabel")
+            } else {
+                chip(for: .duration)
+                    .disabled(set.isCompleted)
             }
+            Spacer()
+            completeButton
+        }
+    }
 
-            if !set.isCompleted {
+    private var pendingControls: some View {
+        HStack(spacing: 12) {
+            if kind == .timed {
                 workControls
             }
+            Button("Skip") { skip() }
+                .buttonStyle(.bordered)
+                .controlSize(kind == .timed ? .large : .regular)
+                .accessibilityIdentifier("skipSet")
+            Button("Fail") { fail() }
+                .buttonStyle(.bordered)
+                .controlSize(kind == .timed ? .large : .regular)
+                .accessibilityIdentifier("failSet")
+            Spacer()
         }
-        .padding(.vertical, 4)
     }
 
     private var workControls: some View {
-        HStack {
+        Group {
             if isTimingThisSet && sessionTimer.isPaused {
                 Button("Resume") { sessionTimer.resume() }
                     .buttonStyle(.borderedProminent)
@@ -251,7 +450,6 @@ private struct SetRow: View {
                 .disabled(set.durationSeconds <= 0)
                 .accessibilityIdentifier("startWork")
             }
-            Spacer()
         }
     }
 
@@ -271,7 +469,9 @@ private struct SetRow: View {
                 .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
         }
         .buttonStyle(.plain)
+        .disabled(set.isSkipped)
         .accessibilityIdentifier("completeSet")
+        .accessibilityLabel(set.isCompleted ? "Completed" : "Mark complete")
     }
 
     private var compactFields: some View {
@@ -383,14 +583,32 @@ private struct SetRow: View {
         }
     }
 
-    private func toggleCompleted() {
+    private func stopTimingIfNeeded() {
         if sessionTimer.isTiming(set) {
             sessionTimer.stop()
         }
-        set.isCompleted.toggle()
+    }
+
+    private func skip() {
+        stopTimingIfNeeded()
+        set.markSkipped()
+    }
+
+    private func fail() {
+        stopTimingIfNeeded()
+        fillDerivedDistanceIfNeeded()
+        set.markCompleted(failed: true)
+        onDidWork()
+    }
+
+    private func toggleCompleted() {
+        stopTimingIfNeeded()
         if set.isCompleted {
+            set.clearOutcome()
+        } else {
             fillDerivedDistanceIfNeeded()
-            onCompleted()
+            set.markCompleted()
+            onDidWork()
         }
     }
 

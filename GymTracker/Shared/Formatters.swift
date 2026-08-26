@@ -48,7 +48,8 @@ enum Formatters {
     /// One line for a logged row, built from the metrics of its kind,
     /// e.g. "10 × 80 kg" or "10 min · 5 km/h · 12% · 0.83 km".
     static func setSummary(_ set: SetEntry, kind: ExerciseKind, unit: UnitSystem) -> String {
-        kind.metrics.compactMap { metric -> String? in
+        if set.isSkipped { return "Skipped" }
+        let summary = kind.metrics.compactMap { metric -> String? in
             switch metric {
             case .weight: "\(set.reps) × \(weight(set.weight, unit: unit))"
             case .reps: nil // Shown together with the weight.
@@ -59,6 +60,7 @@ enum Formatters {
             }
         }
         .joined(separator: " · ")
+        return set.isFailed ? "\(summary) · Failed" : summary
     }
 
     /// "1:30" — minutes:seconds countdown display.

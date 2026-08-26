@@ -33,6 +33,18 @@ final class WorkoutSession {
         exercises.reduce(0) { $0 + $1.sets.filter(\.isCompleted).count }
     }
 
+    var skippedSetCount: Int {
+        exercises.reduce(0) { $0 + $1.sets.filter(\.isSkipped).count }
+    }
+
+    var failedSetCount: Int {
+        exercises.reduce(0) { $0 + $1.sets.filter(\.isFailed).count }
+    }
+
+    var pendingSetCount: Int {
+        exercises.reduce(0) { $0 + $1.sets.filter(\.isPending).count }
+    }
+
     var completedCardioSeconds: Int {
         exercises.reduce(0) { $0 + $1.completedDurationSeconds }
     }
@@ -100,6 +112,10 @@ final class SetEntry {
     /// speed and duration.
     var distance: Double?
     var isCompleted: Bool
+    /// Intentionally passed over. Kept in History; never counts as work.
+    var isSkipped: Bool = false
+    /// Completed, but a miss. Saved with the actual numbers; excluded from PRs.
+    var isFailed: Bool = false
 
     var sessionExercise: SessionExercise?
 
@@ -111,7 +127,9 @@ final class SetEntry {
         speed: Double = 5,
         incline: Double = 0,
         distance: Double? = nil,
-        isCompleted: Bool = false
+        isCompleted: Bool = false,
+        isSkipped: Bool = false,
+        isFailed: Bool = false
     ) {
         self.sortOrder = sortOrder
         self.reps = reps
@@ -121,5 +139,29 @@ final class SetEntry {
         self.incline = incline
         self.distance = distance
         self.isCompleted = isCompleted
+        self.isSkipped = isSkipped
+        self.isFailed = isFailed
+    }
+
+    var isPending: Bool { !isCompleted && !isSkipped }
+
+    var countsTowardRecords: Bool { isCompleted && !isFailed }
+
+    func markCompleted(failed: Bool = false) {
+        isCompleted = true
+        isFailed = failed
+        isSkipped = false
+    }
+
+    func markSkipped() {
+        isSkipped = true
+        isCompleted = false
+        isFailed = false
+    }
+
+    func clearOutcome() {
+        isCompleted = false
+        isFailed = false
+        isSkipped = false
     }
 }

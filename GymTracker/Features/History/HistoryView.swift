@@ -12,6 +12,9 @@ struct HistoryView: View {
     )
     private var sessions: [WorkoutSession]
 
+    @Environment(AppNavigation.self) private var navigation
+    @State private var path: [WorkoutSession] = []
+
     /// Sessions grouped by month, newest first.
     private var groupedSessions: [(month: Date, sessions: [WorkoutSession])] {
         let calendar = Calendar.current
@@ -24,7 +27,7 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 ForEach(groupedSessions, id: \.month) { group in
                     Section(group.month.formatted(.dateTime.month(.wide).year())) {
@@ -57,7 +60,19 @@ struct HistoryView: View {
                     )
                 }
             }
+            .onChange(of: navigation.sessionToReveal) { _, session in
+                revealIfNeeded(session)
+            }
+            .onAppear {
+                revealIfNeeded(navigation.sessionToReveal)
+            }
         }
+    }
+
+    private func revealIfNeeded(_ session: WorkoutSession?) {
+        guard let session else { return }
+        path = [session]
+        navigation.sessionToReveal = nil
     }
 
     private func deleteSessions(at offsets: IndexSet, in group: [WorkoutSession]) {

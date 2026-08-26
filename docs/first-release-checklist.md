@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, and first-run units plus Boxing work/rest timing are in place, but timed and mixed sessions are summarized incorrectly, relaunch still loses the visible countdown, destructive actions are under-protected, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, first-run units, Boxing work/rest timing, and skip/fail/finish are in place, but timed and mixed sessions are still summarized incorrectly, relaunch still loses the visible countdown, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -33,7 +33,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 - **Effort:** L
 - **Acceptance:** A user can complete a 3:00 round and 1:00 rest with the phone as the only timer, including while locked or backgrounded.
 
-### - [ ] 4. Make set outcomes and finishing unambiguous
+### - [x] 4. Make set outcomes and finishing unambiguous
 
 - **User problem:** There is no clear way to skip or fail a set; unchecked rows silently disappear, Finish is disabled without explanation, and finishing gives no confirmation.
 - **Why it matters:** This is the highest-frequency gym loop, often used one-handed and under fatigue.

@@ -15,7 +15,7 @@ struct ExerciseDetailView: View {
                     let session = sessionExercise.session,
                     let endedAt = session.endedAt
                 else { return nil }
-                let completed = sessionExercise.orderedSets.filter(\.isCompleted)
+                let completed = sessionExercise.orderedSets.filter { $0.isCompleted || $0.isSkipped }
                 return completed.isEmpty ? nil : (endedAt, completed)
             }
             .sorted { $0.date > $1.date }

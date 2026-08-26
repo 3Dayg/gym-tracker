@@ -69,7 +69,7 @@ final class WorkoutSessionServiceTests: XCTestCase {
         let previousSet = try XCTUnwrap(previousExercise.orderedSets.first)
         previousSet.weight = 92.5
         previousSet.isCompleted = true
-        WorkoutSessionService.finish(previous, in: context)
+        try WorkoutSessionService.finish(previous, in: context)
 
         // A plan without an explicit target weight.
         let plan = makePlan(exercise: exercise, weight: nil)
@@ -113,13 +113,80 @@ final class WorkoutSessionServiceTests: XCTestCase {
         // Squat: added but never logged.
         WorkoutSessionService.addExercise(squat, to: session, in: context)
 
-        WorkoutSessionService.finish(session, in: context)
+        try WorkoutSessionService.finish(session, in: context)
 
         XCTAssertNotNil(session.endedAt)
         XCTAssertEqual(session.exercises.count, 1)
         XCTAssertEqual(session.exercises.first?.exerciseName, "Bench Press")
         XCTAssertEqual(session.exercises.first?.sets.count, 1)
         XCTAssertTrue(session.isFinished)
+    }
+
+    func testFinishPreviewCountsCompletedSkippedAndIncomplete() throws {
+        let exercise = makeExercise()
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        let entry = WorkoutSessionService.addExercise(exercise, to: session, in: context)
+        let first = try XCTUnwrap(entry.orderedSets.first)
+        first.markCompleted()
+        let skipped = WorkoutSessionService.addSet(to: entry)
+        skipped.markSkipped()
+        let failed = WorkoutSessionService.addSet(to: entry)
+        failed.reps = 4
+        failed.markCompleted(failed: true)
+        WorkoutSessionService.addSet(to: entry)
+
+        let preview = WorkoutSessionService.finishPreview(for: session)
+        XCTAssertEqual(preview.completedCount, 2)
+        XCTAssertEqual(preview.failedCount, 1)
+        XCTAssertEqual(preview.skippedCount, 1)
+        XCTAssertEqual(preview.incompleteCount, 1)
+        XCTAssertTrue(preview.canSave)
+    }
+
+    func testFinishKeepsSkippedAndFailedAndDropsIncomplete() throws {
+        let exercise = makeExercise()
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        let entry = WorkoutSessionService.addExercise(exercise, to: session, in: context)
+        let first = try XCTUnwrap(entry.orderedSets.first)
+        first.weight = 80
+        first.reps = 8
+        first.markCompleted()
+        let skipped = WorkoutSessionService.addSet(to: entry)
+        skipped.markSkipped()
+        let failed = WorkoutSessionService.addSet(to: entry)
+        failed.weight = 80
+        failed.reps = 3
+        failed.markCompleted(failed: true)
+        WorkoutSessionService.addSet(to: entry)
+
+        try WorkoutSessionService.finish(session, in: context)
+
+        let sets = try XCTUnwrap(session.orderedExercises.first).orderedSets
+        XCTAssertEqual(sets.count, 3)
+        XCTAssertEqual(sets.filter(\.isCompleted).count, 2)
+        XCTAssertEqual(sets.filter(\.isSkipped).count, 1)
+        XCTAssertEqual(sets.filter(\.isFailed).count, 1)
+        XCTAssertEqual(sets.filter(\.isFailed).first?.reps, 3)
+        XCTAssertTrue(sets.allSatisfy { !$0.isPending })
+    }
+
+    func testFailedSetsAreExcludedFromProgressSamples() throws {
+        let exercise = makeExercise()
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        let entry = WorkoutSessionService.addExercise(exercise, to: session, in: context)
+        let failed = try XCTUnwrap(entry.orderedSets.first)
+        failed.weight = 200
+        failed.reps = 1
+        failed.markCompleted(failed: true)
+        let good = WorkoutSessionService.addSet(to: entry)
+        good.weight = 80
+        good.reps = 8
+        good.markCompleted()
+        try WorkoutSessionService.finish(session, in: context)
+
+        XCTAssertEqual(exercise.completedSetSamples.count, 1)
+        XCTAssertEqual(exercise.completedSetSamples.first?.weight, 80)
+        XCTAssertEqual(exercise.completedSetSamples.first?.reps, 8)
     }
 
     func testCancelDeletesTheSession() throws {
@@ -222,7 +289,7 @@ final class WorkoutSessionServiceTests: XCTestCase {
         let previousSet = try XCTUnwrap(previousExercise.orderedSets.first)
         previousSet.durationSeconds = 75
         previousSet.isCompleted = true
-        WorkoutSessionService.finish(previous, in: context)
+        try WorkoutSessionService.finish(previous, in: context)
 
         let session = WorkoutSessionService.startEmptySession(in: context)
         let entry = WorkoutSessionService.addExercise(exercise, to: session, in: context)

@@ -8,13 +8,26 @@ struct WorkoutTabView: View {
     private var activeSessions: [WorkoutSession]
 
     @State private var sessionTimer = SessionTimer()
+    @State private var savedNotice: SavedWorkoutNotice?
+
+    @Environment(AppNavigation.self) private var navigation
 
     var body: some View {
         NavigationStack {
             if let session = activeSessions.first {
-                ActiveWorkoutView(session: session, sessionTimer: sessionTimer)
+                ActiveWorkoutView(
+                    session: session,
+                    sessionTimer: sessionTimer,
+                    onWorkoutSaved: { savedNotice = $0 }
+                )
             } else {
                 StartWorkoutView()
+            }
+        }
+        .sheet(item: $savedNotice) { notice in
+            WorkoutSavedSheet(notice: notice) {
+                savedNotice = nil
+                navigation.openHistory(notice.session)
             }
         }
     }

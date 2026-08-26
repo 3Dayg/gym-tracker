@@ -154,7 +154,7 @@ extension Exercise {
         sessionExercises.flatMap { sessionExercise -> [SetSample] in
             guard let endedAt = sessionExercise.session?.endedAt else { return [] }
             return sessionExercise.sets
-                .filter(\.isCompleted)
+                .filter(\.countsTowardRecords)
                 .map { SetSample(date: endedAt, weight: $0.weight, reps: $0.reps) }
         }
     }
@@ -167,7 +167,7 @@ extension Exercise {
                 let endedAt = sessionExercise.session?.endedAt
             else { return [] }
             return sessionExercise.sets
-                .filter(\.isCompleted)
+                .filter(\.countsTowardRecords)
                 .map {
                     CardioSample(
                         date: endedAt,

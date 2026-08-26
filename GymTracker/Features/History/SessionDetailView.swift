@@ -41,6 +41,7 @@ struct SessionDetailView: View {
                                 )
                             )
                             .monospacedDigit()
+                            .foregroundStyle(set.isSkipped || set.isFailed ? .secondary : .primary)
                         }
                     }
                 }
