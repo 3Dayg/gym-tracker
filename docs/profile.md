@@ -4,7 +4,7 @@ On the first open, Gym Tracker shows a **Welcome** screen. Enter height and body
 
 ## Units
 
-Pick **kg · cm** or **lb · ft/in**. This is the same unit setting as the Workout gear menu. Switching the label does not convert numbers you already typed.
+Pick **Metric** (kg, cm, km) or **Imperial** (lb, ft/in, mi). This is the same unit setting as the Workout gear menu. Switching converts what you see — a 100 kg lift becomes about 220.5 lb — and switching back restores the original numbers.
 
 ## Opening your profile
 

@@ -6,8 +6,8 @@ struct ActiveWorkoutView: View {
     let restTimer: RestTimer
 
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.weightUnit)
-    private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem)
+    private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
 
@@ -19,7 +19,7 @@ struct ActiveWorkoutView: View {
             ForEach(session.orderedExercises) { sessionExercise in
                 SessionExerciseSection(
                     sessionExercise: sessionExercise,
-                    weightUnit: weightUnit,
+                    unitSystem: unitSystem,
                     onSetCompleted: {
                         if sessionExercise.kind.startsRestTimer {
                             restTimer.start(seconds: restDuration)
@@ -84,7 +84,7 @@ struct ActiveWorkoutView: View {
 /// One exercise in the running workout: its sets plus an add-set button.
 private struct SessionExerciseSection: View {
     let sessionExercise: SessionExercise
-    let weightUnit: WeightUnit
+    let unitSystem: UnitSystem
     let onSetCompleted: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -96,7 +96,7 @@ private struct SessionExerciseSection: View {
                     set: set,
                     setNumber: (sessionExercise.orderedSets.firstIndex(where: { $0 === set }) ?? 0) + 1,
                     kind: sessionExercise.kind,
-                    weightUnit: weightUnit,
+                    unitSystem: unitSystem,
                     onCompleted: onSetCompleted
                 )
             }
@@ -132,7 +132,7 @@ private struct SetRow: View {
     @Bindable var set: SetEntry
     let setNumber: Int
     let kind: ExerciseKind
-    let weightUnit: WeightUnit
+    let unitSystem: UnitSystem
     let onCompleted: () -> Void
 
     @State private var activeMetric: SetMetric?
@@ -201,9 +201,9 @@ private struct SetRow: View {
         switch metric {
         case .speed:
             numericField(
-                value: Binding(get: { set.speed }, set: { set.speed = $0 ?? 0 }),
+                value: unitSystem.speedBinding($set.speed),
                 placeholder: "Speed",
-                unit: weightUnit.speedLabel
+                unit: unitSystem.speedLabel
             )
         case .incline:
             numericField(
@@ -212,7 +212,11 @@ private struct SetRow: View {
                 unit: "%"
             )
         case .distance:
-            numericField(value: $set.distance, placeholder: "Auto", unit: weightUnit.distanceLabel)
+            numericField(
+                value: unitSystem.distanceBinding($set.distance),
+                placeholder: "Auto",
+                unit: unitSystem.distanceLabel
+            )
         default:
             Button {
                 activeMetric = metric
@@ -243,12 +247,12 @@ private struct SetRow: View {
 
     private func chipText(for metric: SetMetric) -> String {
         switch metric {
-        case .weight: Formatters.weight(set.weight, unit: weightUnit)
+        case .weight: Formatters.weight(set.weight, unit: unitSystem)
         case .reps: "\(set.reps) reps"
         case .duration: Formatters.durationSeconds(set.durationSeconds)
-        case .speed: Formatters.speed(set.speed, unit: weightUnit)
+        case .speed: Formatters.speed(set.speed, unit: unitSystem)
         case .incline: Formatters.incline(set.incline)
-        case .distance: set.distance.map { Formatters.distance($0, unit: weightUnit) } ?? "Auto"
+        case .distance: set.distance.map { Formatters.distance($0, unit: unitSystem) } ?? "Auto"
         }
     }
 
@@ -260,9 +264,9 @@ private struct SetRow: View {
         case .weight:
             NumberPickerSheet(
                 title: "Weight",
-                unit: weightUnit.rawValue,
+                unit: unitSystem.weightLabel,
                 values: metric.wheelValues,
-                value: Binding(get: { set.weight }, set: { set.weight = $0 ?? 0 })
+                value: unitSystem.weightBinding($set.weight)
             )
         case .reps:
             NumberPickerSheet(

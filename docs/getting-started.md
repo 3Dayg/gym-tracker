@@ -9,7 +9,7 @@ On first launch the app asks for **height and body weight** (see [Profile](profi
 Tap the gear icon in the top-right of the **Workout** tab:
 
 - **Rest timer** — how long the countdown runs after you complete a set (30 seconds to 5 minutes, default 1:30).
-- **Weight unit** — kg or lb. This is a display label for lifting weights **and** treadmill speed (km/h with kg, mph with lb). Switching it does not convert numbers you already entered.
+- **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
 
 ## A typical flow
 

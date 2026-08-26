@@ -14,6 +14,7 @@ struct RootView: View {
             }
         }
         .task {
+            AppSettings.migrateUnitPreferenceIfNeeded()
             // Exercises first: plan seeds reference them by name.
             ExerciseSeeder.seedIfNeeded(in: modelContext)
             PlanSeeder.seedIfNeeded(in: modelContext)

@@ -34,7 +34,7 @@ What you edit depends on the exercise:
 
 - **Blocks** — how many time chunks to log (a 30-minute session can be 1 × 30 min or 3 × 10 min).
 - **Time** — duration of one block, in minutes and seconds.
-- **Speed** — km/h if your weight unit is kg, mph if it is lb.
+- **Speed** — shown as km/h in Metric or mph in Imperial; stored once and converted when you switch units.
 - **Incline** — percent grade, if the machine has one (otherwise leave it at 0).
 - **Distance** — optional. When left empty, the workout derives it from speed and time as you complete blocks.
 

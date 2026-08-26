@@ -6,7 +6,7 @@ import SwiftUI
 /// Progress tab.
 struct BodyWeightView: View {
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     @Query(sort: \BodyMeasurement.date) private var measurements: [BodyMeasurement]
 
@@ -17,20 +17,20 @@ struct BodyWeightView: View {
             Chart(measurements) { measurement in
                 LineMark(
                     x: .value("Date", measurement.date),
-                    y: .value("Weight", measurement.weight)
+                    y: .value("Weight", unitSystem.displayWeight(fromKilograms: measurement.weight))
                 )
                 .symbol(.circle)
                 .foregroundStyle(.green)
             }
             .chartYScale(domain: .automatic(includesZero: false))
-            .chartYAxisLabel(weightUnit.rawValue)
+            .chartYAxisLabel(unitSystem.weightLabel)
             .frame(height: 160)
             .padding(.vertical, 8)
         }
 
         if let latest = measurements.last {
             LabeledContent("Latest") {
-                Text(Formatters.weight(latest.weight, unit: weightUnit))
+                Text(Formatters.weight(latest.weight, unit: unitSystem))
                 + Text("  ·  ").foregroundStyle(.secondary)
                 + Text(latest.date, format: .dateTime.day().month())
             }
@@ -56,7 +56,7 @@ struct BodyWeightView: View {
 private struct BodyWeightEntrySheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     @State private var date: Date = .now
     @State private var weight: Double?
@@ -68,7 +68,7 @@ private struct BodyWeightEntrySheet: View {
                 HStack {
                     TextField("Weight", value: $weight, format: .number.precision(.fractionLength(0...1)))
                         .keyboardType(.decimalPad)
-                    Text(weightUnit.rawValue)
+                    Text(unitSystem.weightLabel)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -89,14 +89,18 @@ private struct BodyWeightEntrySheet: View {
 
     private func save() {
         guard let weight, weight > 0 else { return }
-        ProfileService.upsertWeight(weight, on: date, in: modelContext)
+        ProfileService.upsertWeight(
+            unitSystem.kilograms(fromDisplayWeight: weight),
+            on: date,
+            in: modelContext
+        )
         dismiss()
     }
 }
 
 struct BodyWeightHistoryList: View {
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     @Query(sort: \BodyMeasurement.date, order: .reverse)
     private var measurements: [BodyMeasurement]
@@ -105,7 +109,7 @@ struct BodyWeightHistoryList: View {
         List {
             ForEach(measurements) { measurement in
                 LabeledContent {
-                    Text(Formatters.weight(measurement.weight, unit: weightUnit))
+                    Text(Formatters.weight(measurement.weight, unit: unitSystem))
                 } label: {
                     Text(measurement.date, format: .dateTime.day().month().year())
                 }

@@ -1,14 +1,16 @@
 import Foundation
 
+/// Display formatting. Weight, speed, and distance take canonical metric
+/// values (kg, km/h, km) and convert to the given unit system.
 enum Formatters {
     /// "82.5" — up to one decimal, no trailing ".0".
-    static func weight(_ value: Double) -> String {
+    private static func number(_ value: Double) -> String {
         value.formatted(.number.precision(.fractionLength(0...1)))
     }
 
-    /// "82.5 kg"
-    static func weight(_ value: Double, unit: WeightUnit) -> String {
-        "\(weight(value)) \(unit.rawValue)"
+    /// "82.5 kg" / "181.9 lb" — from canonical kilograms.
+    static func weight(_ kilograms: Double, unit: UnitSystem) -> String {
+        "\(number(unit.displayWeight(fromKilograms: kilograms))) \(unit.weightLabel)"
     }
 
     /// "1h 12m" / "45m" / "0m"
@@ -27,32 +29,33 @@ enum Formatters {
         return String(format: "%d:%02d min", seconds / 60, seconds % 60)
     }
 
-    /// "5 km/h"
-    static func speed(_ value: Double, unit: WeightUnit) -> String {
-        "\(weight(value)) \(unit.speedLabel)"
+    /// "5 km/h" / "3.1 mph" — from canonical km/h.
+    static func speed(_ kilometersPerHour: Double, unit: UnitSystem) -> String {
+        "\(number(unit.displaySpeed(fromKilometersPerHour: kilometersPerHour))) \(unit.speedLabel)"
     }
 
     /// "12%"
     static func incline(_ value: Double) -> String {
-        "\(weight(value))%"
+        "\(number(value))%"
     }
 
-    /// "2.5 km"
-    static func distance(_ value: Double, unit: WeightUnit) -> String {
-        "\(value.formatted(.number.precision(.fractionLength(0...2)))) \(unit.distanceLabel)"
+    /// "2.5 km" / "1.55 mi" — from canonical kilometers.
+    static func distance(_ kilometers: Double, unit: UnitSystem) -> String {
+        let value = unit.displayDistance(fromKilometers: kilometers)
+        return "\(value.formatted(.number.precision(.fractionLength(0...2)))) \(unit.distanceLabel)"
     }
 
     /// One line for a logged row, built from the metrics of its kind,
     /// e.g. "10 × 80 kg" or "10 min · 5 km/h · 12% · 0.83 km".
-    static func setSummary(_ set: SetEntry, kind: ExerciseKind, weightUnit: WeightUnit) -> String {
+    static func setSummary(_ set: SetEntry, kind: ExerciseKind, unit: UnitSystem) -> String {
         kind.metrics.compactMap { metric -> String? in
             switch metric {
-            case .weight: "\(set.reps) × \(weight(set.weight, unit: weightUnit))"
+            case .weight: "\(set.reps) × \(weight(set.weight, unit: unit))"
             case .reps: nil // Shown together with the weight.
             case .duration: durationSeconds(set.durationSeconds)
-            case .speed: speed(set.speed, unit: weightUnit)
+            case .speed: speed(set.speed, unit: unit)
             case .incline: incline(set.incline)
-            case .distance: set.distance.map { distance($0, unit: weightUnit) }
+            case .distance: set.distance.map { distance($0, unit: unit) }
             }
         }
         .joined(separator: " · ")

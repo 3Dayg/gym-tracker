@@ -3,7 +3,7 @@ import SwiftUI
 
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     @Query(
         filter: #Predicate<WorkoutSession> { $0.endedAt != nil },
@@ -30,7 +30,7 @@ struct HistoryView: View {
                     Section(group.month.formatted(.dateTime.month(.wide).year())) {
                         ForEach(group.sessions) { session in
                             NavigationLink(value: session) {
-                                SessionSummaryRow(session: session, weightUnit: weightUnit)
+                                SessionSummaryRow(session: session, unitSystem: unitSystem)
                             }
                         }
                         .onDelete { offsets in
@@ -69,7 +69,7 @@ struct HistoryView: View {
 
 private struct SessionSummaryRow: View {
     let session: WorkoutSession
-    let weightUnit: WeightUnit
+    let unitSystem: UnitSystem
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -91,7 +91,7 @@ private struct SessionSummaryRow: View {
                 } else {
                     Label("\(session.completedSetCount) sets", systemImage: "checkmark.circle")
                     Label(
-                        Formatters.weight(session.totalVolume, unit: weightUnit),
+                        Formatters.weight(session.totalVolume, unit: unitSystem),
                         systemImage: "scalemass"
                     )
                 }

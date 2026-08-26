@@ -6,14 +6,15 @@ struct ProfileView: View {
     @Query private var profiles: [UserProfile]
     @Query(sort: \BodyMeasurement.date, order: .reverse) private var measurements: [BodyMeasurement]
 
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
 
-    @State private var weight: Double = 50
-    @State private var heightCentimeters: Int = 160
+    /// Entered in the display unit; converted to kilograms on save.
+    @State private var weight: Double = 70
+    @State private var heightCentimeters: Int = 170
     @State private var heightFeet = 5
-    @State private var heightInches = 3
+    @State private var heightInches = 7
 
     private static let restOptions = [30, 60, 90, 120, 180, 240, 300]
 
@@ -27,17 +28,22 @@ struct ProfileView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Units") {
-                Picker("Units", selection: $weightUnit) {
-                    Text("kg · cm").tag(WeightUnit.kilograms)
-                    Text("lb · ft/in").tag(WeightUnit.pounds)
+            Section {
+                Picker("Units", selection: $unitSystem) {
+                    ForEach(UnitSystem.allCases) { unit in
+                        Text(unit.displayName).tag(unit)
+                    }
                 }
                 .pickerStyle(.segmented)
+            } header: {
+                Text("Units")
+            } footer: {
+                Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. Switching converts everything automatically — nothing is lost.")
             }
 
             Section("Height") {
                 HeightWheelPicker(
-                    unit: weightUnit,
+                    unit: unitSystem,
                     centimeters: $heightCentimeters,
                     feet: $heightFeet,
                     inches: $heightInches
@@ -47,13 +53,13 @@ struct ProfileView: View {
             }
 
             Section("Weight") {
-                WeightWheelPicker(weight: $weight, unit: weightUnit)
+                WeightWheelPicker(weight: $weight, unit: unitSystem)
                 Button("Update Weight") { saveWeight() }
                     .disabled(weight <= 0)
 
                 if let latestWeight {
                     LabeledContent("Last logged") {
-                        Text(Formatters.weight(latestWeight.weight, unit: weightUnit))
+                        Text(Formatters.weight(latestWeight.weight, unit: unitSystem))
                         + Text("  ·  ").foregroundStyle(.secondary)
                         + Text(latestWeight.date, format: .dateTime.day().month().year())
                     }
@@ -74,21 +80,32 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .onAppear {
-            if let lastWeight = latestWeight?.weight, lastWeight > 0 {
-                weight = lastWeight
-            }
+            loadWeightFromLatestMeasurement()
             loadHeightFromProfile()
         }
-        .onChange(of: weightUnit) { _, _ in loadHeightFromProfile() }
+        .onChange(of: unitSystem) { oldUnit, newUnit in
+            convertWeightInput(from: oldUnit, to: newUnit)
+            loadHeightFromProfile()
+        }
     }
 
     private var resolvedHeightCentimeters: Double {
-        switch weightUnit {
-        case .kilograms:
+        switch unitSystem {
+        case .metric:
             return Double(heightCentimeters)
-        case .pounds:
+        case .imperial:
             return BodyMetrics.centimeters(feet: heightFeet, inches: Double(heightInches))
         }
+    }
+
+    private func loadWeightFromLatestMeasurement() {
+        guard let kilograms = latestWeight?.weight, kilograms > 0 else { return }
+        weight = (unitSystem.displayWeight(fromKilograms: kilograms) * 10).rounded() / 10
+    }
+
+    private func convertWeightInput(from oldUnit: UnitSystem, to newUnit: UnitSystem) {
+        let kilograms = oldUnit.kilograms(fromDisplayWeight: weight)
+        weight = (newUnit.displayWeight(fromKilograms: kilograms) * 10).rounded() / 10
     }
 
     private func loadHeightFromProfile() {
@@ -106,7 +123,7 @@ struct ProfileView: View {
 
     private func saveWeight() {
         guard weight > 0 else { return }
-        ProfileService.upsertWeight(weight, in: modelContext)
+        ProfileService.upsertWeight(unitSystem.kilograms(fromDisplayWeight: weight), in: modelContext)
     }
 }
 

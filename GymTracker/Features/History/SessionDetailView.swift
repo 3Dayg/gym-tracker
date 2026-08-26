@@ -3,7 +3,7 @@ import SwiftUI
 struct SessionDetailView: View {
     let session: WorkoutSession
 
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     var body: some View {
         List {
@@ -15,7 +15,7 @@ struct SessionDetailView: View {
                 if session.totalVolume > 0 {
                     LabeledContent(
                         "Total volume",
-                        value: Formatters.weight(session.totalVolume, unit: weightUnit)
+                        value: Formatters.weight(session.totalVolume, unit: unitSystem)
                     )
                 }
                 if session.completedCardioSeconds > 0 {
@@ -37,7 +37,7 @@ struct SessionDetailView: View {
                                 Formatters.setSummary(
                                     set,
                                     kind: sessionExercise.kind,
-                                    weightUnit: weightUnit
+                                    unit: unitSystem
                                 )
                             )
                             .monospacedDigit()

@@ -6,7 +6,7 @@ import SwiftUI
 struct ExerciseProgressView: View {
     let exercise: Exercise
 
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
     private var points: [ExerciseProgressPoint] {
         ProgressMath.progressPoints(from: exercise.completedSetSamples)
@@ -32,21 +32,21 @@ struct ExerciseProgressView: View {
             Chart(points) { point in
                 LineMark(
                     x: .value("Date", point.date),
-                    y: .value("Weight", point.topSetWeight),
+                    y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.topSetWeight)),
                     series: .value("Series", "Top set")
                 )
                 .symbol(.circle)
 
                 LineMark(
                     x: .value("Date", point.date),
-                    y: .value("Weight", point.bestEstimatedOneRepMax),
+                    y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.bestEstimatedOneRepMax)),
                     series: .value("Series", "Est. 1RM")
                 )
                 .foregroundStyle(.orange)
                 .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
                 .symbol(.square)
             }
-            .chartYAxisLabel(weightUnit.rawValue)
+            .chartYAxisLabel(unitSystem.weightLabel)
             .chartLegend(.visible)
             .frame(height: 220)
 
@@ -61,11 +61,11 @@ struct ExerciseProgressView: View {
                     GridRow {
                         recordCell(
                             title: "Heaviest set",
-                            value: Formatters.weight(records.heaviestWeight, unit: weightUnit)
+                            value: Formatters.weight(records.heaviestWeight, unit: unitSystem)
                         )
                         recordCell(
                             title: "Best est. 1RM",
-                            value: Formatters.weight(records.bestEstimatedOneRepMax, unit: weightUnit)
+                            value: Formatters.weight(records.bestEstimatedOneRepMax, unit: unitSystem)
                         )
                         recordCell(
                             title: "Most reps",
@@ -153,12 +153,12 @@ struct ExerciseProgressView: View {
                 Chart(points) { point in
                     LineMark(
                         x: .value("Date", point.date),
-                        y: .value("Distance", point.totalDistance)
+                        y: .value("Distance", unitSystem.displayDistance(fromKilometers: point.totalDistance))
                     )
                     .foregroundStyle(.purple)
                     .symbol(.circle)
                 }
-                .chartYAxisLabel(weightUnit.distanceLabel)
+                .chartYAxisLabel(unitSystem.distanceLabel)
                 .frame(height: 160)
 
                 HStack(spacing: 4) {
@@ -175,13 +175,13 @@ struct ExerciseProgressView: View {
                             value: Formatters.durationSeconds(records.longestSessionSeconds)
                         )
                         recordCell(title: "Steepest incline", value: Formatters.incline(records.steepestIncline))
-                        recordCell(title: "Top speed", value: Formatters.speed(records.topSpeed, unit: weightUnit))
+                        recordCell(title: "Top speed", value: Formatters.speed(records.topSpeed, unit: unitSystem))
                     }
                     if records.longestSessionDistance > 0 {
                         GridRow {
                             recordCell(
                                 title: "Longest distance",
-                                value: Formatters.distance(records.longestSessionDistance, unit: weightUnit)
+                                value: Formatters.distance(records.longestSessionDistance, unit: unitSystem)
                             )
                         }
                     }

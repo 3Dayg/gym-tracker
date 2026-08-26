@@ -85,13 +85,15 @@ final class SessionExercise {
 final class SetEntry {
     var sortOrder: Int
     var reps: Int
+    /// Canonical kilograms.
     var weight: Double
     /// Seconds logged. Unused for strength sets.
     var durationSeconds: Int = 0
+    /// Canonical kilometers per hour.
     var speed: Double = 0
     var incline: Double = 0
-    /// Distance covered (km or mi, matching the speed unit). nil when the
-    /// user left it to be derived from speed and duration.
+    /// Canonical kilometers. nil when the user left it to be derived from
+    /// speed and duration.
     var distance: Double?
     var isCompleted: Bool
 

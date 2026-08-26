@@ -3,14 +3,14 @@ import SwiftUI
 /// Wheel input for height, matching the selected unit system:
 /// a single 0–250 cm wheel, or feet + inches wheels.
 struct HeightWheelPicker: View {
-    let unit: WeightUnit
+    let unit: UnitSystem
     @Binding var centimeters: Int
     @Binding var feet: Int
     @Binding var inches: Int
 
     var body: some View {
         switch unit {
-        case .kilograms:
+        case .metric:
             Picker("Height", selection: $centimeters) {
                 ForEach(0...250, id: \.self) { value in
                     Text("\(value) cm").tag(value)
@@ -18,7 +18,7 @@ struct HeightWheelPicker: View {
             }
             .pickerStyle(.wheel)
             .frame(height: 120)
-        case .pounds:
+        case .imperial:
             HStack(spacing: 0) {
                 Picker("Feet", selection: $feet) {
                     ForEach(0...8, id: \.self) { value in
@@ -45,9 +45,11 @@ struct HeightWheelPicker: View {
 
 /// Weight input as two wheels: whole units and tenths, e.g. 72 | .5, with
 /// the unit label alongside.
+/// The bound weight is in the display unit; callers convert to and from
+/// canonical kilograms.
 struct WeightWheelPicker: View {
     @Binding var weight: Double
-    let unit: WeightUnit
+    let unit: UnitSystem
 
     private var wholePart: Binding<Int> {
         Binding(
@@ -87,7 +89,7 @@ struct WeightWheelPicker: View {
             .frame(width: 70)
             .clipped()
 
-            Text(unit.rawValue)
+            Text(unit.weightLabel)
                 .foregroundStyle(.secondary)
                 .frame(width: 40)
         }

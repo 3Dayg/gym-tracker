@@ -12,7 +12,11 @@ final class BodyMetricsTests: XCTestCase {
         XCTAssertEqual(parts.inches, 7, accuracy: 0.05)
     }
 
-    func testFormatHeightUsesCentimetersForKilograms() {
-        XCTAssertEqual(BodyMetrics.formatHeight(170, weightUnit: .kilograms), "170 cm")
+    func testFormatHeightUsesCentimetersForMetric() {
+        XCTAssertEqual(BodyMetrics.formatHeight(170, unit: .metric), "170 cm")
+    }
+
+    func testFormatHeightUsesFeetAndInchesForImperial() {
+        XCTAssertEqual(BodyMetrics.formatHeight(170.18, unit: .imperial), "5 ft 7 in")
     }
 }

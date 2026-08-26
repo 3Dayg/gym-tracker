@@ -72,10 +72,10 @@ private struct StartWorkoutView: View {
     }
 }
 
-/// Rest duration and weight unit preferences.
+/// Rest duration and unit system preferences.
 struct WorkoutSettingsMenu: View {
-    @AppStorage(SettingsKeys.weightUnit)
-    private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem)
+    private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
 
@@ -90,9 +90,9 @@ struct WorkoutSettingsMenu: View {
             }
             .pickerStyle(.menu)
 
-            Picker("Weight unit", selection: $weightUnit) {
-                ForEach(WeightUnit.allCases) { unit in
-                    Text(unit.rawValue).tag(unit)
+            Picker("Units", selection: $unitSystem) {
+                ForEach(UnitSystem.allCases) { unit in
+                    Text(unit.displayName).tag(unit)
                 }
             }
             .pickerStyle(.menu)

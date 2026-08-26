@@ -5,7 +5,7 @@ struct PlanEditorView: View {
     @Bindable var plan: WorkoutPlan
 
     @Environment(\.modelContext) private var modelContext
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
     @State private var isPickingExercise = false
 
     var body: some View {
@@ -18,7 +18,7 @@ struct PlanEditorView: View {
 
             Section("Exercises") {
                 ForEach(plan.orderedExercises) { plannedExercise in
-                    PlannedExerciseRow(plannedExercise: plannedExercise, weightUnit: weightUnit)
+                    PlannedExerciseRow(plannedExercise: plannedExercise, unitSystem: unitSystem)
                 }
                 .onDelete(perform: deleteExercises)
                 .onMove(perform: moveExercises)
@@ -59,7 +59,7 @@ struct PlanEditorView: View {
                 sortOrder: nextOrder,
                 targetSets: 1,
                 targetDurationSeconds: 600,
-                targetSpeed: 5,
+                targetSpeed: SettingsDefaults.walkingSpeedKilometersPerHour,
                 targetIncline: 0
             )
         }
@@ -95,7 +95,7 @@ struct PlanEditorView: View {
 /// chips that open native wheel pickers.
 private struct PlannedExerciseRow: View {
     @Bindable var plannedExercise: PlannedExercise
-    let weightUnit: WeightUnit
+    let unitSystem: UnitSystem
 
     @State private var activeMetric: SetMetric?
 
@@ -134,18 +134,18 @@ private struct PlannedExerciseRow: View {
         case .speed:
             numericRow(
                 metric: metric,
-                value: $plannedExercise.targetSpeed,
+                value: unitSystem.speedBinding($plannedExercise.targetSpeed),
                 placeholder: "Speed",
-                unit: weightUnit.speedLabel
+                unit: unitSystem.speedLabel
             )
         case .incline:
             numericRow(metric: metric, value: $plannedExercise.targetIncline, placeholder: "Incline", unit: "%")
         case .distance:
             numericRow(
                 metric: metric,
-                value: $plannedExercise.targetDistance,
+                value: unitSystem.distanceBinding($plannedExercise.targetDistance),
                 placeholder: "Auto",
-                unit: weightUnit.distanceLabel
+                unit: unitSystem.distanceLabel
             )
         default:
             HStack {
@@ -193,13 +193,13 @@ private struct PlannedExerciseRow: View {
         case .reps: "\(plannedExercise.targetReps) reps"
         case .duration: Formatters.durationSeconds(plannedExercise.targetDurationSeconds)
         case .weight:
-            plannedExercise.targetWeight.map { Formatters.weight($0, unit: weightUnit) } ?? "Last used"
+            plannedExercise.targetWeight.map { Formatters.weight($0, unit: unitSystem) } ?? "Last used"
         case .speed:
-            plannedExercise.targetSpeed.map { Formatters.speed($0, unit: weightUnit) } ?? "Not set"
+            plannedExercise.targetSpeed.map { Formatters.speed($0, unit: unitSystem) } ?? "Not set"
         case .incline:
             plannedExercise.targetIncline.map(Formatters.incline) ?? "Not set"
         case .distance:
-            plannedExercise.targetDistance.map { Formatters.distance($0, unit: weightUnit) } ?? "Auto"
+            plannedExercise.targetDistance.map { Formatters.distance($0, unit: unitSystem) } ?? "Auto"
         }
     }
 
@@ -211,9 +211,9 @@ private struct PlannedExerciseRow: View {
         case .weight:
             NumberPickerSheet(
                 title: "Weight",
-                unit: weightUnit.rawValue,
+                unit: unitSystem.weightLabel,
                 values: metric.wheelValues,
-                value: $plannedExercise.targetWeight,
+                value: unitSystem.weightBinding($plannedExercise.targetWeight),
                 clearLabel: "Last used"
             )
         case .speed, .incline, .distance:

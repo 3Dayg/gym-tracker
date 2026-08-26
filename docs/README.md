@@ -28,5 +28,5 @@ Gym Tracker is a fully offline workout companion. Everything you log stays on yo
 - **Do I need a plan to work out?** No — use *Quick Start* on the Workout tab and add exercises as you go.
 - **Where do I change my weight?** Tap the person icon (or Profile on the Progress tab). See [Profile](profile.md).
 - **What happens if I close the app mid-workout?** Nothing is lost. The active workout is waiting on the Workout tab when you come back.
-- **Can I change kg to lb?** Yes — gear icon on the Workout tab. It changes the label only; your numbers stay as you entered them.
+- **Can I change kg to lb?** Yes — gear icon on the Workout tab, or Units on Profile. Numbers convert automatically (100 kg becomes about 220.5 lb). Switching back restores the original values.
 - **Will deleting an exercise erase my history?** No. Past workouts keep the exercise name even if the exercise is gone.

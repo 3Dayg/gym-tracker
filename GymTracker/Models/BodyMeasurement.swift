@@ -4,6 +4,7 @@ import SwiftData
 @Model
 final class BodyMeasurement {
     var date: Date
+    /// Canonical kilograms.
     var weight: Double
 
     init(date: Date = .now, weight: Double) {

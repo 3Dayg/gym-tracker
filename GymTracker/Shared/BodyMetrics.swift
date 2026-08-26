@@ -15,11 +15,11 @@ enum BodyMetrics {
         return (feet, inches)
     }
 
-    static func formatHeight(_ centimeters: Double, weightUnit: WeightUnit) -> String {
-        switch weightUnit {
-        case .kilograms:
+    static func formatHeight(_ centimeters: Double, unit: UnitSystem) -> String {
+        switch unit {
+        case .metric:
             return "\(Int(centimeters.rounded())) cm"
-        case .pounds:
+        case .imperial:
             let parts = feetAndInches(fromCentimeters: centimeters)
             let inches = parts.inches.rounded()
             return "\(parts.feet) ft \(Int(inches)) in"

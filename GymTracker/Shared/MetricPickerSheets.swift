@@ -1,5 +1,56 @@
 import SwiftUI
 
+/// Bindings that expose canonical metric model values (kg, km/h, km) in
+/// the user's display unit, shared by the workout and plan editors.
+extension UnitSystem {
+    func weightBinding(_ kilograms: Binding<Double?>) -> Binding<Double?> {
+        Binding(
+            get: {
+                kilograms.wrappedValue.map {
+                    displayWeight(fromKilograms: $0).rounded(toDecimalPlaces: 1)
+                }
+            },
+            set: { kilograms.wrappedValue = $0.map { self.kilograms(fromDisplayWeight: $0) } }
+        )
+    }
+
+    func weightBinding(_ kilograms: Binding<Double>) -> Binding<Double?> {
+        weightBinding(Binding(
+            get: { Optional(kilograms.wrappedValue) },
+            set: { kilograms.wrappedValue = $0 ?? 0 }
+        ))
+    }
+
+    func speedBinding(_ kilometersPerHour: Binding<Double?>) -> Binding<Double?> {
+        Binding(
+            get: {
+                kilometersPerHour.wrappedValue.map {
+                    displaySpeed(fromKilometersPerHour: $0).rounded(toDecimalPlaces: 2)
+                }
+            },
+            set: { kilometersPerHour.wrappedValue = $0.map { self.kilometersPerHour(fromDisplaySpeed: $0) } }
+        )
+    }
+
+    func speedBinding(_ kilometersPerHour: Binding<Double>) -> Binding<Double?> {
+        speedBinding(Binding(
+            get: { Optional(kilometersPerHour.wrappedValue) },
+            set: { kilometersPerHour.wrappedValue = $0 ?? 0 }
+        ))
+    }
+
+    func distanceBinding(_ kilometers: Binding<Double?>) -> Binding<Double?> {
+        Binding(
+            get: {
+                kilometers.wrappedValue.map {
+                    displayDistance(fromKilometers: $0).rounded(toDecimalPlaces: 2)
+                }
+            },
+            set: { kilometers.wrappedValue = $0.map { self.kilometers(fromDisplayDistance: $0) } }
+        )
+    }
+}
+
 /// Wheel options per metric, shared by the workout and plan editors.
 /// Values are built from integer grids so wheel tags compare reliably.
 extension SetMetric {

@@ -4,7 +4,7 @@ import SwiftUI
 struct ExerciseDetailView: View {
     let exercise: Exercise
 
-    @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
+    @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
     @State private var isEditing = false
 
     /// Completed sets from finished sessions, most recent session first.
@@ -66,7 +66,7 @@ struct ExerciseDetailView: View {
 
     private func setsSummary(_ sets: [SetEntry]) -> String {
         sets
-            .map { Formatters.setSummary($0, kind: exercise.kind, weightUnit: weightUnit) }
+            .map { Formatters.setSummary($0, kind: exercise.kind, unit: unitSystem) }
             .joined(separator: ", ")
     }
 }

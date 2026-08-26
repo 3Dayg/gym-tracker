@@ -28,14 +28,16 @@ final class PlannedExercise {
     var sortOrder: Int
     var targetSets: Int
     var targetReps: Int
-    /// Optional: when nil, the live workout falls back to the last weight
-    /// the user logged for this exercise.
+    /// Optional canonical kilograms. When nil, the live workout falls back
+    /// to the last weight the user logged for this exercise.
     var targetWeight: Double?
     /// Seconds per timed round or cardio block. Unused for strength
     /// exercises.
     var targetDurationSeconds: Int = 0
+    /// Canonical kilometers per hour.
     var targetSpeed: Double?
     var targetIncline: Double?
+    /// Canonical kilometers.
     var targetDistance: Double?
 
     var exercise: Exercise?

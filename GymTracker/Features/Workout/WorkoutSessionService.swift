@@ -60,7 +60,7 @@ enum WorkoutSessionService {
             set = SetEntry(
                 sortOrder: 0,
                 durationSeconds: last?.durationSeconds ?? 600,
-                speed: last?.speed ?? 5,
+                speed: last?.speed ?? SettingsDefaults.walkingSpeedKilometersPerHour,
                 incline: last?.incline ?? 0
             )
         }
@@ -79,7 +79,7 @@ enum WorkoutSessionService {
             reps: lastSet?.reps ?? 10,
             weight: lastSet?.weight ?? 0,
             durationSeconds: lastSet?.durationSeconds ?? 600,
-            speed: lastSet?.speed ?? 5,
+            speed: lastSet?.speed ?? SettingsDefaults.walkingSpeedKilometersPerHour,
             incline: lastSet?.incline ?? 0
         )
         set.sessionExercise = sessionExercise
@@ -147,7 +147,7 @@ enum WorkoutSessionService {
             return SetEntry(
                 sortOrder: sortOrder,
                 durationSeconds: seconds,
-                speed: planned.targetSpeed ?? last?.speed ?? 5,
+                speed: planned.targetSpeed ?? last?.speed ?? SettingsDefaults.walkingSpeedKilometersPerHour,
                 incline: planned.targetIncline ?? last?.incline ?? 0,
                 distance: planned.targetDistance
             )
