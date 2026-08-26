@@ -10,10 +10,10 @@ struct ProfileView: View {
     @AppStorage(SettingsKeys.restDurationSeconds)
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
 
-    @State private var weight: Double?
-    @State private var heightCentimeters: Double?
+    @State private var weight: Double = 50
+    @State private var heightCentimeters: Int = 160
     @State private var heightFeet = 5
-    @State private var heightInches: Double = 7
+    @State private var heightInches = 3
 
     private static let restOptions = [30, 60, 90, 120, 180, 240, 300]
 
@@ -36,20 +36,20 @@ struct ProfileView: View {
             }
 
             Section("Height") {
-                heightFields
+                HeightWheelPicker(
+                    unit: weightUnit,
+                    centimeters: $heightCentimeters,
+                    feet: $heightFeet,
+                    inches: $heightInches
+                )
                 Button("Save Height") { saveHeight() }
                     .disabled(resolvedHeightCentimeters <= 0)
             }
 
             Section("Weight") {
-                HStack {
-                    TextField("Current weight", value: $weight, format: .number.precision(.fractionLength(0...1)))
-                        .keyboardType(.decimalPad)
-                    Text(weightUnit.rawValue)
-                        .foregroundStyle(.secondary)
-                }
+                WeightWheelPicker(weight: $weight, unit: weightUnit)
                 Button("Update Weight") { saveWeight() }
-                    .disabled((weight ?? 0) <= 0)
+                    .disabled(weight <= 0)
 
                 if let latestWeight {
                     LabeledContent("Last logged") {
@@ -74,52 +74,29 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .onAppear {
-            if weight == nil {
-                weight = latestWeight?.weight
+            if let lastWeight = latestWeight?.weight, lastWeight > 0 {
+                weight = lastWeight
             }
             loadHeightFromProfile()
         }
         .onChange(of: weightUnit) { _, _ in loadHeightFromProfile() }
     }
 
-    @ViewBuilder
-    private var heightFields: some View {
-        switch weightUnit {
-        case .kilograms:
-            HStack {
-                TextField("Height", value: $heightCentimeters, format: .number.precision(.fractionLength(0...1)))
-                    .keyboardType(.decimalPad)
-                Text("cm")
-                    .foregroundStyle(.secondary)
-            }
-        case .pounds:
-            Stepper(value: $heightFeet, in: 3...7) {
-                Text("\(heightFeet) ft")
-            }
-            HStack {
-                TextField("Inches", value: $heightInches, format: .number.precision(.fractionLength(0...1)))
-                    .keyboardType(.decimalPad)
-                Text("in")
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
     private var resolvedHeightCentimeters: Double {
         switch weightUnit {
         case .kilograms:
-            return heightCentimeters ?? 0
+            return Double(heightCentimeters)
         case .pounds:
-            return BodyMetrics.centimeters(feet: heightFeet, inches: heightInches)
+            return BodyMetrics.centimeters(feet: heightFeet, inches: Double(heightInches))
         }
     }
 
     private func loadHeightFromProfile() {
         guard let cm = profile?.heightCentimeters, cm > 0 else { return }
-        heightCentimeters = cm
+        heightCentimeters = Int(cm.rounded())
         let parts = BodyMetrics.feetAndInches(fromCentimeters: cm)
         heightFeet = parts.feet
-        heightInches = parts.inches
+        heightInches = min(11, Int(parts.inches.rounded()))
     }
 
     private func saveHeight() {
@@ -128,7 +105,7 @@ struct ProfileView: View {
     }
 
     private func saveWeight() {
-        guard let weight, weight > 0 else { return }
+        guard weight > 0 else { return }
         ProfileService.upsertWeight(weight, in: modelContext)
     }
 }

@@ -6,21 +6,21 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.weightUnit) private var weightUnit: WeightUnit = .kilograms
 
-    @State private var weight: Double?
-    @State private var heightCentimeters: Double?
+    @State private var weight: Double = 50
+    @State private var heightCentimeters: Int = 160
     @State private var heightFeet: Int = 5
-    @State private var heightInches: Double = 7
+    @State private var heightInches: Int = 3
 
     private var canContinue: Bool {
-        (weight ?? 0) > 0 && resolvedHeightCentimeters > 0
+        weight > 0 && resolvedHeightCentimeters > 0
     }
 
     private var resolvedHeightCentimeters: Double {
         switch weightUnit {
         case .kilograms:
-            return heightCentimeters ?? 0
+            return Double(heightCentimeters)
         case .pounds:
-            return BodyMetrics.centimeters(feet: heightFeet, inches: heightInches)
+            return BodyMetrics.centimeters(feet: heightFeet, inches: Double(heightInches))
         }
     }
 
@@ -41,16 +41,16 @@ struct OnboardingView: View {
                 }
 
                 Section("Height") {
-                    heightFields
+                    HeightWheelPicker(
+                        unit: weightUnit,
+                        centimeters: $heightCentimeters,
+                        feet: $heightFeet,
+                        inches: $heightInches
+                    )
                 }
 
                 Section("Weight") {
-                    HStack {
-                        TextField("Weight", value: $weight, format: .number.precision(.fractionLength(0...1)))
-                            .keyboardType(.decimalPad)
-                        Text(weightUnit.rawValue)
-                            .foregroundStyle(.secondary)
-                    }
+                    WeightWheelPicker(weight: $weight, unit: weightUnit)
                 }
             }
             .navigationTitle("Welcome")
@@ -63,31 +63,8 @@ struct OnboardingView: View {
         }
     }
 
-    @ViewBuilder
-    private var heightFields: some View {
-        switch weightUnit {
-        case .kilograms:
-            HStack {
-                TextField("Height", value: $heightCentimeters, format: .number.precision(.fractionLength(0...1)))
-                    .keyboardType(.decimalPad)
-                Text("cm")
-                    .foregroundStyle(.secondary)
-            }
-        case .pounds:
-            Stepper(value: $heightFeet, in: 3...7) {
-                Text("\(heightFeet) ft")
-            }
-            HStack {
-                TextField("Inches", value: $heightInches, format: .number.precision(.fractionLength(0...1)))
-                    .keyboardType(.decimalPad)
-                Text("in")
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
     private func save() {
-        guard let weight, weight > 0, resolvedHeightCentimeters > 0 else { return }
+        guard weight > 0, resolvedHeightCentimeters > 0 else { return }
         ProfileService.completeOnboarding(
             heightCentimeters: resolvedHeightCentimeters,
             weight: weight,

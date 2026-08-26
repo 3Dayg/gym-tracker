@@ -91,10 +91,13 @@ struct PlanEditorView: View {
 }
 
 /// One planned exercise. The sets stepper is always shown; the remaining
-/// target fields come from the kind's metric list.
+/// target fields come from the kind's metric list. Values are tappable
+/// chips that open native wheel pickers.
 private struct PlannedExerciseRow: View {
     @Bindable var plannedExercise: PlannedExercise
     let weightUnit: WeightUnit
+
+    @State private var activeMetric: SetMetric?
 
     private var kind: ExerciseKind { plannedExercise.kind }
 
@@ -113,8 +116,13 @@ private struct PlannedExerciseRow: View {
             }
         }
         .padding(.vertical, 4)
+        .sheet(item: $activeMetric) { metric in
+            pickerSheet(for: metric)
+        }
     }
 
+    /// Weight and time open wheel pickers; reps use a stepper; machine
+    /// settings (speed, incline, distance) are free keyboard input.
     @ViewBuilder
     private func targetField(for metric: SetMetric) -> some View {
         switch metric {
@@ -123,55 +131,95 @@ private struct PlannedExerciseRow: View {
                 Text("\(plannedExercise.targetReps) reps")
                     .font(.subheadline)
             }
-        case .duration:
-            HStack {
-                Text("Time")
-                Spacer()
-                DurationField(seconds: $plannedExercise.targetDurationSeconds)
-            }
-            .font(.subheadline)
-        case .weight:
-            targetRow(
-                title: "Weight",
-                value: $plannedExercise.targetWeight,
-                placeholder: "Last used",
-                unit: weightUnit.rawValue
-            )
         case .speed:
-            targetRow(title: "Speed", value: $plannedExercise.targetSpeed, unit: weightUnit.speedLabel)
+            numericRow(
+                metric: metric,
+                value: $plannedExercise.targetSpeed,
+                placeholder: "Speed",
+                unit: weightUnit.speedLabel
+            )
         case .incline:
-            targetRow(title: "Incline", value: $plannedExercise.targetIncline, unit: "%")
+            numericRow(metric: metric, value: $plannedExercise.targetIncline, placeholder: "Incline", unit: "%")
         case .distance:
-            targetRow(
-                title: "Distance",
+            numericRow(
+                metric: metric,
                 value: $plannedExercise.targetDistance,
-                placeholder: "Optional",
+                placeholder: "Auto",
                 unit: weightUnit.distanceLabel
             )
+        default:
+            HStack {
+                Text(metric.fieldTitle)
+                    .font(.subheadline)
+                Spacer()
+                Button {
+                    activeMetric = metric
+                } label: {
+                    Text(chipText(for: metric))
+                        .font(.subheadline.monospacedDigit())
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
         }
     }
 
-    private func targetRow(
-        title: String,
+    private func numericRow(
+        metric: SetMetric,
         value: Binding<Double?>,
-        placeholder: String? = nil,
+        placeholder: String,
         unit: String
     ) -> some View {
         HStack {
-            Text(title)
+            Text(metric.fieldTitle)
                 .font(.subheadline)
             Spacer()
-            TextField(
-                placeholder ?? title,
-                value: value,
-                format: .number.precision(.fractionLength(0...2))
-            )
-            .keyboardType(.decimalPad)
-            .multilineTextAlignment(.trailing)
-            .frame(width: 90)
+            TextField(placeholder, value: value, format: .number.precision(.fractionLength(0...2)))
+                .keyboardType(.decimalPad)
+                .font(.subheadline.monospacedDigit())
+                .multilineTextAlignment(.trailing)
+                .frame(width: 64)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 8))
             Text(unit)
+                .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .font(.subheadline)
+    }
+
+    private func chipText(for metric: SetMetric) -> String {
+        switch metric {
+        case .reps: "\(plannedExercise.targetReps) reps"
+        case .duration: Formatters.durationSeconds(plannedExercise.targetDurationSeconds)
+        case .weight:
+            plannedExercise.targetWeight.map { Formatters.weight($0, unit: weightUnit) } ?? "Last used"
+        case .speed:
+            plannedExercise.targetSpeed.map { Formatters.speed($0, unit: weightUnit) } ?? "Not set"
+        case .incline:
+            plannedExercise.targetIncline.map(Formatters.incline) ?? "Not set"
+        case .distance:
+            plannedExercise.targetDistance.map { Formatters.distance($0, unit: weightUnit) } ?? "Auto"
+        }
+    }
+
+    @ViewBuilder
+    private func pickerSheet(for metric: SetMetric) -> some View {
+        switch metric {
+        case .duration:
+            DurationPickerSheet(seconds: $plannedExercise.targetDurationSeconds)
+        case .weight:
+            NumberPickerSheet(
+                title: "Weight",
+                unit: weightUnit.rawValue,
+                values: metric.wheelValues,
+                value: $plannedExercise.targetWeight,
+                clearLabel: "Last used"
+            )
+        case .speed, .incline, .distance:
+            EmptyView() // Edited inline with the keyboard.
+        case .reps:
+            EmptyView() // Reps use the stepper above.
+        }
     }
 }

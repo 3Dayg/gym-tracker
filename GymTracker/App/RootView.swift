@@ -14,10 +14,8 @@ struct RootView: View {
             }
         }
         .task {
-            // Order matters: kinds are fixed first, legacy data is converted
-            // next, and only then are new (already second-based) plans seeded.
+            // Exercises first: plan seeds reference them by name.
             ExerciseSeeder.seedIfNeeded(in: modelContext)
-            PlanSeeder.migrateLegacyDataIfNeeded(in: modelContext)
             PlanSeeder.seedIfNeeded(in: modelContext)
         }
     }

@@ -71,53 +71,6 @@ final class PlanSeederTests: XCTestCase {
         XCTAssertEqual(walk.orderedExercises[1].exercise?.kind, .cardio)
     }
 
-    func testMigrationConvertsLegacyMinuteAndRepTargetsToSeconds() throws {
-        ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
-        let exercises = try context.fetch(FetchDescriptor<Exercise>())
-        let treadmill = try XCTUnwrap(exercises.first { $0.name == "Incline Treadmill Walk" })
-        let jumpRope = try XCTUnwrap(exercises.first { $0.name == "Jump Rope" })
-        let plank = try XCTUnwrap(exercises.first { $0.name == "Plank" })
-
-        // A plan as an older version stored it: cardio duration in minutes,
-        // timed targets abusing reps (minutes for rounds, seconds for plank).
-        let plan = WorkoutPlan(name: "Legacy Plan")
-        context.insert(plan)
-        let cardioItem = PlannedExercise(
-            exercise: treadmill, sortOrder: 0, targetSets: 3, targetDurationSeconds: 10
-        )
-        cardioItem.plan = plan
-        let roundsItem = PlannedExercise(
-            exercise: jumpRope, sortOrder: 1, targetSets: 5, targetReps: 3, targetDurationSeconds: 0
-        )
-        roundsItem.plan = plan
-        let plankItem = PlannedExercise(
-            exercise: plank, sortOrder: 2, targetSets: 3, targetReps: 45, targetDurationSeconds: 0
-        )
-        plankItem.plan = plan
-
-        // A finished session with a cardio set logged in minutes.
-        let session = WorkoutSession(planName: "Legacy Plan")
-        session.endedAt = .now
-        context.insert(session)
-        let sessionExercise = SessionExercise(exercise: treadmill, sortOrder: 0)
-        sessionExercise.session = session
-        let set = SetEntry(sortOrder: 0, durationSeconds: 30, isCompleted: true)
-        set.sessionExercise = sessionExercise
-        try context.save()
-
-        PlanSeeder.migrateLegacyDataIfNeeded(in: context, defaults: defaults)
-
-        XCTAssertEqual(cardioItem.targetDurationSeconds, 600)
-        XCTAssertEqual(roundsItem.targetDurationSeconds, 180)
-        XCTAssertEqual(plankItem.targetDurationSeconds, 45)
-        XCTAssertEqual(set.durationSeconds, 1800)
-
-        // Running again must not convert twice.
-        PlanSeeder.migrateLegacyDataIfNeeded(in: context, defaults: defaults)
-        XCTAssertEqual(cardioItem.targetDurationSeconds, 600)
-        XCTAssertEqual(set.durationSeconds, 1800)
-    }
-
     func testDoesNotRecreateADeletedPlan() throws {
         ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
@@ -133,21 +86,6 @@ final class PlanSeederTests: XCTestCase {
         let names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
         XCTAssertFalse(names.contains("Boxing Conditioning"))
         XCTAssertTrue(names.contains("Incline Walk"))
-    }
-
-    func testAddsNewBundledPlansAfterLegacySeedFlag() throws {
-        ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
-        defaults.set(true, forKey: PlanSeeder.seededFlagKey)
-
-        let boxing = WorkoutPlan(name: "Boxing Conditioning")
-        context.insert(boxing)
-
-        PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
-
-        let names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
-        XCTAssertTrue(names.contains("Boxing Conditioning"))
-        XCTAssertTrue(names.contains("Incline Walk"))
-        XCTAssertFalse(defaults.bool(forKey: PlanSeeder.seededFlagKey))
     }
 
     func testSeedPlanExercisesAllExistInTheLibrary() {

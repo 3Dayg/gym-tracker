@@ -8,20 +8,8 @@ enum ExerciseSeeder {
         let name: String
         let muscleGroup: MuscleGroup
         let equipment: Equipment
+        /// Defaults to strength when the JSON omits it.
         let kind: ExerciseKind?
-
-        init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            name = try container.decode(String.self, forKey: .name)
-            muscleGroup = try container.decode(MuscleGroup.self, forKey: .muscleGroup)
-            equipment = try container.decode(Equipment.self, forKey: .equipment)
-            kind = try container.decodeIfPresent(ExerciseKind.self, forKey: .kind)
-                ?? container.decodeIfPresent(ExerciseKind.self, forKey: .trackingStyle)
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case name, muscleGroup, equipment, kind, trackingStyle
-        }
     }
 
     static func seedIfNeeded(in context: ModelContext, bundle: Bundle = .main) {

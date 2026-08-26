@@ -5,12 +5,7 @@ import SwiftData
 /// deleting a plan does not bring it back. New bundled plans still appear
 /// on later app versions.
 enum PlanSeeder {
-    static let seededFlagKey = "didSeedDefaultPlans"
     static let seededNamesKey = "seededDefaultPlanNames"
-
-    /// Plans that shipped before per-name tracking. Used only to migrate
-    /// the old single boolean flag so those plans stay unrecreated.
-    private static let plansSeededUnderLegacyFlag = ["Boxing Conditioning"]
 
     struct SeedPlan: Decodable {
         let name: String
@@ -52,10 +47,6 @@ enum PlanSeeder {
         defaults: UserDefaults = .standard
     ) {
         var alreadySeeded = Set(defaults.stringArray(forKey: seededNamesKey) ?? [])
-        if defaults.bool(forKey: seededFlagKey) {
-            alreadySeeded.formUnion(plansSeededUnderLegacyFlag)
-            defaults.removeObject(forKey: seededFlagKey)
-        }
 
         let exercisesByName = Dictionary(
             uniqueKeysWithValues: ((try? context.fetch(FetchDescriptor<Exercise>())) ?? [])
@@ -94,70 +85,6 @@ enum PlanSeeder {
         }
 
         defaults.set(Array(alreadySeeded).sorted(), forKey: seededNamesKey)
-    }
-
-    static let secondsMigrationKey = "didConvertDurationsToSeconds"
-
-    /// One-time upgrade of data written by older versions. Must run after
-    /// `ExerciseSeeder.seedIfNeeded` (which fixes exercise kinds) and before
-    /// `seedIfNeeded` (so freshly seeded second-based targets are untouched).
-    ///
-    /// - Cardio targets/sets stored minutes; both become seconds.
-    /// - The bundled Boxing plan abused reps as round minutes (and, for the
-    ///   Plank, as seconds); timed targets become real durations.
-    /// - The bundled Incline Walk plan predates speed/incline targets.
-    static func migrateLegacyDataIfNeeded(
-        in context: ModelContext,
-        defaults: UserDefaults = .standard
-    ) {
-        let inclineDefaultsKey = "didFillInclineWalkTreadmillSettings"
-
-        if !defaults.bool(forKey: secondsMigrationKey) {
-            for item in (try? context.fetch(FetchDescriptor<PlannedExercise>())) ?? [] {
-                switch item.exercise?.kind {
-                case .cardio:
-                    if item.targetDurationSeconds == 0, item.targetReps > 0 {
-                        item.targetDurationSeconds = item.targetReps
-                    }
-                    item.targetDurationSeconds *= 60
-                case .timed:
-                    if item.targetDurationSeconds == 0, item.targetReps > 0 {
-                        item.targetDurationSeconds = item.exerciseName == "Plank"
-                            ? item.targetReps
-                            : item.targetReps * 60
-                    } else {
-                        item.targetDurationSeconds *= 60
-                    }
-                default:
-                    break
-                }
-            }
-
-            for set in (try? context.fetch(FetchDescriptor<SetEntry>())) ?? []
-            where set.sessionExercise?.kind == .cardio {
-                set.durationSeconds *= 60
-            }
-
-            defaults.set(true, forKey: secondsMigrationKey)
-        }
-
-        if !defaults.bool(forKey: inclineDefaultsKey) {
-            let plans = (try? context.fetch(FetchDescriptor<WorkoutPlan>())) ?? []
-            if let walk = plans.first(where: { $0.name == "Incline Walk" }) {
-                for item in walk.orderedExercises {
-                    if item.exerciseName == "Incline Treadmill Walk" {
-                        if item.targetSpeed == nil { item.targetSpeed = 5 }
-                        if item.targetIncline == nil { item.targetIncline = 12 }
-                    } else if item.exerciseName == "Treadmill Walk" {
-                        if item.targetSpeed == nil { item.targetSpeed = 4.5 }
-                        if item.targetIncline == nil { item.targetIncline = 1 }
-                    }
-                }
-            }
-            defaults.set(true, forKey: inclineDefaultsKey)
-        }
-
-        try? context.save()
     }
 
     static func loadSeedPlans(from bundle: Bundle = .main) -> [SeedPlan] {

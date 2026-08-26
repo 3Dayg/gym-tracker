@@ -126,7 +126,8 @@ private struct SessionExerciseSection: View {
 }
 
 /// Editable metrics with a completion checkmark. Which fields appear is
-/// driven entirely by the kind's metric list.
+/// driven entirely by the kind's metric list. Each value is a tappable
+/// chip that opens a native wheel picker.
 private struct SetRow: View {
     @Bindable var set: SetEntry
     let setNumber: Int
@@ -134,13 +135,15 @@ private struct SetRow: View {
     let weightUnit: WeightUnit
     let onCompleted: () -> Void
 
+    @State private var activeMetric: SetMetric?
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Text("\(setNumber)")
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
-                .padding(.top, 6)
+                .padding(.top, 10)
 
             // One or two metrics fit on a single line; more get a labeled
             // row each.
@@ -158,9 +161,12 @@ private struct SetRow: View {
                     .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
             }
             .buttonStyle(.plain)
-            .padding(.top, 4)
+            .padding(.top, 8)
         }
         .listRowBackground(set.isCompleted ? Color.accentColor.opacity(0.08) : nil)
+        .sheet(item: $activeMetric) { metric in
+            pickerSheet(for: metric)
+        }
     }
 
     private var compactFields: some View {
@@ -169,68 +175,104 @@ private struct SetRow: View {
                 if metric != kind.metrics.first {
                     Spacer()
                 }
-                inlineField(for: metric)
+                chip(for: metric)
             }
         }
     }
 
     private var labeledFields: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             ForEach(kind.metrics) { metric in
                 HStack {
                     Text(metric.fieldTitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    inlineField(for: metric)
+                    chip(for: metric)
                 }
             }
         }
     }
 
+    /// Weight, reps, and time open wheel pickers; machine settings
+    /// (speed, incline, distance) are free keyboard input.
     @ViewBuilder
-    private func inlineField(for metric: SetMetric) -> some View {
+    private func chip(for metric: SetMetric) -> some View {
         switch metric {
-        case .duration:
-            DurationField(seconds: $set.durationSeconds)
-        case .weight:
-            numberField(
-                TextField("Weight", value: $set.weight, format: .number.precision(.fractionLength(0...1))),
-                unit: weightUnit.rawValue
-            )
-        case .reps:
-            numberField(
-                TextField("Reps", value: $set.reps, format: .number).keyboardType(.numberPad),
-                unit: "reps",
-                width: 50
-            )
         case .speed:
-            numberField(
-                TextField("Speed", value: $set.speed, format: .number.precision(.fractionLength(0...1))),
+            numericField(
+                value: Binding(get: { set.speed }, set: { set.speed = $0 ?? 0 }),
+                placeholder: "Speed",
                 unit: weightUnit.speedLabel
             )
         case .incline:
-            numberField(
-                TextField("Incline", value: $set.incline, format: .number.precision(.fractionLength(0...1))),
+            numericField(
+                value: Binding(get: { set.incline }, set: { set.incline = $0 ?? 0 }),
+                placeholder: "Incline",
                 unit: "%"
             )
         case .distance:
-            numberField(
-                TextField("Auto", value: $set.distance, format: .number.precision(.fractionLength(0...2))),
-                unit: weightUnit.distanceLabel
-            )
+            numericField(value: $set.distance, placeholder: "Auto", unit: weightUnit.distanceLabel)
+        default:
+            Button {
+                activeMetric = metric
+            } label: {
+                Text(chipText(for: metric))
+                    .font(.subheadline.monospacedDigit())
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
         }
     }
 
-    private func numberField(_ field: some View, unit: String, width: CGFloat = 70) -> some View {
+    private func numericField(value: Binding<Double?>, placeholder: String, unit: String) -> some View {
         HStack(spacing: 6) {
-            field
+            TextField(placeholder, value: value, format: .number.precision(.fractionLength(0...2)))
                 .keyboardType(.decimalPad)
+                .font(.subheadline.monospacedDigit())
                 .multilineTextAlignment(.trailing)
-                .frame(width: width)
+                .frame(width: 64)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 8))
             Text(unit)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private func chipText(for metric: SetMetric) -> String {
+        switch metric {
+        case .weight: Formatters.weight(set.weight, unit: weightUnit)
+        case .reps: "\(set.reps) reps"
+        case .duration: Formatters.durationSeconds(set.durationSeconds)
+        case .speed: Formatters.speed(set.speed, unit: weightUnit)
+        case .incline: Formatters.incline(set.incline)
+        case .distance: set.distance.map { Formatters.distance($0, unit: weightUnit) } ?? "Auto"
+        }
+    }
+
+    @ViewBuilder
+    private func pickerSheet(for metric: SetMetric) -> some View {
+        switch metric {
+        case .duration:
+            DurationPickerSheet(seconds: $set.durationSeconds)
+        case .weight:
+            NumberPickerSheet(
+                title: "Weight",
+                unit: weightUnit.rawValue,
+                values: metric.wheelValues,
+                value: Binding(get: { set.weight }, set: { set.weight = $0 ?? 0 })
+            )
+        case .reps:
+            NumberPickerSheet(
+                title: "Reps",
+                unit: "reps",
+                values: metric.wheelValues,
+                value: Binding(get: { Double(set.reps) }, set: { set.reps = Int($0 ?? 0) })
+            )
+        case .speed, .incline, .distance:
+            EmptyView() // Edited inline with the keyboard.
         }
     }
 

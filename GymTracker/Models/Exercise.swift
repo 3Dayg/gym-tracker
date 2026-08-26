@@ -76,24 +76,6 @@ enum ExerciseKind: String, CaseIterable, Identifiable, Codable {
         }
     }
 
-    /// Older builds stored this as "treadmill".
-    static func parse(_ raw: String?) -> ExerciseKind {
-        switch raw {
-        case "cardio", "treadmill": return .cardio
-        case "timed": return .timed
-        default: return .strength
-        }
-    }
-
-    init(from decoder: Decoder) throws {
-        let raw = try decoder.singleValueContainer().decode(String.self)
-        self = ExerciseKind.parse(raw)
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
 }
 
 @Model
@@ -107,7 +89,7 @@ final class Exercise {
     // resilient to future case additions.
     private var muscleGroupRaw: String
     private var equipmentRaw: String
-    private var trackingStyleRaw: String?
+    private var kindRaw: String
 
     @Relationship(deleteRule: .nullify, inverse: \PlannedExercise.exercise)
     var plannedExercises: [PlannedExercise] = []
@@ -126,8 +108,8 @@ final class Exercise {
     }
 
     var kind: ExerciseKind {
-        get { ExerciseKind.parse(trackingStyleRaw) }
-        set { trackingStyleRaw = newValue.rawValue }
+        get { ExerciseKind(rawValue: kindRaw) ?? .strength }
+        set { kindRaw = newValue.rawValue }
     }
 
     init(
@@ -144,7 +126,7 @@ final class Exercise {
         self.equipmentRaw = equipment.rawValue
         self.notes = notes
         self.isCustom = isCustom
-        self.trackingStyleRaw = kind.rawValue
+        self.kindRaw = kind.rawValue
         self.createdAt = createdAt
     }
 }

@@ -43,21 +43,17 @@ final class WorkoutSession {
 @Model
 final class SessionExercise {
     var sortOrder: Int
-    /// Denormalized so history remains readable if the exercise is deleted.
+    /// Denormalized (with the kind below) so history remains readable if
+    /// the exercise is deleted.
     var exerciseName: String
-    private var trackingStyleRaw: String?
+    private var kindRaw: String
 
     var exercise: Exercise?
     var session: WorkoutSession?
 
     var kind: ExerciseKind {
-        get {
-            if trackingStyleRaw != nil {
-                return ExerciseKind.parse(trackingStyleRaw)
-            }
-            return exercise?.kind ?? .strength
-        }
-        set { trackingStyleRaw = newValue.rawValue }
+        get { ExerciseKind(rawValue: kindRaw) ?? .strength }
+        set { kindRaw = newValue.rawValue }
     }
 
     @Relationship(deleteRule: .cascade, inverse: \SetEntry.sessionExercise)
@@ -80,7 +76,7 @@ final class SessionExercise {
     init(exercise: Exercise, sortOrder: Int) {
         self.exercise = exercise
         self.exerciseName = exercise.name
-        self.trackingStyleRaw = exercise.kind.rawValue
+        self.kindRaw = exercise.kind.rawValue
         self.sortOrder = sortOrder
     }
 }
@@ -90,9 +86,7 @@ final class SetEntry {
     var sortOrder: Int
     var reps: Int
     var weight: Double
-    /// Seconds logged. Unused for strength sets. Stored under the legacy
-    /// column name; values are converted to seconds once at launch.
-    @Attribute(originalName: "durationMinutes")
+    /// Seconds logged. Unused for strength sets.
     var durationSeconds: Int = 0
     var speed: Double = 0
     var incline: Double = 0

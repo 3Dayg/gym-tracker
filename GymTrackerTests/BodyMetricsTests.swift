@@ -15,10 +15,4 @@ final class BodyMetricsTests: XCTestCase {
     func testFormatHeightUsesCentimetersForKilograms() {
         XCTAssertEqual(BodyMetrics.formatHeight(170, weightUnit: .kilograms), "170 cm")
     }
-
-    func testExerciseKindMapsLegacyTreadmillValueToCardio() {
-        XCTAssertEqual(ExerciseKind.parse("treadmill"), .cardio)
-        XCTAssertEqual(ExerciseKind.parse("cardio"), .cardio)
-        XCTAssertEqual(ExerciseKind.parse("strength"), .strength)
-    }
 }

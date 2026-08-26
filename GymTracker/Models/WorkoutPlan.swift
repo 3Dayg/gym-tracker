@@ -32,9 +32,7 @@ final class PlannedExercise {
     /// the user logged for this exercise.
     var targetWeight: Double?
     /// Seconds per timed round or cardio block. Unused for strength
-    /// exercises. Stored under the legacy column name; values are converted
-    /// to seconds once at launch.
-    @Attribute(originalName: "targetDurationMinutes")
+    /// exercises.
     var targetDurationSeconds: Int = 0
     var targetSpeed: Double?
     var targetIncline: Double?
