@@ -19,6 +19,7 @@ struct ActiveWorkoutView: View {
     @State private var nothingToSaveAlert = false
     @State private var saveErrorMessage: String?
     @State private var isStalePrompt = false
+    @State private var isPlanGuidanceExpanded = true
 
     private var effectiveRestSeconds: Int {
         session.restSeconds ?? restDuration
@@ -56,6 +57,15 @@ struct ActiveWorkoutView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("finishHint")
+                }
+            }
+
+            if !session.planNotes.isEmpty {
+                Section {
+                    DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
+                        Text(session.planNotes)
+                    }
+                    .accessibilityIdentifier("planGuidance")
                 }
             }
 

@@ -24,10 +24,12 @@ final class BoxingWorkTimerUITests: XCTestCase {
         app.buttons["skipOnboarding"].tap()
 
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Boxing Conditioning"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["9 exercises · 1:00 rest"].exists)
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "9 exercises")).firstMatch.exists)
 
-        app.staticTexts["Boxing Conditioning"].tap()
+        app.buttons["startPlan-Boxing Conditioning"].tap()
+        XCTAssertTrue(app.buttons["startPlanFromPreview"].waitForExistence(timeout: 8))
+        app.buttons["startPlanFromPreview"].tap()
 
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["Rest after a round"].waitForExistence(timeout: 5))

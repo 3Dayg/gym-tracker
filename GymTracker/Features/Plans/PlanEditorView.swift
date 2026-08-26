@@ -15,12 +15,24 @@ struct PlanEditorView: View {
         )
     }
 
+    private var startSummary: PlanStartSummary { PlanStartSummary.from(plan) }
+
     var body: some View {
         Form {
             Section {
                 TextField("Plan name", text: $plan.name)
                 TextField("Notes", text: $plan.notes, axis: .vertical)
-                    .lineLimit(2...4)
+                    .lineLimit(2...6)
+            } footer: {
+                Text(startSummary.listCaption())
+            }
+
+            if !startSummary.canStart {
+                Section {
+                    Text(startSummary.blockedReason)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("planEditorBlockedReason")
+                }
             }
 
             Section {

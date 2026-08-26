@@ -2,7 +2,7 @@
 
 The app includes a ready-made **Boxing Conditioning** plan. It is built for people who box and want better round stamina, plus a bit of muscle — not a bodybuilding split.
 
-Find it on the **Plans** tab, or start it directly from the **Workout** tab — the list shows **9 exercises · 1:00 rest**. You do not need a second timer.
+Find it on the **Plans** tab, or start it from the **Workout** tab. Tapping the plan opens a preview with the notes, exercise list, work time, and 1:00 rest, then **Start Workout**. You do not need a second timer.
 
 ## How to read the numbers
 

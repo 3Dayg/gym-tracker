@@ -60,6 +60,16 @@ final class WorkoutSessionServiceTests: XCTestCase {
         XCTAssertTrue(sets.allSatisfy { $0.reps == 8 && $0.weight == 80 && !$0.isCompleted })
     }
 
+    func testStartSessionCopiesPlanNotes() {
+        let exercise = makeExercise()
+        let plan = makePlan(exercise: exercise)
+        plan.notes = "Aim for 2–3 sessions a week."
+
+        let session = WorkoutSessionService.startSession(from: plan, in: context)
+
+        XCTAssertEqual(session.planNotes, "Aim for 2–3 sessions a week.")
+    }
+
     func testStartSessionFallsBackToLastUsedWeight() throws {
         let exercise = makeExercise()
 

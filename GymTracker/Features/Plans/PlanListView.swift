@@ -3,23 +3,16 @@ import SwiftUI
 
 struct PlanListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppNavigation.self) private var navigation
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
 
-    @State private var newPlan: WorkoutPlan?
+    @State private var path: [WorkoutPlan] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 ForEach(plans) { plan in
-                    NavigationLink(value: plan) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(plan.name)
-                            Text(exerciseSummary(for: plan))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                    }
+                    PlanListRow(plan: plan)
                 }
                 .onDelete(perform: deletePlans)
             }
@@ -39,9 +32,6 @@ struct PlanListView: View {
                     }
                 }
             }
-            .navigationDestination(item: $newPlan) { plan in
-                PlanEditorView(plan: plan)
-            }
             .overlay {
                 if plans.isEmpty {
                     ContentUnavailableView(
@@ -51,27 +41,48 @@ struct PlanListView: View {
                     )
                 }
             }
+            .onChange(of: navigation.planToEdit) { _, plan in
+                revealIfNeeded(plan)
+            }
+            .onAppear {
+                revealIfNeeded(navigation.planToEdit)
+            }
         }
     }
 
-    private func exerciseSummary(for plan: WorkoutPlan) -> String {
-        let names = plan.orderedExercises.map(\.exerciseName)
-        let base = names.isEmpty ? "No exercises" : names.joined(separator: " · ")
-        if let rest = plan.targetRestSeconds {
-            return "\(base) · \(Formatters.countdown(rest)) rest"
-        }
-        return base
+    private func revealIfNeeded(_ plan: WorkoutPlan?) {
+        guard let plan else { return }
+        path = [plan]
+        navigation.planToEdit = nil
     }
 
     private func addPlan() {
         let plan = WorkoutPlan(name: "New Plan")
         modelContext.insert(plan)
-        newPlan = plan
+        path = [plan]
     }
 
     private func deletePlans(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(plans[index])
+        }
+    }
+}
+
+private struct PlanListRow: View {
+    let plan: WorkoutPlan
+
+    private var summary: PlanStartSummary { PlanStartSummary.from(plan) }
+
+    var body: some View {
+        NavigationLink(value: plan) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(plan.name)
+                Text(summary.listCaption())
+                    .font(.caption)
+                    .foregroundStyle(summary.canStart ? Color.secondary : Color.red)
+                    .lineLimit(2)
+            }
         }
     }
 }

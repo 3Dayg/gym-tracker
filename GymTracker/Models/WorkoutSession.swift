@@ -16,6 +16,8 @@ final class WorkoutSession {
     var liveTimerData: Data?
     /// User already chose Resume on the stale-workout prompt.
     var stalePromptAcknowledged: Bool = false
+    /// Plan notes copied at start so guidance survives plan edits or deletion.
+    var planNotes: String = ""
 
     @Relationship(deleteRule: .cascade, inverse: \SessionExercise.session)
     var exercises: [SessionExercise] = []

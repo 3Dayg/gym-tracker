@@ -8,6 +8,7 @@ enum WorkoutSessionService {
     @discardableResult
     static func startSession(from plan: WorkoutPlan, in context: ModelContext) -> WorkoutSession {
         let session = WorkoutSession(planName: plan.name, restSeconds: plan.targetRestSeconds)
+        session.planNotes = plan.notes
         context.insert(session)
 
         for (index, planned) in plan.orderedExercises.enumerated() {

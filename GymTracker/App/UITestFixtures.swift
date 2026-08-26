@@ -59,6 +59,13 @@ enum UITestFixtures {
             ProfileService.skipOnboarding(in: context)
             seedFinishableWorkout(in: context)
             try? context.save()
+            return
+        }
+
+        if args.contains("-seedUnstartablePlans") {
+            ProfileService.skipOnboarding(in: context)
+            seedUnstartablePlans(in: context)
+            try? context.save()
         }
     }
 
@@ -74,6 +81,23 @@ enum UITestFixtures {
         entry.sets.first?.weight = 80
         entry.sets.first?.reps = 8
         entry.sets.first?.markCompleted()
+    }
+
+    private static func seedUnstartablePlans(in context: ModelContext) {
+        context.insert(WorkoutPlan(name: "Empty Template"))
+
+        let gone = Exercise(
+            name: "Deleted Lift",
+            muscleGroup: .chest,
+            equipment: .barbell,
+            isCustom: true
+        )
+        context.insert(gone)
+        let broken = WorkoutPlan(name: "Broken Plan")
+        context.insert(broken)
+        let planned = PlannedExercise(exercise: gone, sortOrder: 0)
+        planned.plan = broken
+        context.delete(gone)
     }
 
     private static func seedHistorySummaries(in context: ModelContext) {

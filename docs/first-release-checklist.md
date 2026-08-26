@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. Units, first launch, Boxing timing, skip/fail/finish, live-timer restoration, and History summaries are in place, but seeded plans still hide their instructions, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. Units, first launch, Boxing timing, skip/fail/finish, live-timer restoration, History summaries, and plan previews are in place, but the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -60,7 +60,7 @@ Gym Tracker is not ready for a public App Store submission yet. Units, first lau
 - **Effort:** M
 - **Acceptance:** Strength-only, timed-only, cardio-only, and mixed sessions each show accurate summaries; an accidental deletion can be canceled or undone.
 
-### - [ ] 7. Surface the instructions needed to follow a plan
+### - [x] 7. Surface the instructions needed to follow a plan
 
 - **User problem:** Seeded plan notes contain pace, rest, distance, and frequency guidance, but the start screen shows only a name and exercise count; broken plans can still start.
 - **Why it matters:** “What do I do next?” is unanswered when the plan begins.

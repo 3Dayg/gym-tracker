@@ -36,7 +36,10 @@ struct WorkoutTabView: View {
 /// Start screen: quick start or start from an existing plan.
 private struct StartWorkoutView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppNavigation.self) private var navigation
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
+
+    @State private var planToPreview: WorkoutPlan?
 
     var body: some View {
         List {
@@ -53,17 +56,8 @@ private struct StartWorkoutView: View {
             if !plans.isEmpty {
                 Section("Start from a plan") {
                     ForEach(plans) { plan in
-                        Button {
-                            WorkoutSessionService.startSession(from: plan, in: modelContext)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(plan.name)
-                                    .foregroundStyle(.primary)
-                                Text(planSummary(plan))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
+                        PlanStartRow(plan: plan) {
+                            planToPreview = plan
                         }
                     }
                 }
@@ -78,15 +72,109 @@ private struct StartWorkoutView: View {
                 WorkoutSettingsMenu()
             }
         }
-    }
-
-    private func planSummary(_ plan: WorkoutPlan) -> String {
-        let count = plan.exercises.count
-        let exercises = count == 1 ? "1 exercise" : "\(count) exercises"
-        if let rest = plan.targetRestSeconds {
-            return "\(exercises) · \(Formatters.countdown(rest)) rest"
+        .sheet(isPresented: Binding(
+            get: { planToPreview != nil },
+            set: { if !$0 { planToPreview = nil } }
+        )) {
+            if let planToPreview {
+                PlanPreviewSheet(
+                    plan: planToPreview,
+                    onStart: {
+                        WorkoutSessionService.startSession(from: planToPreview, in: modelContext)
+                        self.planToPreview = nil
+                    },
+                    onEdit: {
+                        let plan = planToPreview
+                        self.planToPreview = nil
+                        navigation.openPlanEditor(plan)
+                    },
+                    onCancel: { self.planToPreview = nil }
+                )
+                .presentationDetents([.medium, .large])
+            }
         }
-        return exercises
+    }
+}
+
+private struct PlanStartRow: View {
+    let plan: WorkoutPlan
+    let action: () -> Void
+
+    private var summary: PlanStartSummary { PlanStartSummary.from(plan) }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(plan.name)
+                    .foregroundStyle(.primary)
+                Text(summary.listCaption())
+                    .font(.caption)
+                    .foregroundStyle(summary.canStart ? Color.secondary : Color.red)
+                    .lineLimit(2)
+            }
+        }
+        .accessibilityIdentifier("startPlan-\(plan.name)")
+    }
+}
+
+private struct PlanPreviewSheet: View {
+    let plan: WorkoutPlan
+    let onStart: () -> Void
+    let onEdit: () -> Void
+    let onCancel: () -> Void
+
+    private var summary: PlanStartSummary { PlanStartSummary.from(plan) }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text(summary.detailBits().joined(separator: " · "))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("planPreviewSummary")
+                    if !summary.canStart {
+                        Text(summary.blockedReason)
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("planPreviewBlockedReason")
+                    }
+                }
+
+                if !summary.notes.isEmpty {
+                    Section("How to follow this plan") {
+                        Text(summary.notes)
+                            .accessibilityIdentifier("planPreviewNotes")
+                    }
+                }
+
+                if !summary.exerciseNames.isEmpty {
+                    Section("Exercises") {
+                        ForEach(Array(summary.exerciseNames.enumerated()), id: \.offset) { _, name in
+                            Text(name)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(plan.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                        .accessibilityIdentifier("cancelPlanPreview")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    if summary.canStart {
+                        Button("Start Workout", action: onStart)
+                            .fontWeight(.semibold)
+                            .accessibilityIdentifier("startPlanFromPreview")
+                    } else {
+                        Button("Edit Plan", action: onEdit)
+                            .fontWeight(.semibold)
+                            .accessibilityIdentifier("editBrokenPlan")
+                    }
+                }
+            }
+        }
     }
 }
 

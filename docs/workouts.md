@@ -5,7 +5,7 @@
 On the **Workout** tab you have two options:
 
 - **Quick Start** — begins an empty workout. Add exercises as you go.
-- **Start from a plan** — tap any plan below Quick Start. Strength exercises appear with sets, reps, and weight; timed exercises (plank, bag rounds) with a **duration**; cardio exercises with **time, speed, incline, and distance**.
+- **Start from a plan** — tap any plan below Quick Start. A preview shows notes, exercise count, work time, and rest before you confirm **Start Workout**. Empty or broken plans cannot start; **Edit Plan** opens them on the Plans tab. Strength exercises appear with sets, reps, and weight; timed exercises (plank, bag rounds) with a **duration**; cardio exercises with **time, speed, incline, and distance**.
 
 Only one workout can be active at a time. If you close or even quit the app, the workout is still there when you return — including the work or rest countdown if it has not expired yet.
 

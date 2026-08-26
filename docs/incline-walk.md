@@ -2,7 +2,7 @@
 
 The app includes a ready-made **Incline Walk** plan for fat loss. It is only treadmill walking — no running, no weights, no extra exercises.
 
-Find it on the **Plans** tab, or start it directly from the **Workout** tab.
+Find it on the **Plans** tab, or start it from the **Workout** tab. Tapping the plan opens a preview with warm-up / incline / cool-down, times, and the note that the rest timer does not start for cardio.
 
 Treadmill work is a **cardio** exercise: it is logged as **time, speed, incline, and distance** — not reps and weight. Distance fills in automatically from speed × time when you tick a block, or you can type what the treadmill display shows.
 

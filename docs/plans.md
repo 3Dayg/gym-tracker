@@ -48,4 +48,5 @@ What you edit depends on the exercise:
 
 - Everything saves automatically as you type — there is no Save button.
 - Swipe a plan left on the Plans list to delete it. Workouts you already logged from that plan stay in History.
-- To start training with a plan, go to the **Workout** tab and tap the plan's name.
+- To start training with a plan, go to the **Workout** tab and tap the plan. Read the preview, then **Start Workout**. Plans with no usable exercises cannot start; they offer **Edit Plan** instead.
+- The live workout keeps a collapsible **Plan guidance** block with the same notes.

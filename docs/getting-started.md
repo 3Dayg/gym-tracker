@@ -15,7 +15,7 @@ Tap the gear icon in the top-right of the **Workout** tab:
 ## A typical flow
 
 1. **Build a plan** (optional but recommended). Go to **Plans**, create "Push Day", add exercises, and set target sets/reps/weights. See [Workout plans](plans.md).
-2. **Train.** On the **Workout** tab, tap your plan. Every exercise appears with its sets pre-filled. Strength: tick a set when it is done, or Skip / Fail. Timed rounds: tap **Start** and let the countdown finish. See [Logging a workout](workouts.md).
+2. **Train.** On the **Workout** tab, tap a plan, read the preview, then **Start Workout**. Strength: tick a set when it is done, or Skip / Fail. Timed rounds: tap **Start** and let the countdown finish. See [Logging a workout](workouts.md).
 3. **Finish.** Tap **Finish**, check what will be saved, then confirm. A summary offers **View in History**.
 4. **Watch your progress.** After a few workouts, the **Progress** tab shows charts of your top set weight and estimated one-rep max per exercise. See [History and progress](history-and-progress.md).
 
