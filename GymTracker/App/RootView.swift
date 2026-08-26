@@ -25,6 +25,7 @@ struct RootView: View {
             // Exercises first: plan seeds reference them by name.
             ExerciseSeeder.seedIfNeeded(in: modelContext)
             PlanSeeder.seedIfNeeded(in: modelContext)
+            UITestFixtures.seedIfNeeded(in: modelContext)
         }
     }
 }

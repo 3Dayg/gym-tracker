@@ -10,6 +10,7 @@ enum SessionTimerPhase: Equatable {
 
 /// Work-round and rest countdown. Uses a wall-clock end date so remaining
 /// time stays correct while the phone is locked or the app is backgrounded.
+/// The snapshot is persisted on the session so a kill/relaunch can restore it.
 @Observable
 @MainActor
 final class SessionTimer {
@@ -21,9 +22,12 @@ final class SessionTimer {
 
     /// Called when a work round reaches zero. Rest is started by the view.
     var onWorkFinished: ((SetEntry) -> Void)?
+    /// Called after any state change so the session can persist a snapshot.
+    var onPersist: (() -> Void)?
 
     private var endDate: Date?
     private var tickTask: Task<Void, Never>?
+    private var followOnRestSeconds = 0
 
     private static let workNotificationID = "workTimerFinished"
     private static let restNotificationID = "restTimerFinished"
@@ -34,8 +38,9 @@ final class SessionTimer {
         phase == .work && activeSet === set
     }
 
-    func startWork(seconds: Int, set: SetEntry) {
+    func startWork(seconds: Int, set: SetEntry, followOnRestSeconds: Int = 0) {
         guard seconds > 0, set.isPending else { return }
+        self.followOnRestSeconds = followOnRestSeconds
         begin(phase: .work, seconds: seconds, set: set)
         scheduleNotification(
             identifier: Self.workNotificationID,
@@ -43,10 +48,12 @@ final class SessionTimer {
             title: "Round over",
             body: "Time to rest."
         )
+        onPersist?()
     }
 
     func startRest(seconds: Int) {
         guard seconds > 0 else { return }
+        followOnRestSeconds = 0
         begin(phase: .rest, seconds: seconds, set: nil)
         scheduleNotification(
             identifier: Self.restNotificationID,
@@ -54,6 +61,7 @@ final class SessionTimer {
             title: "Rest over",
             body: "Time for your next set."
         )
+        onPersist?()
     }
 
     func pause() {
@@ -64,6 +72,7 @@ final class SessionTimer {
         tickTask?.cancel()
         tickTask = nil
         cancelNotification(Self.workNotificationID)
+        onPersist?()
     }
 
     func resume() {
@@ -78,16 +87,12 @@ final class SessionTimer {
             title: "Round over",
             body: "Time to rest."
         )
+        onPersist?()
     }
 
     func stop() {
-        cancelTicksAndNotifications()
-        phase = .idle
-        isPaused = false
-        endDate = nil
-        remainingSeconds = 0
-        totalSeconds = 0
-        activeSet = nil
+        resetToIdle()
+        onPersist?()
     }
 
     /// Catch up after the app was locked or backgrounded. The tick loop
@@ -95,6 +100,88 @@ final class SessionTimer {
     /// is still correct.
     func refresh() {
         updateRemaining()
+    }
+
+    func makeSnapshot() -> LiveTimerState? {
+        switch phase {
+        case .idle:
+            return nil
+        case .work:
+            return LiveTimerState(
+                phase: isPaused ? .pausedWork : .work,
+                endAt: isPaused ? nil : endDate,
+                totalSeconds: totalSeconds,
+                remainingSeconds: remainingSeconds,
+                exerciseSortOrder: activeSet?.sessionExercise?.sortOrder,
+                setSortOrder: activeSet?.sortOrder,
+                followOnRestSeconds: followOnRestSeconds
+            )
+        case .rest:
+            return LiveTimerState(
+                phase: .rest,
+                endAt: endDate,
+                totalSeconds: totalSeconds,
+                remainingSeconds: remainingSeconds,
+                exerciseSortOrder: nil,
+                setSortOrder: nil,
+                followOnRestSeconds: 0
+            )
+        }
+    }
+
+    func apply(
+        _ action: LiveTimerRestoreAction,
+        setLookup: (Int, Int) -> SetEntry?
+    ) {
+        switch action {
+        case .idle:
+            resetToIdle()
+
+        case .completeSetAndIdle(let exercise, let set):
+            setLookup(exercise, set)?.markCompleted()
+            resetToIdle()
+
+        case .work(let endAt, let total, let exercise, let set, let followOnRest):
+            guard let set = setLookup(exercise, set), set.isPending else {
+                resetToIdle()
+                return
+            }
+            followOnRestSeconds = followOnRest
+            restoreRunning(phase: .work, endAt: endAt, total: total, set: set)
+            scheduleNotification(
+                identifier: Self.workNotificationID,
+                after: remainingSeconds,
+                title: "Round over",
+                body: "Time to rest."
+            )
+
+        case .pausedWork(let remaining, let total, let exercise, let set, let followOnRest):
+            guard let set = setLookup(exercise, set), set.isPending, remaining > 0 else {
+                resetToIdle()
+                return
+            }
+            cancelTicksAndNotifications()
+            phase = .work
+            isPaused = true
+            totalSeconds = total
+            remainingSeconds = remaining
+            endDate = nil
+            activeSet = set
+            followOnRestSeconds = followOnRest
+
+        case .rest(let endAt, let total, let completeExercise, let completeSet):
+            if let completeExercise, let completeSet {
+                setLookup(completeExercise, completeSet)?.markCompleted()
+            }
+            restoreRunning(phase: .rest, endAt: endAt, total: total, set: nil)
+            scheduleNotification(
+                identifier: Self.restNotificationID,
+                after: remainingSeconds,
+                title: "Rest over",
+                body: "Time for your next set."
+            )
+        }
+        onPersist?()
     }
 
     private func begin(
@@ -110,12 +197,43 @@ final class SessionTimer {
         remainingSeconds = seconds
         activeSet = set
         endDate = Date().addingTimeInterval(TimeInterval(seconds))
+        startTickLoop()
+    }
+
+    private func restoreRunning(
+        phase: SessionTimerPhase,
+        endAt: Date,
+        total: Int,
+        set: SetEntry?
+    ) {
+        cancelTicksAndNotifications()
+        self.phase = phase
+        isPaused = false
+        totalSeconds = total
+        activeSet = set
+        endDate = endAt
+        remainingSeconds = max(0, Int(endAt.timeIntervalSinceNow.rounded(.up)))
+        startTickLoop()
+    }
+
+    private func startTickLoop() {
         tickTask = Task { [weak self] in
             while let self, self.phase != .idle, !self.isPaused, !Task.isCancelled {
                 self.updateRemaining()
                 try? await Task.sleep(for: .milliseconds(250))
             }
         }
+    }
+
+    private func resetToIdle() {
+        cancelTicksAndNotifications()
+        phase = .idle
+        isPaused = false
+        endDate = nil
+        remainingSeconds = 0
+        totalSeconds = 0
+        activeSet = nil
+        followOnRestSeconds = 0
     }
 
     private func cancelTicksAndNotifications() {
@@ -137,7 +255,8 @@ final class SessionTimer {
     private func finishNaturally() {
         let finishedPhase = phase
         let finishedSet = activeSet
-        stop()
+        resetToIdle()
+        onPersist?()
         if finishedPhase == .work, let finishedSet {
             onWorkFinished?(finishedSet)
         }

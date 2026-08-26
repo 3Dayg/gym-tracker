@@ -18,6 +18,7 @@ struct ActiveWorkoutView: View {
     @State private var isConfirmingFinish = false
     @State private var nothingToSaveAlert = false
     @State private var saveErrorMessage: String?
+    @State private var isStalePrompt = false
 
     private var effectiveRestSeconds: Int {
         session.restSeconds ?? restDuration
@@ -33,6 +34,16 @@ struct ActiveWorkoutView: View {
 
     var body: some View {
         List {
+            Section {
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    LabeledContent(
+                        "Elapsed",
+                        value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
+                    )
+                    .accessibilityIdentifier("elapsedWorkoutTime")
+                }
+            }
+
             if session.exercises.isEmpty {
                 Section {
                     Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
@@ -63,6 +74,7 @@ struct ActiveWorkoutView: View {
                     sessionExercise: sessionExercise,
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
+                    followOnRestSeconds: sessionExercise.kind.startsRestTimer ? effectiveRestSeconds : 0,
                     onDidWork: {
                         if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
                             sessionTimer.startRest(seconds: effectiveRestSeconds)
@@ -140,18 +152,60 @@ struct ActiveWorkoutView: View {
         } message: {
             Text(saveErrorMessage ?? "")
         }
+        .sheet(isPresented: $isStalePrompt) {
+            StaleWorkoutSheet(
+                startedAt: session.startedAt,
+                onResume: {
+                    session.stalePromptAcknowledged = true
+                    isStalePrompt = false
+                    try? modelContext.save()
+                },
+                onDiscard: {
+                    isStalePrompt = false
+                    discardWorkout()
+                }
+            )
+            .presentationDetents([.medium])
+            .interactiveDismissDisabled()
+        }
         .onAppear {
             sessionTimer.onWorkFinished = { [weak sessionTimer] set in
                 guard let sessionTimer, set.isPending else { return }
                 set.markCompleted()
                 sessionTimer.startRest(seconds: effectiveRestSeconds)
             }
+            sessionTimer.onPersist = { [weak sessionTimer] in
+                guard let sessionTimer else { return }
+                session.liveTimer = sessionTimer.makeSnapshot()
+                try? modelContext.save()
+            }
+            restoreTimerIfNeeded()
             sessionTimer.refresh()
+            if !session.stalePromptAcknowledged,
+               StaleWorkoutPolicy.isStale(session.startedAt)
+            {
+                isStalePrompt = true
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 sessionTimer.refresh()
+            } else if newPhase == .background {
+                persistTimer()
             }
+        }
+    }
+
+    private func persistTimer() {
+        session.liveTimer = sessionTimer.makeSnapshot()
+        try? modelContext.save()
+    }
+
+    private func restoreTimerIfNeeded() {
+        guard sessionTimer.phase == .idle, let state = session.liveTimer else { return }
+        let action = LiveTimerRestorer.action(from: state)
+        sessionTimer.apply(action) { exercise, set in
+            session.setEntry(exerciseOrder: exercise, setOrder: set)
         }
     }
 
@@ -186,6 +240,36 @@ struct ActiveWorkoutView: View {
     private func discardWorkout() {
         sessionTimer.stop()
         WorkoutSessionService.cancel(session, in: modelContext)
+    }
+}
+
+private struct StaleWorkoutSheet: View {
+    let startedAt: Date
+    let onResume: () -> Void
+    let onDiscard: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text("Started \(startedAt.formatted(date: .abbreviated, time: .shortened)). Resume where you left off, or discard it.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("This workout has been open a long time")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Discard Workout", role: .destructive, action: onDiscard)
+                        .accessibilityIdentifier("discardStaleWorkout")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Resume", action: onResume)
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("resumeStaleWorkout")
+                }
+            }
+        }
     }
 }
 
@@ -280,6 +364,7 @@ private struct SessionExerciseSection: View {
     let sessionExercise: SessionExercise
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
+    let followOnRestSeconds: Int
     let onDidWork: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -293,6 +378,7 @@ private struct SessionExerciseSection: View {
                     kind: sessionExercise.kind,
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
+                    followOnRestSeconds: followOnRestSeconds,
                     onDidWork: onDidWork
                 )
             }
@@ -332,6 +418,7 @@ private struct SetRow: View {
     let kind: ExerciseKind
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
+    let followOnRestSeconds: Int
     let onDidWork: () -> Void
 
     @State private var activeMetric: SetMetric?
@@ -443,7 +530,11 @@ private struct SetRow: View {
                     .accessibilityIdentifier("pauseWork")
             } else {
                 Button("Start") {
-                    sessionTimer.startWork(seconds: set.durationSeconds, set: set)
+                    sessionTimer.startWork(
+                        seconds: set.durationSeconds,
+                        set: set,
+                        followOnRestSeconds: followOnRestSeconds
+                    )
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)

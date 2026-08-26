@@ -111,6 +111,7 @@ enum WorkoutSessionService {
             }
         }
         session.endedAt = .now
+        session.liveTimer = nil
         try context.save()
     }
 

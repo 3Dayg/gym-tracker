@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, first-run units, Boxing work/rest timing, and skip/fail/finish are in place, but timed and mixed sessions are still summarized incorrectly, relaunch still loses the visible countdown, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, first-run units, Boxing work/rest timing, skip/fail/finish, and live-timer restoration are in place, but timed and mixed sessions are still summarized incorrectly, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -42,7 +42,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 - **Effort:** M
 - **Acceptance:** A trainer can log a partial failed set, deliberately skip another set, understand what will be saved, and verify the resulting workout.
 
-### - [ ] 5. Preserve live-workout state across interruptions
+### - [x] 5. Preserve live-workout state across interruptions
 
 - **User problem:** Sets survive a relaunch, but the rest countdown disappears while its notification may still fire; an old unfinished workout can reopen days later without context.
 - **Why it matters:** Gym use includes locking the phone, taking calls, and app termination.

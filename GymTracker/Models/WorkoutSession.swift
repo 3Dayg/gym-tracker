@@ -12,6 +12,10 @@ final class WorkoutSession {
     /// Rest used for this session when the plan specified one. Nil falls
     /// back to the app rest-timer setting.
     var restSeconds: Int?
+    /// Encoded `LiveTimerState` so work/rest survive a process kill.
+    var liveTimerData: Data?
+    /// User already chose Resume on the stale-workout prompt.
+    var stalePromptAcknowledged: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \SessionExercise.session)
     var exercises: [SessionExercise] = []
@@ -53,6 +57,25 @@ final class WorkoutSession {
         self.startedAt = startedAt
         self.planName = planName
         self.restSeconds = restSeconds
+    }
+
+    var liveTimer: LiveTimerState? {
+        get {
+            guard let liveTimerData else { return nil }
+            return try? JSONDecoder().decode(LiveTimerState.self, from: liveTimerData)
+        }
+        set {
+            if let newValue {
+                liveTimerData = try? JSONEncoder().encode(newValue)
+            } else {
+                liveTimerData = nil
+            }
+        }
+    }
+
+    func setEntry(exerciseOrder: Int, setOrder: Int) -> SetEntry? {
+        orderedExercises.first { $0.sortOrder == exerciseOrder }?
+            .orderedSets.first { $0.sortOrder == setOrder }
     }
 }
 

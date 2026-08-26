@@ -92,6 +92,55 @@ final class SessionTimerTests: XCTestCase {
         XCTAssertEqual(session.restSeconds, 60)
     }
 
+    func testRestoreExpiredWorkCompletesSetAndStartsRemainingRest() {
+        let exercise = Exercise(name: "Jump Rope", muscleGroup: .cardio, equipment: .other, kind: .timed)
+        context.insert(exercise)
+        let session = WorkoutSession()
+        context.insert(session)
+        let sessionExercise = SessionExercise(exercise: exercise, sortOrder: 0)
+        sessionExercise.session = session
+        let set = SetEntry(sortOrder: 0, durationSeconds: 180)
+        set.sessionExercise = sessionExercise
+
+        let now = Date()
+        let state = LiveTimerState(
+            phase: .work,
+            endAt: now.addingTimeInterval(-20),
+            totalSeconds: 180,
+            remainingSeconds: 0,
+            exerciseSortOrder: 0,
+            setSortOrder: 0,
+            followOnRestSeconds: 60
+        )
+        let timer = SessionTimer()
+        timer.apply(LiveTimerRestorer.action(from: state, now: now)) { exerciseOrder, setOrder in
+            session.setEntry(exerciseOrder: exerciseOrder, setOrder: setOrder)
+        }
+
+        XCTAssertTrue(set.isCompleted)
+        XCTAssertEqual(timer.phase, .rest)
+        XCTAssertGreaterThan(timer.remainingSeconds, 30)
+        XCTAssertLessThanOrEqual(timer.remainingSeconds, 60)
+    }
+
+    func testRestoreExpiredRestLeavesTimerIdle() {
+        let timer = SessionTimer()
+        timer.startRest(seconds: 60)
+        XCTAssertEqual(timer.phase, .rest)
+
+        let state = LiveTimerState(
+            phase: .rest,
+            endAt: Date().addingTimeInterval(-2),
+            totalSeconds: 60,
+            remainingSeconds: 0,
+            followOnRestSeconds: 0
+        )
+        timer.apply(LiveTimerRestorer.action(from: state)) { _, _ in nil }
+
+        XCTAssertEqual(timer.phase, .idle)
+        XCTAssertNil(timer.makeSnapshot())
+    }
+
     private func makeSet(durationSeconds: Int) -> SetEntry {
         let set = SetEntry(sortOrder: 0, durationSeconds: durationSeconds)
         context.insert(set)
