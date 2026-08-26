@@ -144,13 +144,17 @@ struct ActiveWorkoutView: View {
         } message: {
             Text("Tick a set you did, or Discard this workout. Skip marks a set you passed on; incomplete rows are dropped.")
         }
-        .alert("Couldn’t save workout", isPresented: Binding(
+        .sheet(isPresented: Binding(
             get: { saveErrorMessage != nil },
             set: { if !$0 { saveErrorMessage = nil } }
         )) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(saveErrorMessage ?? "")
+            SaveFailedSheet(
+                message: saveErrorMessage ?? "Try Finish again. Your sets are still here.",
+                onRetry: confirmFinish,
+                onKeepGoing: { saveErrorMessage = nil }
+            )
+            .presentationDetents([.medium])
+            .interactiveDismissDisabled()
         }
         .sheet(isPresented: $isStalePrompt) {
             StaleWorkoutSheet(
@@ -223,6 +227,7 @@ struct ActiveWorkoutView: View {
         let preview = finishPreview
         do {
             try WorkoutSessionService.finish(session, in: modelContext)
+            saveErrorMessage = nil
             isConfirmingFinish = false
             onWorkoutSaved(
                 SavedWorkoutNotice(
@@ -233,6 +238,7 @@ struct ActiveWorkoutView: View {
                 )
             )
         } catch {
+            isConfirmingFinish = false
             saveErrorMessage = error.localizedDescription
         }
     }
@@ -267,6 +273,36 @@ private struct StaleWorkoutSheet: View {
                     Button("Resume", action: onResume)
                         .fontWeight(.semibold)
                         .accessibilityIdentifier("resumeStaleWorkout")
+                }
+            }
+        }
+    }
+}
+
+private struct SaveFailedSheet: View {
+    let message: String
+    let onRetry: () -> Void
+    let onKeepGoing: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text(message)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Couldn’t save workout")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Keep Going", action: onKeepGoing)
+                        .accessibilityIdentifier("keepGoingAfterSaveError")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Retry", action: onRetry)
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("retrySaveWorkout")
                 }
             }
         }

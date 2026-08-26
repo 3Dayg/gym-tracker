@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. The core offline session model is credible, first-run units, Boxing work/rest timing, skip/fail/finish, and live-timer restoration are in place, but timed and mixed sessions are still summarized incorrectly, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. Units, first launch, Boxing timing, skip/fail/finish, live-timer restoration, and History summaries are in place, but seeded plans still hide their instructions, and the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -51,7 +51,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 - **Effort:** M
 - **Acceptance:** Cold relaunch during rest restores the correct countdown; reopening after expiry leaves no stale timer; reopening a day-old session asks what to do.
 
-### - [ ] 6. Correct History summaries and protect saved work
+### - [x] 6. Correct History summaries and protect saved work
 
 - **User problem:** Timed workouts can show “sets · 0 kg,” mixed workouts hide lifting or cardio detail, and a swipe deletes a workout immediately.
 - **Why it matters:** The first post-workout check makes Boxing Conditioning look broken and permits accidental permanent data loss.
@@ -148,8 +148,8 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 ## Implementation order
 
 - [x] Phase 1: Fix canonical unit handling and revise onboarding.
-- [ ] Phase 2: Correct History summaries, save errors, and destructive-action safety.
-- [ ] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
+- [x] Phase 2: Correct History summaries, save errors, and destructive-action safety.
+- [x] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
 - [ ] Phase 4: Surface plan guidance and improve one-handed next-set logging.
 - [ ] Phase 5: Improve empty states, plan/custom exercise flows, and Progress clarity.
 - [ ] Phase 6: Complete icon, privacy, and accessibility work.

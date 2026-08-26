@@ -14,6 +14,7 @@ struct HistoryView: View {
 
     @Environment(AppNavigation.self) private var navigation
     @State private var path: [WorkoutSession] = []
+    @State private var sessionPendingDelete: WorkoutSession?
 
     /// Sessions grouped by month, newest first.
     private var groupedSessions: [(month: Date, sessions: [WorkoutSession])] {
@@ -35,9 +36,14 @@ struct HistoryView: View {
                             NavigationLink(value: session) {
                                 SessionSummaryRow(session: session, unitSystem: unitSystem)
                             }
-                        }
-                        .onDelete { offsets in
-                            deleteSessions(at: offsets, in: group.sessions)
+                            .accessibilityIdentifier("historyRow-\(session.planName ?? "Workout")")
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button("Delete") {
+                                    sessionPendingDelete = session
+                                }
+                                .tint(.red)
+                                .accessibilityIdentifier("deleteHistoryWorkout")
+                            }
                         }
                     }
                 }
@@ -66,6 +72,24 @@ struct HistoryView: View {
             .onAppear {
                 revealIfNeeded(navigation.sessionToReveal)
             }
+            .sheet(isPresented: Binding(
+                get: { sessionPendingDelete != nil },
+                set: { if !$0 { sessionPendingDelete = nil } }
+            )) {
+                DeleteHistoryWorkoutSheet(
+                    planName: sessionPendingDelete?.planName ?? "Workout",
+                    onDelete: {
+                        if let sessionPendingDelete {
+                            modelContext.delete(sessionPendingDelete)
+                            try? modelContext.save()
+                        }
+                        sessionPendingDelete = nil
+                    },
+                    onKeep: { sessionPendingDelete = nil }
+                )
+                .presentationDetents([.medium])
+                .interactiveDismissDisabled()
+            }
         }
     }
 
@@ -74,17 +98,15 @@ struct HistoryView: View {
         path = [session]
         navigation.sessionToReveal = nil
     }
-
-    private func deleteSessions(at offsets: IndexSet, in group: [WorkoutSession]) {
-        for index in offsets {
-            modelContext.delete(group[index])
-        }
-    }
 }
 
 private struct SessionSummaryRow: View {
     let session: WorkoutSession
     let unitSystem: UnitSystem
+
+    private var caption: String {
+        SessionHistorySummary.from(session).caption(duration: session.duration, unit: unitSystem)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -96,24 +118,41 @@ private struct SessionSummaryRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            HStack(spacing: 12) {
-                Label(Formatters.duration(session.duration), systemImage: "clock")
-                if session.completedCardioSeconds > 0 {
-                    Label(
-                        Formatters.durationSeconds(session.completedCardioSeconds),
-                        systemImage: "figure.walk"
-                    )
-                } else {
-                    Label("\(session.completedSetCount) sets", systemImage: "checkmark.circle")
-                    Label(
-                        Formatters.weight(session.totalVolume, unit: unitSystem),
-                        systemImage: "scalemass"
-                    )
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            Text(caption)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .accessibilityIdentifier("historySummary-\(session.planName ?? "Workout")")
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct DeleteHistoryWorkoutSheet: View {
+    let planName: String
+    let onDelete: () -> Void
+    let onKeep: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text("\(planName) will be removed from History. This cannot be undone.")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Delete this workout?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Keep Workout", action: onKeep)
+                        .accessibilityIdentifier("cancelDeleteHistory")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Delete Workout", role: .destructive, action: onDelete)
+                        .accessibilityIdentifier("confirmDeleteHistory")
+                }
+            }
+        }
     }
 }

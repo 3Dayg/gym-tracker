@@ -5,6 +5,10 @@ struct SessionDetailView: View {
 
     @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
 
+    private var summary: SessionHistorySummary {
+        SessionHistorySummary.from(session)
+    }
+
     var body: some View {
         List {
             Section {
@@ -12,17 +16,47 @@ struct SessionDetailView: View {
                     Text(session.startedAt, format: .dateTime.day().month().year().hour().minute())
                 }
                 LabeledContent("Duration", value: Formatters.duration(session.duration))
-                if session.totalVolume > 0 {
+                if summary.strengthSets > 0 {
                     LabeledContent(
-                        "Total volume",
-                        value: Formatters.weight(session.totalVolume, unit: unitSystem)
+                        summary.strengthSets == 1 ? "Set" : "Sets",
+                        value: "\(summary.strengthSets)"
+                    )
+                    .accessibilityIdentifier("historyDetailStrengthSets")
+                    if summary.strengthVolumeKilograms > 0 {
+                        LabeledContent(
+                            "Total volume",
+                            value: Formatters.weight(summary.strengthVolumeKilograms, unit: unitSystem)
+                        )
+                    }
+                }
+                if summary.timedRounds > 0 {
+                    LabeledContent(
+                        summary.timedRounds == 1 ? "Round" : "Rounds",
+                        value: "\(summary.timedRounds)"
+                    )
+                    LabeledContent(
+                        "Work time",
+                        value: Formatters.durationSeconds(summary.timedSeconds)
                     )
                 }
-                if session.completedCardioSeconds > 0 {
+                if summary.cardioBlocks > 0 {
+                    LabeledContent(
+                        summary.cardioBlocks == 1 ? "Block" : "Blocks",
+                        value: "\(summary.cardioBlocks)"
+                    )
                     LabeledContent(
                         "Cardio time",
-                        value: Formatters.durationSeconds(session.completedCardioSeconds)
+                        value: Formatters.durationSeconds(summary.cardioSeconds)
                     )
+                    if summary.cardioDistanceKilometers > 0 {
+                        LabeledContent(
+                            "Distance",
+                            value: Formatters.distance(summary.cardioDistanceKilometers, unit: unitSystem)
+                        )
+                    }
+                }
+                if summary.skippedCount > 0 {
+                    LabeledContent("Skipped", value: "\(summary.skippedCount)")
                 }
             }
 

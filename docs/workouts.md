@@ -39,4 +39,5 @@ Timed rounds have their own work countdown. Rest is a separate bar at the bottom
 - **Finish** (top-right) always works. If you have not ticked a set, it explains that there is nothing to save. Otherwise you see how many rows are completed, skipped, failed, and incomplete before you confirm.
 - Incomplete rows are dropped. Skipped and failed rows are kept. Failed sets do not count toward PRs.
 - After saving, a **Workout saved** summary appears with a **View in History** link.
+- If saving fails, your sets stay on screen. Tap **Retry**, or **Keep Going** to keep logging.
 - **Discard** (top-left) throws the whole workout away after a confirmation. Nothing is saved.

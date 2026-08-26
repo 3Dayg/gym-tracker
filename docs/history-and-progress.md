@@ -2,13 +2,16 @@
 
 ## History
 
-The **History** tab lists every finished workout, newest first, grouped by month. Each row shows the plan name (or "Workout"), the date, and:
+The **History** tab lists every finished workout, newest first, grouped by month. Each row shows the plan name (or "Workout"), the date, wall-clock duration, and only the kinds of work you actually logged:
 
-- wall-clock duration of the session,
-- for lifting: completed sets and total volume (weight × reps),
-- for cardio: total time logged.
+- **Strength:** completed sets and total volume (weight × reps).
+- **Timed** (rounds, planks, jump rope): round count and work time — not "sets · 0 kg".
+- **Cardio:** block count, time, and distance when you logged it.
+- Mixed sessions show each of those parts on the same line. Skipped rows are counted separately.
 
 Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance. Skipped rows say **Skipped**. Failed rows keep the numbers you logged and are marked **Failed** — they do not count toward personal records.
+
+Swipe left on a History row to delete it. The app asks first; **Keep Workout** cancels. Deletion cannot be undone.
 
 ## Progress charts
 

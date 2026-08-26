@@ -101,6 +101,9 @@ enum WorkoutSessionService {
     /// completed (including failed) rows are kept. Exercises with nothing
     /// left are dropped.
     static func finish(_ session: WorkoutSession, in context: ModelContext) throws {
+        if FinishSaveProbe.shouldFailOnce() {
+            throw WorkoutFinishError.persistenceFailed
+        }
         for sessionExercise in session.exercises {
             let kept = sessionExercise.sets.filter { $0.isCompleted || $0.isSkipped }
             for set in sessionExercise.sets where set.isPending {
@@ -166,5 +169,25 @@ enum WorkoutSessionService {
                 distance: planned.targetDistance
             )
         }
+    }
+}
+
+enum WorkoutFinishError: LocalizedError {
+    case persistenceFailed
+
+    var errorDescription: String? {
+        "Try Finish again. Your sets are still here."
+    }
+}
+
+/// UI tests pass `-failFinishSave` so the first Finish attempt fails and Retry can succeed.
+private enum FinishSaveProbe {
+    private static var didFail = false
+
+    static func shouldFailOnce() -> Bool {
+        guard ProcessInfo.processInfo.arguments.contains("-failFinishSave") else { return false }
+        guard !didFail else { return false }
+        didFail = true
+        return true
     }
 }
