@@ -46,6 +46,19 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.3dayg.gymtracker.tests
         GENERATE_INFOPLIST_FILE: YES
 
+  GymTrackerUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - GymTrackerUITests
+    dependencies:
+      - target: GymTracker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.3dayg.gymtracker.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: GymTracker
+
 schemes:
   GymTracker:
     build:
@@ -57,3 +70,4 @@ schemes:
       config: Debug
       targets:
         - GymTrackerTests
+        - GymTrackerUITests

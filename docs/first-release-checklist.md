@@ -15,7 +15,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 - **Effort:** L
 - **Acceptance:** A trainer can log 100 kg and 5 km, switch to Imperial, see equivalent lb/mi values, switch back, and recover the original numbers within rounding tolerance.
 
-### - [ ] 2. Make first launch optional, honest, and privacy-forward
+### - [x] 2. Make first launch optional, honest, and privacy-forward
 
 - **User problem:** A trainer must enter height and weight before Quick Start, while the screen says calories will be estimated “later” even though no calorie feature exists.
 - **Why it matters:** Mandatory health-adjacent data and unfinished copy create abandonment and trust risk on the first screen.
@@ -147,7 +147,7 @@ Gym Tracker is not ready for a public App Store submission yet. The core offline
 
 ## Implementation order
 
-- [ ] Phase 1: Fix canonical unit handling and revise onboarding.
+- [x] Phase 1: Fix canonical unit handling and revise onboarding.
 - [ ] Phase 2: Correct History summaries, save errors, and destructive-action safety.
 - [ ] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
 - [ ] Phase 4: Surface plan guidance and improve one-handed next-set logging.

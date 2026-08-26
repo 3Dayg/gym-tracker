@@ -2,7 +2,7 @@
 
 ## First launch
 
-On first launch the app asks for **height and body weight** (see [Profile](profile.md)), fills the exercise library, and adds two plans you can start immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
+On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional — tap **Skip for now** if you just want to train. Two plans are ready immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
 
 ## Settings
 

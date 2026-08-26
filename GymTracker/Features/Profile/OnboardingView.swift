@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-/// First-launch landing: height and body weight, needed later for calories.
+/// First-launch landing: pick units, optionally save height and weight.
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
@@ -29,8 +29,9 @@ struct OnboardingView: View {
         NavigationStack {
             Form {
                 Section {
-                    Text("A few details now, so we can estimate calories later.")
+                    Text("Your workouts stay on this iPhone — no account or internet needed.")
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("onboardingPrivacyCopy")
                 }
 
                 Section {
@@ -40,30 +41,44 @@ struct OnboardingView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityIdentifier("onboardingUnits")
                 } header: {
                     Text("Units")
                 } footer: {
                     Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. You can switch anytime — values convert automatically.")
                 }
 
-                Section("Height") {
+                Section {
                     HeightWheelPicker(
                         unit: unitSystem,
                         centimeters: $heightCentimeters,
                         feet: $heightFeet,
                         inches: $heightInches
                     )
+                } header: {
+                    Text("Height")
+                } footer: {
+                    Text("Optional. You can add this later in Profile.")
                 }
 
-                Section("Weight") {
+                Section {
                     WeightWheelPicker(weight: $weight, unit: unitSystem)
+                } header: {
+                    Text("Body weight")
+                } footer: {
+                    Text("Optional. Used for the body-weight trend on the Progress tab — not required to start training.")
                 }
             }
             .navigationTitle("Welcome")
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Skip for now") { skip() }
+                        .accessibilityIdentifier("skipOnboarding")
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Continue") { save() }
                         .disabled(!canContinue)
+                        .accessibilityIdentifier("continueOnboarding")
                 }
             }
             .onChange(of: unitSystem) { oldUnit, newUnit in
@@ -87,6 +102,10 @@ struct OnboardingView: View {
             heightFeet = parts.feet
             heightInches = min(11, Int(parts.inches.rounded()))
         }
+    }
+
+    private func skip() {
+        ProfileService.skipOnboarding(in: modelContext)
     }
 
     private func save() {

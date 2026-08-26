@@ -24,8 +24,9 @@ struct ProfileView: View {
     var body: some View {
         Form {
             Section {
-                Text("Height and weight are stored on this phone. Calorie estimates will use these values later.")
+                Text("Your data stays on this iPhone — no account or internet. Height is optional. Body weight is used for the trend chart on Progress.")
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("profilePrivacyCopy")
             }
 
             Section {
@@ -41,7 +42,15 @@ struct ProfileView: View {
                 Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. Switching converts everything automatically — nothing is lost.")
             }
 
-            Section("Height") {
+            Section {
+                if let cm = profile?.heightCentimeters, cm > 0 {
+                    LabeledContent("Saved") {
+                        Text(BodyMetrics.formatHeight(cm, unit: unitSystem))
+                    }
+                } else {
+                    Text("Not set yet")
+                        .foregroundStyle(.secondary)
+                }
                 HeightWheelPicker(
                     unit: unitSystem,
                     centimeters: $heightCentimeters,
@@ -50,9 +59,13 @@ struct ProfileView: View {
                 )
                 Button("Save Height") { saveHeight() }
                     .disabled(resolvedHeightCentimeters <= 0)
+            } header: {
+                Text("Height")
+            } footer: {
+                Text("Optional. Nothing in the app depends on it today.")
             }
 
-            Section("Weight") {
+            Section {
                 WeightWheelPicker(weight: $weight, unit: unitSystem)
                 Button("Update Weight") { saveWeight() }
                     .disabled(weight <= 0)
@@ -68,6 +81,10 @@ struct ProfileView: View {
                 NavigationLink("Weight history") {
                     BodyWeightHistoryList()
                 }
+            } header: {
+                Text("Body weight")
+            } footer: {
+                Text("Used for the trend chart on the Progress tab. Skip it if you only want to log workouts.")
             }
 
             Section("Workout") {

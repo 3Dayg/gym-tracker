@@ -6,6 +6,19 @@ enum ProfileService {
         (try? context.fetch(FetchDescriptor<UserProfile>()))?.first
     }
 
+    /// Creates a profile with no height or weight so the user can train
+    /// immediately. Units are already stored in settings as they pick them.
+    @discardableResult
+    static func skipOnboarding(
+        in context: ModelContext,
+        now: Date = .now
+    ) -> UserProfile {
+        if let existing = profile(in: context) { return existing }
+        let profile = UserProfile(heightCentimeters: nil, createdAt: now)
+        context.insert(profile)
+        return profile
+    }
+
     @discardableResult
     static func completeOnboarding(
         heightCentimeters: Double,

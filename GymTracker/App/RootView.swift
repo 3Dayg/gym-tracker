@@ -15,6 +15,11 @@ struct RootView: View {
         }
         .task {
             AppSettings.migrateUnitPreferenceIfNeeded()
+            if ProcessInfo.processInfo.arguments.contains("-inMemoryStore") {
+                // Plan seeds also write UserDefaults; reset so a blank store
+                // still gets Boxing Conditioning and Incline Walk.
+                UserDefaults.standard.removeObject(forKey: PlanSeeder.seededNamesKey)
+            }
             // Exercises first: plan seeds reference them by name.
             ExerciseSeeder.seedIfNeeded(in: modelContext)
             PlanSeeder.seedIfNeeded(in: modelContext)

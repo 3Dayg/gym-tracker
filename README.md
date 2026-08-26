@@ -6,7 +6,7 @@ New to the app? Read the **[User Guide](docs/README.md)** — it walks through e
 
 ## Features
 
-- **Profile** — first-launch height and weight, then a profile page to update them (calorie estimates later).
+- **Profile** — first-launch units, optional height and body weight, then a profile page to update them. Data stays on the phone.
 - **Exercise library** — built-in gym and boxing exercises, searchable and filterable by muscle group, plus custom exercises.
 - **Workout plans** — build reusable plans with target sets, reps, and weight per exercise. **Boxing Conditioning** and **Incline Walk** plans are included.
 - **Live workout logging** — start from a plan (targets and last-used weights pre-filled) or from scratch; check off sets as you go, with an automatic rest timer between sets.

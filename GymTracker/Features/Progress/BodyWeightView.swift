@@ -28,6 +28,11 @@ struct BodyWeightView: View {
             .padding(.vertical, 8)
         }
 
+        if measurements.isEmpty {
+            Text("Log your weight to see a trend over time. This stays on this iPhone.")
+                .foregroundStyle(.secondary)
+        }
+
         if let latest = measurements.last {
             LabeledContent("Latest") {
                 Text(Formatters.weight(latest.weight, unit: unitSystem))

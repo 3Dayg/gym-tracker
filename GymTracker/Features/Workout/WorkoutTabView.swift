@@ -34,6 +34,7 @@ private struct StartWorkoutView: View {
                     Label("Quick Start", systemImage: "bolt.fill")
                         .font(.headline)
                 }
+                .accessibilityIdentifier("quickStart")
             }
 
             if !plans.isEmpty {
