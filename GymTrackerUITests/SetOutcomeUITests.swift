@@ -46,7 +46,7 @@ final class SetOutcomeUITests: XCTestCase {
 
         app.buttons["finishWorkout"].tap()
         XCTAssertTrue(app.navigationBars["Save workout?"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["2"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Completed"].waitForExistence(timeout: 5))
         app.buttons["confirmFinish"].tap()
 
         XCTAssertTrue(app.navigationBars["Workout saved"].waitForExistence(timeout: 8))

@@ -22,6 +22,7 @@ Gym Tracker is a fully offline workout companion. Everything you log stays on yo
 6. [Incline Walk](incline-walk.md) — the bundled fat-loss treadmill walk plan
 7. [The exercise library](exercises.md) — finding exercises and adding custom ones
 8. [History and progress](history-and-progress.md) — reviewing workouts, charts, and PRs
+9. [App Store privacy answers](app-store-privacy.md) — copy these when you submit the app
 
 ## Quick answers
 

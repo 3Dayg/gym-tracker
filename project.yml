@@ -23,7 +23,8 @@ targets:
       path: GymTracker/Info.plist
       properties:
         CFBundleDisplayName: Gym Tracker
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         ITSAppUsesNonExemptEncryption: false

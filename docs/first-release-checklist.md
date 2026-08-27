@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. Units, first launch, Boxing timing, skip/fail/finish, live-timer restoration, History summaries, and plan previews are in place, but the app is missing a real icon plus privacy-manifest and policy work. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. The icon, on-device privacy policy, and privacy manifest are in place, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -69,7 +69,7 @@ Gym Tracker is not ready for a public App Store submission yet. Units, first lau
 - **Effort:** M
 - **Acceptance:** A first-time user can understand and start either seeded plan without opening the documentation, and cannot start a plan that would produce an empty workout.
 
-### - [ ] 8. Complete the minimum store and accessibility surface
+### - [x] 8. Complete the minimum store and accessibility surface
 
 - **User problem:** The app has no actual icon image, no privacy manifest/policy link, and custom workout controls/charts lack explicit accessibility support.
 - **Why it matters:** The icon is a submission blocker; privacy declarations are release work; small unlabeled controls are poor one-handed and VoiceOver targets.
@@ -152,7 +152,7 @@ Gym Tracker is not ready for a public App Store submission yet. Units, first lau
 - [x] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
 - [ ] Phase 4: Surface plan guidance and improve one-handed next-set logging.
 - [ ] Phase 5: Improve empty states, plan/custom exercise flows, and Progress clarity.
-- [ ] Phase 6: Complete icon, privacy, and accessibility work.
+- [x] Phase 6: Complete icon, privacy, and accessibility work.
 - [ ] Phase 7: Run the clean-install release acceptance pass below.
 
 ## Release acceptance pass

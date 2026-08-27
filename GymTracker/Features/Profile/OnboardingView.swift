@@ -32,6 +32,12 @@ struct OnboardingView: View {
                     Text("Your workouts stay on this iPhone — no account or internet needed.")
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("onboardingPrivacyCopy")
+                    NavigationLink {
+                        PrivacyPolicyView()
+                    } label: {
+                        Text("Privacy")
+                    }
+                    .accessibilityIdentifier("onboardingPrivacyPolicy")
                 }
 
                 Section {
@@ -67,6 +73,7 @@ struct OnboardingView: View {
                     Text("Body weight")
                 } footer: {
                     Text("Optional. Used for the body-weight trend on the Progress tab — not required to start training.")
+                        .accessibilityIdentifier("onboardingWeightFooter")
                 }
             }
             .navigationTitle("Welcome")

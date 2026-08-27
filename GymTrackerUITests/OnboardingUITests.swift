@@ -17,9 +17,9 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.buttons["skipOnboarding"].exists)
         XCTAssertTrue(app.buttons["continueOnboarding"].exists)
         XCTAssertTrue(app.staticTexts["Optional. You can add this later in Profile."].exists)
-        XCTAssertTrue(
-            app.staticTexts["Optional. Used for the body-weight trend on the Progress tab — not required to start training."].exists
-        )
+        XCTAssertTrue(app.buttons["onboardingPrivacyPolicy"].exists)
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["Body weight"].waitForExistence(timeout: 5))
     }
 
     func testSkipForNowReachesQuickStart() {

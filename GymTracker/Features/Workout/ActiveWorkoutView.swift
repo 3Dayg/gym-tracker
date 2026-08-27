@@ -552,11 +552,11 @@ private struct SetRow: View {
             }
             Button("Skip") { skip() }
                 .buttonStyle(.bordered)
-                .controlSize(kind == .timed ? .large : .regular)
+                .controlSize(.large)
                 .accessibilityIdentifier("skipSet")
             Button("Fail") { fail() }
                 .buttonStyle(.bordered)
-                .controlSize(kind == .timed ? .large : .regular)
+                .controlSize(.large)
                 .accessibilityIdentifier("failSet")
             Spacer()
         }
@@ -595,6 +595,8 @@ private struct SetRow: View {
             .font(.subheadline.monospacedDigit())
             .foregroundStyle(.secondary)
             .frame(width: 24)
+            .frame(minHeight: 44)
+            .accessibilityLabel("\(kind.setLabel) \(setNumber)")
     }
 
     private var completeButton: some View {
@@ -602,13 +604,17 @@ private struct SetRow: View {
             toggleCompleted()
         } label: {
             Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
-                .font(.title3)
+                .font(.title2)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
                 .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
         }
         .buttonStyle(.plain)
         .disabled(set.isSkipped)
         .accessibilityIdentifier("completeSet")
         .accessibilityLabel(set.isCompleted ? "Completed" : "Mark complete")
+        .accessibilityHint(set.isCompleted ? "Clears the check. Failed sets stay out of personal records." : "Check this row. Skip and Fail are separate.")
+        .accessibilityAddTraits(set.isCompleted ? [.isButton, .isSelected] : .isButton)
     }
 
     private var compactFields: some View {
@@ -776,11 +782,13 @@ private struct WorkTimerBar: View {
             if sessionTimer.isPaused {
                 Button("Resume") { sessionTimer.resume() }
                     .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
+                    .controlSize(.large)
+                    .accessibilityLabel("Resume work timer")
             } else {
                 Button("Pause") { sessionTimer.pause() }
                     .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .controlSize(.large)
+                    .accessibilityLabel("Pause work timer")
             }
         }
         .padding()
@@ -802,8 +810,9 @@ private struct RestTimerBar: View {
 
             Button("Skip rest") { sessionTimer.stop() }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(.large)
                 .accessibilityIdentifier("skipRest")
+                .accessibilityLabel("Skip rest")
         }
         .padding()
         .background(.bar)

@@ -27,6 +27,12 @@ struct ProfileView: View {
                 Text("Your data stays on this iPhone — no account or internet. Height is optional. Body weight is used for the trend chart on Progress.")
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("profilePrivacyCopy")
+                NavigationLink {
+                    PrivacyPolicyView()
+                } label: {
+                    Text("Privacy")
+                }
+                .accessibilityIdentifier("privacyPolicy")
             }
 
             Section {

@@ -49,6 +49,9 @@ struct ExerciseProgressView: View {
             .chartYAxisLabel(unitSystem.weightLabel)
             .chartLegend(.visible)
             .frame(height: 220)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Top set and estimated one-rep max")
+            .accessibilityValue(strengthChartSummary)
 
             HStack(spacing: 4) {
                 chartLegendSwatch(color: .accentColor, label: "Top set")
@@ -94,6 +97,9 @@ struct ExerciseProgressView: View {
             }
             .chartYAxisLabel("min")
             .frame(height: 220)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Minutes per day")
+            .accessibilityValue(timedChartSummary(points))
 
             HStack(spacing: 4) {
                 chartLegendSwatch(color: .accentColor, label: "Total minutes per day")
@@ -142,6 +148,9 @@ struct ExerciseProgressView: View {
                 .symbol(.square)
             }
             .frame(height: 220)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Cardio minutes and incline")
+            .accessibilityValue(cardioTimeChartSummary(points))
 
             HStack(spacing: 4) {
                 chartLegendSwatch(color: .accentColor, label: "Minutes")
@@ -160,6 +169,9 @@ struct ExerciseProgressView: View {
                 }
                 .chartYAxisLabel(unitSystem.distanceLabel)
                 .frame(height: 160)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Distance per day")
+                .accessibilityValue(cardioDistanceChartSummary(points))
 
                 HStack(spacing: 4) {
                     chartLegendSwatch(color: .purple, label: "Distance per day")
@@ -191,9 +203,37 @@ struct ExerciseProgressView: View {
         .padding(.vertical, 8)
     }
 
+    private var strengthChartSummary: String {
+        guard let latest = points.last else { return "No logged sets yet" }
+        let top = Formatters.weight(latest.topSetWeight, unit: unitSystem)
+        if points.count == 1 {
+            return "One workout. Top set \(top)."
+        }
+        return "\(points.count) workouts. Latest top set \(top)."
+    }
+
+    private func timedChartSummary(_ points: [CardioProgressPoint]) -> String {
+        guard let latest = points.last else { return "No logged time yet" }
+        let minutes = Formatters.durationSeconds(latest.totalSeconds)
+        if points.count == 1 {
+            return "One day. \(minutes) of work."
+        }
+        return "\(points.count) days. Latest \(minutes)."
+    }
+
+    private func cardioTimeChartSummary(_ points: [CardioProgressPoint]) -> String {
+        guard let latest = points.last else { return "No logged cardio yet" }
+        return "\(points.count) days. Latest \(Formatters.durationSeconds(latest.totalSeconds)), incline \(Formatters.incline(latest.averageIncline))."
+    }
+
+    private func cardioDistanceChartSummary(_ points: [CardioProgressPoint]) -> String {
+        guard let latest = points.last else { return "No distance yet" }
+        return "Latest \(Formatters.distance(latest.totalDistance, unit: unitSystem))."
+    }
+
     private func chartLegendSwatch(color: Color, label: String) -> some View {
         HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 8, height: 8)
+            Circle().fill(color).frame(width: 8, height: 8).accessibilityHidden(true)
             Text(label).foregroundStyle(.secondary)
         }
         .padding(.trailing, 8)

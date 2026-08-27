@@ -18,5 +18,6 @@ On the profile page you can:
 - **Update Weight** — this is the current body weight. If you already logged a weight today, that entry is updated instead of adding a second one
 - Jump to **Weight history** (same list as Progress)
 - Change the rest timer
+- Open **Privacy** — what stays on this iPhone and what is never collected
 
 The Progress tab still charts body weight over time. Use Profile when you just want to change today's number; use Progress when you want to log a weight for another date.

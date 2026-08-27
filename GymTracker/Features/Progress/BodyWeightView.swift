@@ -26,6 +26,9 @@ struct BodyWeightView: View {
             .chartYAxisLabel(unitSystem.weightLabel)
             .frame(height: 160)
             .padding(.vertical, 8)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Body weight trend")
+            .accessibilityValue(bodyWeightChartSummary)
         }
 
         if measurements.isEmpty {
@@ -55,6 +58,15 @@ struct BodyWeightView: View {
                 BodyWeightHistoryList()
             }
         }
+    }
+
+    private var bodyWeightChartSummary: String {
+        guard let latest = measurements.last else { return "No entries" }
+        let value = Formatters.weight(latest.weight, unit: unitSystem)
+        if measurements.count == 1 {
+            return "One entry. \(value)."
+        }
+        return "\(measurements.count) entries. Latest \(value)."
     }
 }
 
