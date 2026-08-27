@@ -19,7 +19,7 @@ struct ActiveWorkoutView: View {
     @State private var nothingToSaveAlert = false
     @State private var saveErrorMessage: String?
     @State private var isStalePrompt = false
-    @State private var isPlanGuidanceExpanded = true
+    @State private var isPlanGuidanceExpanded = false
 
     private var effectiveRestSeconds: Int {
         session.restSeconds ?? restDuration
@@ -33,15 +33,39 @@ struct ActiveWorkoutView: View {
         WorkoutSessionService.finishPreview(for: session)
     }
 
+    private var liveProgress: LiveWorkoutProgress {
+        LiveWorkoutProgress.from(session)
+    }
+
+    private var nextPendingSet: SetEntry? {
+        LiveWorkoutProgress.nextPendingSet(in: session)
+    }
+
     var body: some View {
         List {
             Section {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    LabeledContent(
-                        "Elapsed",
-                        value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
-                    )
-                    .accessibilityIdentifier("elapsedWorkoutTime")
+                VStack(alignment: .leading, spacing: 8) {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        LabeledContent(
+                            "Elapsed",
+                            value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
+                        )
+                        .accessibilityIdentifier("elapsedWorkoutTime")
+                    }
+                    LabeledContent("Logged", value: liveProgress.caption)
+                        .accessibilityIdentifier("workoutProgress")
+                    Text(liveProgress.nextLine)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("nextSetCue")
+                    if let next = nextPendingSet, let exercise = next.sessionExercise {
+                        Button {
+                            WorkoutSessionService.addSet(to: exercise)
+                        } label: {
+                            Label("Add \(exercise.kind.setLabel)", systemImage: "plus")
+                        }
+                        .accessibilityIdentifier("addSetToCurrent")
+                    }
                 }
             }
 
@@ -50,13 +74,6 @@ struct ActiveWorkoutView: View {
                     Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("emptyWorkoutHint")
-                }
-            } else if finishPreview.completedCount == 0 {
-                Section {
-                    Text("Tick a set you did to save. Skip leaves a marker in History. Incomplete rows are dropped when you finish.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("finishHint")
                 }
             }
 
@@ -73,9 +90,6 @@ struct ActiveWorkoutView: View {
                 Section {
                     LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
                         .accessibilityIdentifier("timedRestHint")
-                    Text("Tap Start on a timed round. When the countdown hits zero, rest begins. You can still tick a round by hand.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -85,6 +99,7 @@ struct ActiveWorkoutView: View {
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
                     followOnRestSeconds: sessionExercise.kind.startsRestTimer ? effectiveRestSeconds : 0,
+                    nextPendingSet: nextPendingSet,
                     onDidWork: {
                         if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
                             sessionTimer.startRest(seconds: effectiveRestSeconds)
@@ -111,7 +126,13 @@ struct ActiveWorkoutView: View {
                 }
                 .accessibilityIdentifier("discardWorkout")
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    isPickingExercise = true
+                } label: {
+                    Label("Add Exercise", systemImage: "plus")
+                }
+                .accessibilityIdentifier("addExerciseToolbar")
                 Button("Finish") { attemptFinish() }
                     .fontWeight(.semibold)
                     .accessibilityIdentifier("finishWorkout")
@@ -411,9 +432,17 @@ private struct SessionExerciseSection: View {
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
     let followOnRestSeconds: Int
+    let nextPendingSet: SetEntry?
     let onDidWork: () -> Void
 
     @Environment(\.modelContext) private var modelContext
+
+    private var formNotes: String {
+        if !sessionExercise.exerciseNotes.isEmpty {
+            return sessionExercise.exerciseNotes
+        }
+        return sessionExercise.exercise?.notes ?? ""
+    }
 
     var body: some View {
         Section {
@@ -425,6 +454,7 @@ private struct SessionExerciseSection: View {
                     unitSystem: unitSystem,
                     sessionTimer: sessionTimer,
                     followOnRestSeconds: followOnRestSeconds,
+                    isNext: set === nextPendingSet,
                     onDidWork: onDidWork
                 )
             }
@@ -438,7 +468,17 @@ private struct SessionExerciseSection: View {
             }
             .accessibilityIdentifier("addSet")
         } header: {
-            Text(sessionExercise.exerciseName)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(sessionExercise.exerciseName)
+                if !formNotes.isEmpty {
+                    Text(formNotes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textCase(.none)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("exerciseNotes")
+                }
+            }
         }
     }
 
@@ -465,6 +505,7 @@ private struct SetRow: View {
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
     let followOnRestSeconds: Int
+    let isNext: Bool
     let onDidWork: () -> Void
 
     @State private var activeMetric: SetMetric?
@@ -495,13 +536,21 @@ private struct SetRow: View {
             }
         }
         .padding(.vertical, 4)
+        .opacity(rowOpacity)
         .listRowBackground(rowBackground)
         .sheet(item: $activeMetric) { metric in
             pickerSheet(for: metric)
         }
     }
 
+    private var rowOpacity: Double {
+        if isTimingThisSet || set.isPending { return 1 }
+        if set.isFailed { return 0.85 }
+        return 0.45
+    }
+
     private var rowBackground: Color? {
+        if isNext { return Color.accentColor.opacity(0.14) }
         if set.isSkipped { return Color.secondary.opacity(0.08) }
         if set.isFailed { return Color.orange.opacity(0.10) }
         if set.isCompleted { return Color.accentColor.opacity(0.08) }
@@ -604,15 +653,15 @@ private struct SetRow: View {
             toggleCompleted()
         } label: {
             Image(systemName: set.isCompleted ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .frame(minWidth: 44, minHeight: 44)
+                .font(set.isPending ? .title : .title2)
+                .frame(minWidth: set.isPending ? 52 : 44, minHeight: set.isPending ? 52 : 44)
                 .contentShape(Rectangle())
-                .foregroundStyle(set.isCompleted ? Color.accentColor : .secondary)
+                .foregroundStyle(set.isCompleted ? Color.accentColor : (isNext ? Color.accentColor : .secondary))
         }
         .buttonStyle(.plain)
         .disabled(set.isSkipped)
         .accessibilityIdentifier("completeSet")
-        .accessibilityLabel(set.isCompleted ? "Completed" : "Mark complete")
+        .accessibilityLabel(set.isCompleted ? "Completed" : (isNext ? "Mark complete, up next" : "Mark complete"))
         .accessibilityHint(set.isCompleted ? "Clears the check. Failed sets stay out of personal records." : "Check this row. Skip and Fail are separate.")
         .accessibilityAddTraits(set.isCompleted ? [.isButton, .isSelected] : .isButton)
     }

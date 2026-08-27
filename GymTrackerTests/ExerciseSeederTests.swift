@@ -81,6 +81,28 @@ final class ExerciseSeederTests: XCTestCase {
         XCTAssertEqual(byName["Push-Up"]?.kind, .strength)
     }
 
+    func testSeedFillsEmptyNotesOnBuiltInsWithoutOverwriting() throws {
+        context.insert(Exercise(
+            name: "Jump Rope",
+            muscleGroup: .cardio,
+            equipment: .other,
+            kind: .timed
+        ))
+        context.insert(Exercise(
+            name: "Push-Up",
+            muscleGroup: .chest,
+            equipment: .bodyweight,
+            notes: "My own cue"
+        ))
+        ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
+
+        let byName = Dictionary(
+            uniqueKeysWithValues: try context.fetch(FetchDescriptor<Exercise>()).map { ($0.name, $0) }
+        )
+        XCTAssertEqual(byName["Jump Rope"]?.notes, "Stay light on the balls of your feet.")
+        XCTAssertEqual(byName["Push-Up"]?.notes, "My own cue")
+    }
+
     func testSeedDataIsValid() {
         let seeds = ExerciseSeeder.loadSeedExercises(from: appBundle)
 

@@ -10,6 +10,7 @@ enum ExerciseSeeder {
         let equipment: Equipment
         /// Defaults to strength when the JSON omits it.
         let kind: ExerciseKind?
+        let notes: String?
     }
 
     static func seedIfNeeded(in context: ModelContext, bundle: Bundle = .main) {
@@ -23,12 +24,16 @@ enum ExerciseSeeder {
             if let exercise = existing[seed.name] {
                 if !exercise.isCustom {
                     exercise.kind = kind
+                    if exercise.notes.isEmpty, let notes = seed.notes, !notes.isEmpty {
+                        exercise.notes = notes
+                    }
                 }
             } else {
                 context.insert(Exercise(
                     name: seed.name,
                     muscleGroup: seed.muscleGroup,
                     equipment: seed.equipment,
+                    notes: seed.notes ?? "",
                     isCustom: false,
                     kind: kind
                 ))

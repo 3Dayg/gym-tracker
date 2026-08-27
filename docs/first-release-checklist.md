@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. First-week orientation is in place, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. Live logging shows progress and the next set, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -89,7 +89,7 @@ Gym Tracker is not ready for a public App Store submission yet. First-week orien
 - **Effort:** S
 - **Acceptance:** A new user can explain each tab and start either workout route without consulting the guide.
 
-### - [ ] 10. Reduce one-handed logging and “what’s next?” friction
+### - [x] 10. Reduce one-handed logging and “what’s next?” friction
 
 - **User problem:** Long workouts are one scrolling list; the completion circle is small, there is no overall progress, and notes/form cues are unavailable.
 - **Why it matters:** The live screen is used repeatedly between sets, often one-handed.
@@ -150,7 +150,7 @@ Gym Tracker is not ready for a public App Store submission yet. First-week orien
 - [x] Phase 1: Fix canonical unit handling and revise onboarding.
 - [x] Phase 2: Correct History summaries, save errors, and destructive-action safety.
 - [x] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
-- [ ] Phase 4: Surface plan guidance and improve one-handed next-set logging.
+- [x] Phase 4: Surface plan guidance and improve one-handed next-set logging.
 - [ ] Phase 5: Improve empty states, plan/custom exercise flows, and Progress clarity.
 - [x] Phase 6: Complete icon, privacy, and accessibility work.
 - [ ] Phase 7: Run the clean-install release acceptance pass below.

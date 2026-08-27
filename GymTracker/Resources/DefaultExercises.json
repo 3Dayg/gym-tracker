@@ -6,7 +6,7 @@
   { "name": "Dumbbell Fly", "muscleGroup": "chest", "equipment": "dumbbell" },
   { "name": "Cable Crossover", "muscleGroup": "chest", "equipment": "cable" },
   { "name": "Machine Chest Press", "muscleGroup": "chest", "equipment": "machine" },
-  { "name": "Push-Up", "muscleGroup": "chest", "equipment": "bodyweight" },
+  { "name": "Push-Up", "muscleGroup": "chest", "equipment": "bodyweight", "notes": "Chest to the floor; lock out at the top." },
   { "name": "Chest Dip", "muscleGroup": "chest", "equipment": "bodyweight" },
 
   { "name": "Deadlift", "muscleGroup": "back", "equipment": "barbell" },
@@ -55,7 +55,7 @@
   { "name": "Hip Thrust", "muscleGroup": "glutes", "equipment": "barbell" },
   { "name": "Glute Kickback", "muscleGroup": "glutes", "equipment": "cable" },
 
-  { "name": "Plank", "muscleGroup": "core", "equipment": "bodyweight", "kind": "timed" },
+  { "name": "Plank", "muscleGroup": "core", "equipment": "bodyweight", "kind": "timed", "notes": "Brace as if someone will punch your stomach." },
   { "name": "Crunch", "muscleGroup": "core", "equipment": "bodyweight" },
   { "name": "Hanging Leg Raise", "muscleGroup": "core", "equipment": "bodyweight" },
   { "name": "Russian Twist", "muscleGroup": "core", "equipment": "dumbbell" },
@@ -63,11 +63,11 @@
   { "name": "Ab Wheel Rollout", "muscleGroup": "core", "equipment": "other" },
 
   { "name": "Treadmill Walk", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio" },
-  { "name": "Incline Treadmill Walk", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio" },
+  { "name": "Incline Treadmill Walk", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio", "notes": "Keep a steady pace. Hands off the rails if you can." },
   { "name": "Treadmill Run", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio" },
   { "name": "Rowing Machine", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio" },
   { "name": "Stationary Bike", "muscleGroup": "cardio", "equipment": "machine", "kind": "cardio" },
-  { "name": "Jump Rope", "muscleGroup": "cardio", "equipment": "other", "kind": "timed" },
+  { "name": "Jump Rope", "muscleGroup": "cardio", "equipment": "other", "kind": "timed", "notes": "Stay light on the balls of your feet." },
   { "name": "Sprint Intervals", "muscleGroup": "cardio", "equipment": "other", "kind": "timed" },
 
   { "name": "Shadow Boxing", "muscleGroup": "cardio", "equipment": "bodyweight", "kind": "timed" },

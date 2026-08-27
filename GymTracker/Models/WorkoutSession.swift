@@ -87,6 +87,8 @@ final class SessionExercise {
     /// Denormalized (with the kind below) so history remains readable if
     /// the exercise is deleted.
     var exerciseName: String
+    /// Form cue copied at add time so it stays visible in the live workout.
+    var exerciseNotes: String = ""
     private var kindRaw: String
 
     var exercise: Exercise?
@@ -117,6 +119,7 @@ final class SessionExercise {
     init(exercise: Exercise, sortOrder: Int) {
         self.exercise = exercise
         self.exerciseName = exercise.name
+        self.exerciseNotes = exercise.notes
         self.kindRaw = exercise.kind.rawValue
         self.sortOrder = sortOrder
     }
