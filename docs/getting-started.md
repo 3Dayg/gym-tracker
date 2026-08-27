@@ -4,6 +4,8 @@
 
 On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional — tap **Skip for now** if you just want to train. Two plans are ready immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
 
+The Workout tab shows a short **Your first workout** card: pick Quick Start or a plan, complete sets, then find results in History and Progress. Tap **Got it** to hide it. Empty History and Progress offer **Start Workout**; empty Plans offer **Create Plan**.
+
 ## Settings
 
 Tap the gear icon in the top-right of the **Workout** tab:

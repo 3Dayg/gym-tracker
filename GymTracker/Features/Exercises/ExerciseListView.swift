@@ -63,7 +63,32 @@ struct ExerciseListView: View {
             }
             .overlay {
                 if filteredExercises.isEmpty {
-                    ContentUnavailableView.search(text: searchText)
+                    ContentUnavailableView {
+                        Label(
+                            searchText.isEmpty && muscleGroupFilter == nil
+                                ? "No Exercises"
+                                : "No Matching Exercises",
+                            systemImage: "dumbbell"
+                        )
+                    } description: {
+                        Text(
+                            searchText.isEmpty && muscleGroupFilter == nil
+                                ? "Add a custom exercise to get started."
+                                : "Try a different search, or add your own."
+                        )
+                    } actions: {
+                        if !searchText.isEmpty || muscleGroupFilter != nil {
+                            Button("Clear Filters") {
+                                searchText = ""
+                                muscleGroupFilter = nil
+                            }
+                            .accessibilityIdentifier("emptyExercisesClearFilters")
+                        }
+                        Button("Add Exercise") {
+                            isAddingExercise = true
+                        }
+                        .accessibilityIdentifier("emptyExercisesAddExercise")
+                    }
                 }
             }
         }

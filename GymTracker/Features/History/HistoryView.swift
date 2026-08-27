@@ -59,11 +59,16 @@ struct HistoryView: View {
             }
             .overlay {
                 if sessions.isEmpty {
-                    ContentUnavailableView(
-                        "No Workouts Yet",
-                        systemImage: "clock.arrow.circlepath",
-                        description: Text("Finished workouts will show up here.")
-                    )
+                    ContentUnavailableView {
+                        Label("No Workouts Yet", systemImage: "clock.arrow.circlepath")
+                    } description: {
+                        Text("Finish a workout and it will show up here.")
+                    } actions: {
+                        Button("Start Workout") {
+                            navigation.openWorkout()
+                        }
+                        .accessibilityIdentifier("emptyHistoryStartWorkout")
+                    }
                 }
             }
             .onChange(of: navigation.sessionToReveal) { _, session in

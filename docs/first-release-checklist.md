@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. The icon, on-device privacy policy, and privacy manifest are in place, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. First-week orientation is in place, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -80,7 +80,7 @@ Gym Tracker is not ready for a public App Store submission yet. The icon, on-dev
 
 ## Next — high leverage for first-week use
 
-### - [ ] 9. Add a lightweight first-workout orientation
+### - [x] 9. Add a lightweight first-workout orientation
 
 - **User problem:** After onboarding, the user lands among five tabs with no explanation of Quick Start versus Plans or what empty History and Progress are waiting for.
 - **Why it matters:** A trainer should begin within seconds and understand where completed work goes.

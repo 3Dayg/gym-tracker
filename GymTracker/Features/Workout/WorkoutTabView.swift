@@ -40,9 +40,19 @@ private struct StartWorkoutView: View {
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
 
     @State private var planToPreview: WorkoutPlan?
+    @AppStorage(SettingsKeys.hasDismissedWorkoutOrientation)
+    private var hasDismissedOrientation = false
 
     var body: some View {
         List {
+            if !hasDismissedOrientation {
+                Section {
+                    FirstWorkoutOrientationCard {
+                        hasDismissedOrientation = true
+                    }
+                }
+            }
+
             Section {
                 Button {
                     WorkoutSessionService.startEmptySession(in: modelContext)
@@ -93,6 +103,29 @@ private struct StartWorkoutView: View {
                 .presentationDetents([.medium, .large])
             }
         }
+    }
+}
+
+private struct FirstWorkoutOrientationCard: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Your first workout")
+                .font(.headline)
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Pick Quick Start or a plan below.", systemImage: "1.circle.fill")
+                Label("Tick what you did, or Start a timed round.", systemImage: "2.circle.fill")
+                Label("Finish, then open History and Progress.", systemImage: "3.circle.fill")
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            Button("Got it", action: onDismiss)
+                .accessibilityIdentifier("dismissOrientation")
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("firstWorkoutOrientation")
     }
 }
 

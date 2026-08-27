@@ -66,6 +66,16 @@ enum UITestFixtures {
             ProfileService.skipOnboarding(in: context)
             seedUnstartablePlans(in: context)
             try? context.save()
+            return
+        }
+
+        if args.contains("-emptyPlans") {
+            ProfileService.skipOnboarding(in: context)
+            let plans = (try? context.fetch(FetchDescriptor<WorkoutPlan>())) ?? []
+            for plan in plans {
+                context.delete(plan)
+            }
+            try? context.save()
         }
     }
 

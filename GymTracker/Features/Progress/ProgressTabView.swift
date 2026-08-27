@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ProgressTabView: View {
     @Query(sort: \Exercise.name) private var exercises: [Exercise]
+    @Environment(AppNavigation.self) private var navigation
 
     @State private var selectedExercise: Exercise?
 
@@ -31,6 +32,10 @@ struct ProgressTabView: View {
                     if exercisesWithHistory.isEmpty {
                         Text("Finish a workout to see progress charts.")
                             .foregroundStyle(.secondary)
+                        Button("Start Workout") {
+                            navigation.openWorkout()
+                        }
+                        .accessibilityIdentifier("emptyProgressStartWorkout")
                     } else {
                         Picker("Exercise", selection: $selectedExercise) {
                             Text("Choose…").tag(Exercise?.none)

@@ -68,6 +68,7 @@ enum SettingsKeys {
     static let restDurationSeconds = "restDurationSeconds"
     /// Pre-conversion preference: `"kg"` or `"lb"`. Migrated once onto `unitSystem`.
     static let legacyWeightUnit = "weightUnit"
+    static let hasDismissedWorkoutOrientation = "hasDismissedWorkoutOrientation"
 }
 
 enum SettingsDefaults {

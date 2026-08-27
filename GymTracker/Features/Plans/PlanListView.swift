@@ -34,11 +34,16 @@ struct PlanListView: View {
             }
             .overlay {
                 if plans.isEmpty {
-                    ContentUnavailableView(
-                        "No Plans Yet",
-                        systemImage: "list.bullet.rectangle",
-                        description: Text("Create a workout plan to reuse it whenever you train.")
-                    )
+                    ContentUnavailableView {
+                        Label("No Plans Yet", systemImage: "list.bullet.rectangle")
+                    } description: {
+                        Text("Create a workout plan to reuse it whenever you train.")
+                    } actions: {
+                        Button("Create Plan") {
+                            addPlan()
+                        }
+                        .accessibilityIdentifier("emptyPlansCreatePlan")
+                    }
                 }
             }
             .onChange(of: navigation.planToEdit) { _, plan in

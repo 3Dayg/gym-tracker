@@ -6,6 +6,7 @@ The **Exercises** tab lists every exercise you can use in plans and workouts. Th
 
 - **Search** by name using the search bar.
 - **Filter** by muscle group with the funnel icon in the top-left.
+- If nothing matches, **Clear Filters** restores the list, or **Add Exercise** creates a custom one.
 
 The same search and filter are available inside the exercise picker whenever you add an exercise to a plan or a running workout.
 

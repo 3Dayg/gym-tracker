@@ -16,6 +16,10 @@ final class AppNavigation {
         selectedTab = .history
     }
 
+    func openWorkout() {
+        selectedTab = .workout
+    }
+
     func openPlanEditor(_ plan: WorkoutPlan) {
         planToEdit = plan
         selectedTab = .plans

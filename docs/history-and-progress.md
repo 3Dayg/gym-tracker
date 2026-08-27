@@ -11,6 +11,8 @@ The **History** tab lists every finished workout, newest first, grouped by month
 
 Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance. Skipped rows say **Skipped**. Failed rows keep the numbers you logged and are marked **Failed** — they do not count toward personal records.
 
+If History is empty, **Start Workout** takes you back to the Workout tab.
+
 Swipe left on a History row to delete it. The app asks first; **Keep Workout** cancels. Deletion cannot be undone.
 
 ## Progress charts
