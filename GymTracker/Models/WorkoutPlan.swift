@@ -9,6 +9,9 @@ final class WorkoutPlan {
     /// Seconds of rest after a completed set or timed round. Nil uses the
     /// app-wide rest setting.
     var targetRestSeconds: Int?
+    /// Hidden from the list until the user taps Create, so backing out of a
+    /// new plan does not leave an empty “New Plan” template.
+    var isDraft: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \PlannedExercise.plan)
     var exercises: [PlannedExercise] = []
@@ -23,12 +26,14 @@ final class WorkoutPlan {
         name: String,
         notes: String = "",
         createdAt: Date = .now,
-        targetRestSeconds: Int? = nil
+        targetRestSeconds: Int? = nil,
+        isDraft: Bool = false
     ) {
         self.name = name
         self.notes = notes
         self.createdAt = createdAt
         self.targetRestSeconds = targetRestSeconds
+        self.isDraft = isDraft
     }
 }
 

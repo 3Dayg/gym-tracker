@@ -3,10 +3,17 @@ import SwiftUI
 
 struct PlanEditorView: View {
     @Bindable var plan: WorkoutPlan
+    var onCancel: (() -> Void)?
+    var onCreate: (() -> Void)?
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppNavigation.self) private var navigation
     @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
+    @Query(filter: #Predicate<WorkoutSession> { $0.endedAt == nil })
+    private var activeSessions: [WorkoutSession]
     @State private var isPickingExercise = false
+
+    private var isCreating: Bool { plan.isDraft }
 
     private var restSelection: Binding<Int> {
         Binding(
@@ -21,6 +28,7 @@ struct PlanEditorView: View {
         Form {
             Section {
                 TextField("Plan name", text: $plan.name)
+                    .accessibilityIdentifier("planNameField")
                 TextField("Notes", text: $plan.notes, axis: .vertical)
                     .lineLimit(2...6)
             } footer: {
@@ -47,54 +55,75 @@ struct PlanEditorView: View {
             }
 
             Section("Exercises") {
-                ForEach(plan.orderedExercises) { plannedExercise in
-                    PlannedExerciseRow(plannedExercise: plannedExercise, unitSystem: unitSystem)
-                }
-                .onDelete(perform: deleteExercises)
-                .onMove(perform: moveExercises)
+                if plan.exercises.isEmpty {
+                    Text("Add the lifts or rounds this plan should include.")
+                        .foregroundStyle(.secondary)
+                    Button {
+                        isPickingExercise = true
+                    } label: {
+                        Label("Add Exercise", systemImage: "plus")
+                    }
+                    .accessibilityIdentifier("emptyPlanAddExercise")
+                } else {
+                    ForEach(plan.orderedExercises) { plannedExercise in
+                        PlannedExerciseRow(plannedExercise: plannedExercise, unitSystem: unitSystem)
+                    }
+                    .onDelete(perform: deleteExercises)
+                    .onMove(perform: moveExercises)
 
-                Button {
-                    isPickingExercise = true
-                } label: {
-                    Label("Add Exercise", systemImage: "plus")
+                    Button {
+                        isPickingExercise = true
+                    } label: {
+                        Label("Add Exercise", systemImage: "plus")
+                    }
+                    .accessibilityIdentifier("addExercise")
                 }
             }
         }
         .navigationTitle(plan.name.isEmpty ? "Plan" : plan.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { EditButton() }
+        .navigationBarBackButtonHidden(isCreating)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbar {
+            if isCreating {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { onCancel?() }
+                        .accessibilityIdentifier("cancelCreatePlan")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Create") { onCreate?() }
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("confirmCreatePlan")
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    EditButton()
+                }
+                if startSummary.canStart {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Start") { startWorkout() }
+                            .fontWeight(.semibold)
+                            .accessibilityLabel("Start Workout")
+                            .accessibilityIdentifier("startPlanFromEditor")
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $isPickingExercise) {
-            ExercisePickerView { exercise in
-                addExercise(exercise)
+            NavigationStack {
+                ExercisePickerView(allowsMultipleSelection: true) { exercise in
+                    PlanBuilder.addExercise(exercise, to: plan, in: modelContext)
+                }
             }
         }
     }
 
-    private func addExercise(_ exercise: Exercise) {
-        let nextOrder = (plan.exercises.map(\.sortOrder).max() ?? -1) + 1
-        let planned: PlannedExercise
-        switch exercise.kind {
-        case .strength:
-            planned = PlannedExercise(exercise: exercise, sortOrder: nextOrder)
-        case .timed:
-            planned = PlannedExercise(
-                exercise: exercise,
-                sortOrder: nextOrder,
-                targetSets: 3,
-                targetDurationSeconds: 60
-            )
-        case .cardio:
-            planned = PlannedExercise(
-                exercise: exercise,
-                sortOrder: nextOrder,
-                targetSets: 1,
-                targetDurationSeconds: 600,
-                targetSpeed: SettingsDefaults.walkingSpeedKilometersPerHour,
-                targetIncline: 0
-            )
+    private func startWorkout() {
+        guard startSummary.canStart else { return }
+        if activeSessions.isEmpty {
+            WorkoutSessionService.startSession(from: plan, in: modelContext)
         }
-        planned.plan = plan
-        modelContext.insert(planned)
+        navigation.openWorkout()
     }
 
     private func deleteExercises(at offsets: IndexSet) {

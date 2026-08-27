@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. Live logging shows progress and the next set, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is not ready for a public App Store submission yet. Plan create/edit no longer leaves empty templates, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
 
 ## Now — must fix before submit
 
@@ -98,7 +98,7 @@ Gym Tracker is not ready for a public App Store submission yet. Live logging sho
 - **Effort:** M
 - **Acceptance:** In a long plan, a trainer can identify and complete the next set with one thumb, read a cue, and add a set without hunting through the list.
 
-### - [ ] 11. Close the loop when creating and editing plans
+### - [x] 11. Close the loop when creating and editing plans
 
 - **User problem:** Creating a plan immediately saves “New Plan,” backing out leaves empty templates, adding several exercises is repetitive, and starting requires switching tabs.
 - **Why it matters:** Plans should remove setup friction rather than create it.

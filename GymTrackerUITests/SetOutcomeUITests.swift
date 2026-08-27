@@ -21,11 +21,10 @@ final class SetOutcomeUITests: XCTestCase {
         app.buttons["addExercise"].tap()
 
         XCTAssertTrue(app.navigationBars["Choose Exercise"].waitForExistence(timeout: 8))
-        let search = app.searchFields["Search exercises"]
-        if search.waitForExistence(timeout: 5) {
-            search.tap()
-            search.typeText("Barbell Bench Press")
-        }
+        let search = app.textFields["searchExercises"]
+        XCTAssertTrue(search.waitForExistence(timeout: 8))
+        search.tap()
+        search.typeText("Barbell Bench Press")
         XCTAssertTrue(app.staticTexts["Barbell Bench Press"].waitForExistence(timeout: 8))
         app.staticTexts["Barbell Bench Press"].tap()
 

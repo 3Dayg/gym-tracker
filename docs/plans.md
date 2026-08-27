@@ -11,10 +11,13 @@ You can edit them or add your own.
 
 ## Creating a plan
 
-1. Go to the **Plans** tab and tap **+**.
-2. Give the plan a name (and optional notes).
+1. Go to the **Plans** tab and tap **+** (or **Create Plan** if the list is empty).
+2. Give the plan a name (and optional notes). **Cancel** throws the draft away; nothing is saved until you tap **Create**.
 3. Optionally set **Rest between sets**. Boxing Conditioning ships at 1:00; leave it on “Use app setting” to follow the Workout tab gear (default 1:30). Timed rounds start this rest when their countdown hits zero.
-4. Tap **Add Exercise** and pick from the library. Repeat for each exercise.
+4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more.
+5. Tap **Create**. **Cancel** throws the draft away.
+
+After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one.
 
 ## Setting targets
 
@@ -46,8 +49,8 @@ What you edit depends on the exercise:
 
 ## Managing plans
 
-- Everything saves automatically as you type — there is no Save button.
+- Edits to an existing plan save as you type. A brand-new plan is a draft until you tap **Create**.
 - If you have no plans, **Create Plan** on the empty screen (or **+**) opens a new template.
-- Swipe a plan left on the Plans list to delete it. Workouts you already logged from that plan stay in History.
-- To start training with a plan, go to the **Workout** tab and tap the plan. Read the preview, then **Start Workout**. Plans with no usable exercises cannot start; they offer **Edit Plan** instead.
+- Swipe a plan left on the Plans list and confirm **Delete Plan** to remove it. Workouts you already logged from that plan stay in History.
+- To start training, tap **Start Workout** in the plan editor, or go to the **Workout** tab and tap the plan. Read the preview, then **Start Workout**. Plans with no usable exercises cannot start; they offer **Edit Plan** instead.
 - The live workout keeps a collapsible **Plan guidance** block with the same notes. It starts closed so the next set stays on screen; tap it if you want the reminder.

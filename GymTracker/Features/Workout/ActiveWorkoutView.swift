@@ -146,8 +146,10 @@ struct ActiveWorkoutView: View {
             }
         }
         .sheet(isPresented: $isPickingExercise) {
-            ExercisePickerView { exercise in
-                WorkoutSessionService.addExercise(exercise, to: session, in: modelContext)
+            NavigationStack {
+                ExercisePickerView { exercise in
+                    WorkoutSessionService.addExercise(exercise, to: session, in: modelContext)
+                }
             }
         }
         .sheet(isPresented: $isConfirmingFinish) {
