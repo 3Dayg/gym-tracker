@@ -95,8 +95,10 @@ private struct StartWorkoutView: View {
                 PlanPreviewSheet(
                     plan: planToPreview,
                     onStart: {
-                        WorkoutSessionService.startSession(from: planToPreview, in: modelContext)
-                        self.planToPreview = nil
+                        startPlan(planToPreview, followAlong: false)
+                    },
+                    onFollowAlong: {
+                        startPlan(planToPreview, followAlong: true)
                     },
                     onEdit: {
                         let plan = planToPreview
@@ -108,6 +110,12 @@ private struct StartWorkoutView: View {
                 .presentationDetents([.medium, .large])
             }
         }
+    }
+
+    private func startPlan(_ plan: WorkoutPlan, followAlong: Bool) {
+        let session = WorkoutSessionService.startSession(from: plan, in: modelContext)
+        session.isFollowAlong = followAlong
+        planToPreview = nil
     }
 }
 
@@ -158,6 +166,7 @@ private struct PlanStartRow: View {
 private struct PlanPreviewSheet: View {
     let plan: WorkoutPlan
     let onStart: () -> Void
+    let onFollowAlong: () -> Void
     let onEdit: () -> Void
     let onCancel: () -> Void
 
@@ -175,6 +184,16 @@ private struct PlanPreviewSheet: View {
                         Text(summary.blockedReason)
                             .foregroundStyle(.secondary)
                             .accessibilityIdentifier("planPreviewBlockedReason")
+                    }
+                }
+
+                if summary.canStart {
+                    Section {
+                        Button("Follow along", action: onFollowAlong)
+                            .fontWeight(.semibold)
+                            .accessibilityIdentifier("startFollowAlongFromPreview")
+                    } footer: {
+                        Text("One card at a time. Rest advances on its own. Strength is never logged until you tap Done.")
                     }
                 }
 

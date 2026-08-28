@@ -17,7 +17,7 @@ You can edit them or add your own.
 4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more. After you have trained, **Recent** sits at the top of the picker.
 5. Tap **Create**. **Cancel** throws the draft away.
 
-After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one.
+After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one. From the Workout tab preview you can **Start Workout** (list) or **Follow along** (one card). See [Follow along](follow-along.md).
 
 ## Setting targets
 

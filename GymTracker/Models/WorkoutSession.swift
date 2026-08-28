@@ -18,6 +18,9 @@ final class WorkoutSession {
     var stalePromptAcknowledged: Bool = false
     /// Plan notes copied at start so guidance survives plan edits or deletion.
     var planNotes: String = ""
+    /// Second presentation of this session: one card at a time. The list
+    /// is still the same `SetEntry` rows; this only changes the live UI.
+    var isFollowAlong: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \SessionExercise.session)
     var exercises: [SessionExercise] = []

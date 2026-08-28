@@ -146,7 +146,7 @@ Gym Tracker is close to a first App Store submission. Units, onboarding, boxing 
 - **Acceptance:** Each addition measurably reduces taps without making the default screen denser or harder to use one-handed.
 - **Shipped:** Plate-step weight −/+ on the next pending set (wheel still available); rest −15/+15 on the rest bar; Recent in the exercise picker. Live reordering and favorites were skipped — the plan editor already reorders, and a second live-list control would fight one-handed density.
 
-### - [ ] 16. Add Follow along after the log loop is trusted
+### - [x] 16. Add Follow along after the log loop is trusted
 
 - **User problem:** Consistent trainers with known plans still tap every set. The phone should run work and rest so they can train without staring at a list.
 - **Why it matters:** Comfort for repeat use, without a second source of truth for logged data.
@@ -154,6 +154,7 @@ Gym Tracker is close to a first App Store submission. Units, onboarding, boxing 
 - **Where:** Plan preview, live workout.
 - **Effort:** L
 - **Acceptance:** A known plan can be followed with one primary tap per strength set; numbers remain editable; switching back to the list never loses or invents sets.
+- **Shipped:** Plan preview **Follow along** and a live-workout toggle. Rest is full-screen and never completes the next strength set. **All sets** returns to the list.
 
 ## Implementation order
 

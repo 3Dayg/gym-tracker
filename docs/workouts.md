@@ -5,7 +5,7 @@
 On the **Workout** tab you have two options:
 
 - **Quick Start** — begins an empty workout. Add exercises as you go.
-- **Start from a plan** — tap any plan below Quick Start. A preview shows notes, exercise count, work time, and rest before you confirm **Start Workout**. Empty or broken plans cannot start; **Edit Plan** opens them on the Plans tab. Strength exercises appear with sets, reps, and weight; timed exercises (plank, bag rounds) with a **duration**; cardio exercises with **time, speed, incline, and distance**.
+- **Start from a plan** — tap any plan below Quick Start. A preview shows notes, exercise count, work time, and rest before you confirm **Start Workout** (the list) or **Follow along** (one card at a time). Empty or broken plans cannot start; **Edit Plan** opens them on the Plans tab. Strength exercises appear with sets, reps, and weight; timed exercises (plank, bag rounds) with a **duration**; cardio exercises with **time, speed, incline, and distance**.
 
 Only one workout can be active at a time. If you close or even quit the app, the workout is still there when you return — including the work or rest countdown if it has not expired yet.
 
@@ -33,6 +33,7 @@ Timed rounds have their own work countdown. Rest is a separate bar at the bottom
 - If you leave the app, remaining time still follows the clock, and a notification fires when rest is over (allow notifications when the app asks).
 - If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back — a timed round that ended while closed is marked complete and the app tells you.
 - The live workout shows **Elapsed** time plus **Logged** and **Next**. **Plan guidance** starts collapsed so the first set stays in reach. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.
+- **Follow along** is the same session as one card at a time. See [Follow along](follow-along.md).
 
 ## Finishing or discarding
 

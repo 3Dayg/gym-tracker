@@ -43,81 +43,20 @@ struct ActiveWorkoutView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    TimelineView(.periodic(from: .now, by: 1)) { context in
-                        LabeledContent(
-                            "Elapsed",
-                            value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
-                        )
-                        .accessibilityIdentifier("elapsedWorkoutTime")
-                    }
-                    LabeledContent("Logged", value: liveProgress.caption)
-                        .accessibilityIdentifier("workoutProgress")
-                    Text(liveProgress.nextLine)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("nextSetCue")
-                    if let next = nextPendingSet, let exercise = next.sessionExercise {
-                        Button {
-                            WorkoutSessionService.addSet(to: exercise)
-                        } label: {
-                            Label("Add \(exercise.kind.setLabel)", systemImage: "plus")
-                        }
-                        .accessibilityIdentifier("addSetToCurrent")
-                    }
-                }
-            }
-
-            if session.exercises.isEmpty {
-                Section {
-                    Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("emptyWorkoutHint")
-                }
-            }
-
-            if !session.planNotes.isEmpty {
-                Section {
-                    DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
-                        Text(session.planNotes)
-                    }
-                    .accessibilityIdentifier("planGuidance")
-                }
-            }
-
-            if hasTimedExercise {
-                Section {
-                    LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
-                        .accessibilityIdentifier("timedRestHint")
-                }
-            }
-
-            ForEach(session.orderedExercises) { sessionExercise in
-                SessionExerciseSection(
-                    sessionExercise: sessionExercise,
-                    unitSystem: unitSystem,
+        Group {
+            if session.isFollowAlong {
+                FollowAlongView(
+                    session: session,
                     sessionTimer: sessionTimer,
-                    followOnRestSeconds: sessionExercise.kind.startsRestTimer ? effectiveRestSeconds : 0,
-                    nextPendingSet: nextPendingSet,
-                    onDidWork: {
-                        if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
-                            sessionTimer.startRest(seconds: effectiveRestSeconds)
-                        }
-                    }
+                    unitSystem: unitSystem,
+                    restSeconds: effectiveRestSeconds,
+                    onAddExercise: { isPickingExercise = true }
                 )
-            }
-
-            Section {
-                Button {
-                    isPickingExercise = true
-                } label: {
-                    Label("Add Exercise", systemImage: "plus")
-                }
-                .accessibilityIdentifier("addExercise")
+            } else {
+                workoutList
             }
         }
+        .id(session.isFollowAlong)
         .navigationTitle(session.planName ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -129,6 +68,10 @@ struct ActiveWorkoutView: View {
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 WorkoutSettingsMenu()
+                if session.isFollowAlong {
+                    Button("All sets") { session.isFollowAlong = false }
+                        .accessibilityIdentifier("showAllSets")
+                }
                 Button {
                     isPickingExercise = true
                 } label: {
@@ -141,10 +84,12 @@ struct ActiveWorkoutView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            if sessionTimer.phase == .work {
-                WorkTimerBar(sessionTimer: sessionTimer)
-            } else if sessionTimer.phase == .rest {
-                RestTimerBar(sessionTimer: sessionTimer)
+            if !session.isFollowAlong {
+                if sessionTimer.phase == .work {
+                    WorkTimerBar(sessionTimer: sessionTimer)
+                } else if sessionTimer.phase == .rest {
+                    RestTimerBar(sessionTimer: sessionTimer)
+                }
             }
         }
         .sheet(isPresented: $isPickingExercise) {
@@ -289,6 +234,88 @@ struct ActiveWorkoutView: View {
     private func discardWorkout() {
         sessionTimer.stop()
         WorkoutSessionService.cancel(session, in: modelContext)
+    }
+
+    private var workoutList: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        LabeledContent(
+                            "Elapsed",
+                            value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
+                        )
+                        .accessibilityIdentifier("elapsedWorkoutTime")
+                    }
+                    LabeledContent("Logged", value: liveProgress.caption)
+                        .accessibilityIdentifier("workoutProgress")
+                    Text(liveProgress.nextLine)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("nextSetCue")
+                    if let next = nextPendingSet, let exercise = next.sessionExercise {
+                        Button {
+                            WorkoutSessionService.addSet(to: exercise)
+                        } label: {
+                            Label("Add \(exercise.kind.setLabel)", systemImage: "plus")
+                        }
+                        .accessibilityIdentifier("addSetToCurrent")
+                    }
+                    if !session.exercises.isEmpty {
+                        Button("Follow along") { session.isFollowAlong = true }
+                            .accessibilityIdentifier("enterFollowAlong")
+                    }
+                }
+            }
+
+            if session.exercises.isEmpty {
+                Section {
+                    Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("emptyWorkoutHint")
+                }
+            }
+
+            if !session.planNotes.isEmpty {
+                Section {
+                    DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
+                        Text(session.planNotes)
+                    }
+                    .accessibilityIdentifier("planGuidance")
+                }
+            }
+
+            if hasTimedExercise {
+                Section {
+                    LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
+                        .accessibilityIdentifier("timedRestHint")
+                }
+            }
+
+            ForEach(session.orderedExercises) { sessionExercise in
+                SessionExerciseSection(
+                    sessionExercise: sessionExercise,
+                    unitSystem: unitSystem,
+                    sessionTimer: sessionTimer,
+                    followOnRestSeconds: sessionExercise.kind.startsRestTimer ? effectiveRestSeconds : 0,
+                    nextPendingSet: nextPendingSet,
+                    onDidWork: {
+                        if sessionExercise.kind.startsRestTimer, sessionTimer.phase != .work {
+                            sessionTimer.startRest(seconds: effectiveRestSeconds)
+                        }
+                    }
+                )
+            }
+
+            Section {
+                Button {
+                    isPickingExercise = true
+                } label: {
+                    Label("Add Exercise", systemImage: "plus")
+                }
+                .accessibilityIdentifier("addExercise")
+            }
+        }
     }
 }
 

@@ -24,7 +24,7 @@ Gym Tracker is a fully offline workout companion. Everything you log stays on yo
 8. [History and progress](history-and-progress.md) — reviewing workouts, charts, and PRs
 9. [App Store privacy answers](app-store-privacy.md) — copy these when you submit the app
 10. [Privacy policy](privacy.md) — the public URL for App Store Connect
-11. [Follow along](follow-along.md) — post-v1 hands-free presentation (not in the first release)
+11. [Follow along](follow-along.md) — one card at a time on the same session
 
 ## Quick answers
 
