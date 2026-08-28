@@ -15,6 +15,7 @@ struct ProfileView: View {
     @State private var heightCentimeters: Int = 170
     @State private var heightFeet = 5
     @State private var heightInches = 7
+    @State private var isConfirmingDeleteAll = false
 
     private static let restOptions = [30, 60, 90, 120, 180, 240, 300]
 
@@ -100,6 +101,8 @@ struct ProfileView: View {
                     }
                 }
             }
+
+            DataAndPrivacySection(isConfirmingDeleteAll: $isConfirmingDeleteAll)
         }
         .navigationTitle("Profile")
         .onAppear {
@@ -109,6 +112,21 @@ struct ProfileView: View {
         .onChange(of: unitSystem) { oldUnit, newUnit in
             convertWeightInput(from: oldUnit, to: newUnit)
             loadHeightFromProfile()
+        }
+        .sheet(isPresented: $isConfirmingDeleteAll) {
+            DeleteAllDataSheet(
+                onDelete: {
+                    isConfirmingDeleteAll = false
+                    do {
+                        try BackupService.deleteAllData(in: modelContext)
+                    } catch {
+                        // Export errors are surfaced in the data section.
+                    }
+                },
+                onKeep: { isConfirmingDeleteAll = false }
+            )
+            .presentationDetents([.medium, .large])
+            .interactiveDismissDisabled()
         }
     }
 
@@ -157,6 +175,88 @@ struct ProfileToolbarButton: View {
             ProfileView()
         } label: {
             Label("Profile", systemImage: "person.crop.circle")
+        }
+    }
+}
+
+private struct DataAndPrivacySection: View {
+    @Binding var isConfirmingDeleteAll: Bool
+    @Environment(\.modelContext) private var modelContext
+    @State private var jsonURL: URL?
+    @State private var csvURL: URL?
+    @State private var exportErrorMessage: String?
+
+    var body: some View {
+        Section {
+            if let jsonURL {
+                ShareLink(item: jsonURL) {
+                    Label("Export JSON backup", systemImage: "square.and.arrow.up")
+                }
+                .accessibilityIdentifier("exportJSONBackup")
+            }
+            if let csvURL {
+                ShareLink(item: csvURL) {
+                    Label("Export workouts CSV", systemImage: "tablecells")
+                }
+                .accessibilityIdentifier("exportWorkoutsCSV")
+            }
+            Button("Delete All Data", role: .destructive) {
+                isConfirmingDeleteAll = true
+            }
+            .accessibilityIdentifier("deleteAllData")
+        } header: {
+            Text("Data & Privacy")
+        } footer: {
+            Text("There is no account or iCloud sync. Uninstalling or deleting all data removes every workout from this iPhone. Export a backup first if you want a copy.")
+        }
+        .onAppear(perform: prepareExport)
+        .alert("Couldn’t export", isPresented: Binding(
+            get: { exportErrorMessage != nil },
+            set: { if !$0 { exportErrorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(exportErrorMessage ?? "Try again.")
+        }
+    }
+
+    private func prepareExport() {
+        do {
+            let document = BackupService.makeDocument(in: modelContext)
+            let files = try BackupService.writeExportFiles(from: document)
+            jsonURL = files.json
+            csvURL = files.csv
+        } catch {
+            exportErrorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct DeleteAllDataSheet: View {
+    let onDelete: () -> Void
+    let onKeep: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text("This removes workouts, plans, custom exercises, and body measurements from this iPhone. There is no account to restore from. Export a backup first if you want to keep a copy. This cannot be undone.")
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("deleteAllDataWarning")
+                }
+            }
+            .navigationTitle("Delete all data?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Keep Data", action: onKeep)
+                        .accessibilityIdentifier("keepAllData")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Delete All Data", role: .destructive, action: onDelete)
+                        .accessibilityIdentifier("confirmDeleteAllData")
+                }
+            }
         }
     }
 }

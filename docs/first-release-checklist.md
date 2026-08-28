@@ -127,7 +127,7 @@ Gym Tracker is close to a first App Store submission. Units, onboarding, boxing 
 
 ## Later — nice if time
 
-### - [ ] 14. Add user-controlled backup and reset
+### - [x] 14. Add user-controlled backup and reset
 
 - **User problem:** Fully offline storage means uninstalling or losing the phone loses every workout, and there is no in-app export or reset.
 - **Why it matters:** Long-term trust declines as workout history becomes more valuable.

@@ -86,4 +86,12 @@ enum AppSettings {
         }
         defaults.removeObject(forKey: SettingsKeys.legacyWeightUnit)
     }
+
+    /// Units, rest, and first-workout card — not the SwiftData store.
+    static func resetPreferences(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: SettingsKeys.unitSystem)
+        defaults.removeObject(forKey: SettingsKeys.restDurationSeconds)
+        defaults.removeObject(forKey: SettingsKeys.legacyWeightUnit)
+        defaults.removeObject(forKey: SettingsKeys.hasDismissedWorkoutOrientation)
+    }
 }

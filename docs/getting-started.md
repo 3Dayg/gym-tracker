@@ -25,3 +25,4 @@ Tap the gear icon in the top-right of the **Workout** tab (also available during
 
 - Allow notifications when asked — that's how the app tells you your rest is over while your phone is locked.
 - Log your body weight from **Profile** (today's weight) or the **Progress** tab (any date).
+- There is no iCloud backup. Export JSON or CSV from **Profile** if you want a copy; **Delete All Data** wipes the phone and returns to Welcome.

@@ -6,7 +6,7 @@ This page matches the in-app Privacy screen (Profile → Privacy). Keep them in 
 
 ## What stays on this iPhone
 
-Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app deletes this data.
+Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app or using **Delete All Data** in Profile deletes this data. Export a JSON or CSV backup from Profile if you want a copy on another device.
 
 ## Notifications
 
@@ -18,4 +18,4 @@ No location, contacts, photos, Health app access, analytics, advertising identif
 
 ## Your choices
 
-Height and body weight are optional. You can skip them on first launch and add or remove them later in Profile. You can turn off notifications in iOS Settings.
+Height and body weight are optional. You can skip them on first launch and add or remove them later in Profile. You can export a JSON or CSV backup, or delete all data, from Profile. You can turn off notifications in iOS Settings.

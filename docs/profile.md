@@ -19,5 +19,7 @@ On the profile page you can:
 - Jump to **Weight history** (same list as Progress)
 - Change the rest timer
 - Open **Privacy** — what stays on this iPhone and what is never collected
+- **Export JSON backup** or **Export workouts CSV** — a copy you can save or share. The app never uploads it.
+- **Delete All Data** — wipes this iPhone and returns to Welcome. There is no account to restore from.
 
 The Progress tab still charts body weight over time. Use Profile when you just want to change today's number; use Progress when you want to log a weight for another date.

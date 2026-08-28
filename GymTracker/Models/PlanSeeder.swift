@@ -107,6 +107,12 @@ enum PlanSeeder {
         defaults.set(true, forKey: boxingRestUpgradeKey)
     }
 
+    /// Clears seed bookkeeping so a full reset can re-import bundled plans.
+    static func resetSeedTracking(defaults: UserDefaults = .standard) {
+        defaults.removeObject(forKey: seededNamesKey)
+        defaults.removeObject(forKey: boxingRestUpgradeKey)
+    }
+
     static func loadSeedPlans(from bundle: Bundle = .main) -> [SeedPlan] {
         guard
             let url = bundle.url(forResource: "DefaultPlans", withExtension: "json"),
