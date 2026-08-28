@@ -69,6 +69,15 @@ struct ExercisePickerView: View {
                 selectionOrder.append(id)
             }
         }
+        .overlay {
+            if filteredExercises.isEmpty {
+                EmptyStateBlock(
+                    title: "No Matching Exercises",
+                    systemImage: "dumbbell",
+                    description: "Try a different search, or add your own."
+                )
+            }
+        }
         .navigationTitle(allowsMultipleSelection ? "Choose Exercises" : "Choose Exercise")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -86,7 +95,7 @@ struct ExercisePickerView: View {
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
+                .gymPrimaryButton()
                 .controlSize(.large)
                 .disabled(selectedIDs.isEmpty)
                 .accessibilityIdentifier("confirmAddExercises")

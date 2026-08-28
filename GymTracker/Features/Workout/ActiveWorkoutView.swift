@@ -52,6 +52,8 @@ struct ActiveWorkoutView: View {
                     restSeconds: effectiveRestSeconds,
                     onAddExercise: { isPickingExercise = true }
                 )
+            } else if sessionTimer.phase == .rest {
+                restTakeover
             } else {
                 workoutList
             }
@@ -59,6 +61,7 @@ struct ActiveWorkoutView: View {
         .id(session.isFollowAlong)
         .navigationTitle(session.planName ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button("Discard", role: .destructive) {
@@ -67,10 +70,10 @@ struct ActiveWorkoutView: View {
                 .accessibilityIdentifier("discardWorkout")
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
-                WorkoutSettingsMenu()
-                if session.isFollowAlong {
-                    Button("All sets") { session.isFollowAlong = false }
-                        .accessibilityIdentifier("showAllSets")
+                Menu {
+                    WorkoutSettingsPickers()
+                } label: {
+                    Label("More", systemImage: "ellipsis.circle")
                 }
                 Button {
                     isPickingExercise = true
@@ -84,12 +87,11 @@ struct ActiveWorkoutView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            if !session.isFollowAlong {
-                if sessionTimer.phase == .work {
-                    WorkTimerBar(sessionTimer: sessionTimer)
-                } else if sessionTimer.phase == .rest {
-                    RestTimerBar(sessionTimer: sessionTimer)
-                }
+            if !session.isFollowAlong, sessionTimer.phase == .rest {
+                RestAdjustControls(sessionTimer: sessionTimer)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(.bar)
             }
         }
         .sheet(isPresented: $isPickingExercise) {
@@ -236,43 +238,56 @@ struct ActiveWorkoutView: View {
         WorkoutSessionService.cancel(session, in: modelContext)
     }
 
+    private var restTakeover: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                progressHeader
+                RestTakeoverCard(
+                    remainingSeconds: sessionTimer.remainingSeconds,
+                    nextLine: liveProgress.nextLine
+                )
+            }
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+
+    private var progressHeader: some View {
+        WorkoutProgressHeader(
+            startedAt: session.startedAt,
+            progress: liveProgress,
+            isFollowAlong: false,
+            showsPresentationToggle: !session.exercises.isEmpty,
+            onTogglePresentation: { session.isFollowAlong = true },
+            addSetTitle: nextPendingSet.flatMap { set in
+                set.sessionExercise.map { "Add \($0.kind.setLabel)" }
+            },
+            onAddSet: {
+                if let exercise = nextPendingSet?.sessionExercise {
+                    WorkoutSessionService.addSet(to: exercise)
+                }
+            }
+        )
+    }
+
     private var workoutList: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    TimelineView(.periodic(from: .now, by: 1)) { context in
-                        LabeledContent(
-                            "Elapsed",
-                            value: Formatters.elapsed(context.date.timeIntervalSince(session.startedAt))
-                        )
-                        .accessibilityIdentifier("elapsedWorkoutTime")
-                    }
-                    LabeledContent("Logged", value: liveProgress.caption)
-                        .accessibilityIdentifier("workoutProgress")
-                    Text(liveProgress.nextLine)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("nextSetCue")
-                    if let next = nextPendingSet, let exercise = next.sessionExercise {
-                        Button {
-                            WorkoutSessionService.addSet(to: exercise)
-                        } label: {
-                            Label("Add \(exercise.kind.setLabel)", systemImage: "plus")
-                        }
-                        .accessibilityIdentifier("addSetToCurrent")
-                    }
-                    if !session.exercises.isEmpty {
-                        Button("Follow along") { session.isFollowAlong = true }
-                            .accessibilityIdentifier("enterFollowAlong")
-                    }
-                }
+                progressHeader
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.clear)
             }
 
             if session.exercises.isEmpty {
                 Section {
-                    Text("Quick Start is empty. Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("emptyWorkoutHint")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Quick Start is empty")
+                            .font(.headline)
+                        Text("Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("emptyWorkoutHint")
+                    }
+                    .accessibilityElement(children: .contain)
                 }
             }
 
@@ -570,7 +585,7 @@ private struct SetRow: View {
                     set.isFailed.toggle()
                 }
                 .font(.subheadline)
-                .foregroundStyle(set.isFailed ? .orange : .secondary)
+                .foregroundStyle(set.isFailed ? GymTheme.failed : .secondary)
                 .accessibilityIdentifier("markFailed")
             }
         }
@@ -585,14 +600,14 @@ private struct SetRow: View {
     private var rowOpacity: Double {
         if isTimingThisSet || set.isPending { return 1 }
         if set.isFailed { return 0.85 }
-        return 0.45
+        return GymTheme.skippedOpacity + 0.05
     }
 
     private var rowBackground: Color? {
-        if isNext { return Color.accentColor.opacity(0.14) }
-        if set.isSkipped { return Color.secondary.opacity(0.08) }
-        if set.isFailed { return Color.orange.opacity(0.10) }
-        if set.isCompleted { return Color.accentColor.opacity(0.08) }
+        if isNext { return GymTheme.red.opacity(GymTheme.nextFillOpacity) }
+        if set.isSkipped { return Color.primary.opacity(GymTheme.completeFillOpacity) }
+        if set.isFailed { return GymTheme.red.opacity(GymTheme.failedFillOpacity) }
+        if set.isCompleted { return Color.primary.opacity(GymTheme.completeFillOpacity) }
         return nil
     }
 
@@ -615,10 +630,11 @@ private struct SetRow: View {
             if isTimingThisSet {
                 Text(Formatters.countdown(sessionTimer.remainingSeconds))
                     .font(.title.monospacedDigit())
+                    .foregroundStyle(GymTheme.work)
                     .accessibilityIdentifier("workCountdown")
                 Text(sessionTimer.isPaused ? "Paused" : "Work")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(GymTheme.work)
             } else if set.isSkipped {
                 Text("Skipped")
                     .font(.subheadline)
@@ -639,11 +655,11 @@ private struct SetRow: View {
                 workControls
             }
             Button("Skip") { skip() }
-                .buttonStyle(.bordered)
+                .gymSecondaryButton()
                 .controlSize(.large)
                 .accessibilityIdentifier("skipSet")
             Button("Fail") { fail() }
-                .buttonStyle(.bordered)
+                .gymFailButton()
                 .controlSize(.large)
                 .accessibilityIdentifier("failSet")
             Spacer()
@@ -654,12 +670,12 @@ private struct SetRow: View {
         Group {
             if isTimingThisSet && sessionTimer.isPaused {
                 Button("Resume") { sessionTimer.resume() }
-                    .buttonStyle(.borderedProminent)
+                    .gymPrimaryButton()
                     .controlSize(.large)
                     .accessibilityIdentifier("resumeWork")
             } else if isTimingThisSet {
                 Button("Pause") { sessionTimer.pause() }
-                    .buttonStyle(.bordered)
+                    .gymSecondaryButton()
                     .controlSize(.large)
                     .accessibilityIdentifier("pauseWork")
             } else {
@@ -670,7 +686,7 @@ private struct SetRow: View {
                         followOnRestSeconds: followOnRestSeconds
                     )
                 }
-                .buttonStyle(.borderedProminent)
+                .gymPrimaryButton()
                 .controlSize(.large)
                 .disabled(set.durationSeconds <= 0)
                 .accessibilityIdentifier("startWork")
@@ -695,7 +711,7 @@ private struct SetRow: View {
                 .font(set.isPending ? .title : .title2)
                 .frame(minWidth: set.isPending ? 52 : 44, minHeight: set.isPending ? 52 : 44)
                 .contentShape(Rectangle())
-                .foregroundStyle(set.isCompleted ? Color.accentColor : (isNext ? Color.accentColor : .secondary))
+                .foregroundStyle(set.isCompleted ? Color.primary : (isNext ? GymTheme.red : .secondary))
         }
         .buttonStyle(.plain)
         .disabled(set.isSkipped)
@@ -761,7 +777,7 @@ private struct SetRow: View {
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.bordered)
+                    .gymSecondaryButton()
                     .accessibilityIdentifier("decrementWeight")
                     .accessibilityLabel("Decrease weight")
 
@@ -774,7 +790,7 @@ private struct SetRow: View {
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.bordered)
+                    .gymSecondaryButton()
                     .accessibilityIdentifier("incrementWeight")
                     .accessibilityLabel("Increase weight")
                 }
@@ -787,14 +803,9 @@ private struct SetRow: View {
     }
 
     private func metricChip(for metric: SetMetric) -> some View {
-        Button {
+        MetricChip(text: chipText(for: metric)) {
             activeMetric = metric
-        } label: {
-            Text(chipText(for: metric))
-                .font(.subheadline.monospacedDigit())
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
         .accessibilityIdentifier(metric == .weight ? "weightValue" : "metricChip-\(metric.rawValue)")
         .accessibilityValue(chipText(for: metric))
     }
@@ -890,78 +901,3 @@ private struct SetRow: View {
     }
 }
 
-private struct WorkTimerBar: View {
-    let sessionTimer: SessionTimer
-
-    var body: some View {
-        HStack {
-            Image(systemName: "figure.boxing")
-            Text(sessionTimer.isPaused ? "Paused" : "Work")
-            Text(Formatters.countdown(sessionTimer.remainingSeconds))
-                .font(.headline.monospacedDigit())
-                .accessibilityIdentifier("workBarCountdown")
-
-            Spacer()
-
-            if sessionTimer.isPaused {
-                Button("Resume") { sessionTimer.resume() }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .accessibilityLabel("Resume work timer")
-            } else {
-                Button("Pause") { sessionTimer.pause() }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .accessibilityLabel("Pause work timer")
-            }
-        }
-        .padding()
-        .background(.bar)
-    }
-}
-
-private struct RestTimerBar: View {
-    let sessionTimer: SessionTimer
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "timer")
-            Text("Rest: \(Formatters.countdown(sessionTimer.remainingSeconds))")
-                .font(.headline.monospacedDigit())
-                .accessibilityIdentifier("restBarCountdown")
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-
-            Spacer(minLength: 4)
-
-            Button {
-                sessionTimer.adjustRest(by: -15)
-            } label: {
-                Text("−15")
-                    .frame(minWidth: 44, minHeight: 44)
-            }
-            .buttonStyle(.bordered)
-            .accessibilityIdentifier("decrementRest")
-            .accessibilityLabel("Subtract 15 seconds of rest")
-
-            Button {
-                sessionTimer.adjustRest(by: 15)
-            } label: {
-                Text("+15")
-                    .frame(minWidth: 44, minHeight: 44)
-            }
-            .buttonStyle(.bordered)
-            .accessibilityIdentifier("incrementRest")
-            .accessibilityLabel("Add 15 seconds of rest")
-
-            Button("Skip") { sessionTimer.stop() }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
-                .accessibilityIdentifier("skipRest")
-                .accessibilityLabel("Skip rest")
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.bar)
-    }
-}

@@ -19,10 +19,12 @@ enum ProfileService {
         return profile
     }
 
+    /// Writes a profile from Welcome. Height and weight are each optional;
+    /// omitting both is the same as Skip for now.
     @discardableResult
     static func completeOnboarding(
-        heightCentimeters: Double,
-        weight: Double,
+        heightCentimeters: Double? = nil,
+        weight: Double? = nil,
         in context: ModelContext,
         now: Date = .now,
         calendar: Calendar = .current
@@ -30,13 +32,17 @@ enum ProfileService {
         let profile: UserProfile
         if let existing = Self.profile(in: context) {
             profile = existing
-            profile.heightCentimeters = heightCentimeters
+            if let heightCentimeters {
+                profile.heightCentimeters = heightCentimeters
+            }
             profile.updatedAt = now
         } else {
             profile = UserProfile(heightCentimeters: heightCentimeters, createdAt: now)
             context.insert(profile)
         }
-        upsertWeight(weight, on: now, in: context, calendar: calendar)
+        if let weight, weight > 0 {
+            upsertWeight(weight, on: now, in: context, calendar: calendar)
+        }
         return profile
     }
 

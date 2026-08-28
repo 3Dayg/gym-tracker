@@ -35,6 +35,8 @@ struct ExerciseProgressView: View {
                     y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.topSetWeight)),
                     series: .value("Series", "Top set")
                 )
+                .foregroundStyle(Color.primary)
+                .lineStyle(StrokeStyle(lineWidth: 2))
                 .symbol(.circle)
 
                 LineMark(
@@ -42,7 +44,7 @@ struct ExerciseProgressView: View {
                     y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.bestEstimatedOneRepMax)),
                     series: .value("Series", "Est. 1RM")
                 )
-                .foregroundStyle(.orange)
+                .foregroundStyle(GymTheme.red)
                 .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
                 .symbol(.square)
             }
@@ -54,8 +56,8 @@ struct ExerciseProgressView: View {
             .accessibilityValue(strengthChartSummary)
 
             HStack(spacing: 4) {
-                chartLegendSwatch(color: .accentColor, label: "Top set")
-                chartLegendSwatch(color: .orange, label: "Est. 1RM")
+                ChartLegendStroke(color: .primary, label: "Top set")
+                ChartLegendStroke(color: GymTheme.red, dashed: true, label: "Est. 1RM")
             }
             .font(.caption)
 
@@ -105,6 +107,8 @@ struct ExerciseProgressView: View {
                     y: .value("Minutes", point.totalMinutes),
                     series: .value("Series", "Time")
                 )
+                .foregroundStyle(Color.primary)
+                .lineStyle(StrokeStyle(lineWidth: 2))
                 .symbol(.circle)
             }
             .chartYAxisLabel("min")
@@ -114,7 +118,7 @@ struct ExerciseProgressView: View {
             .accessibilityValue(timedChartSummary(points))
 
             HStack(spacing: 4) {
-                chartLegendSwatch(color: .accentColor, label: "Total minutes per day")
+                ChartLegendStroke(color: .primary, label: "Total minutes per day")
             }
             .font(.caption)
 
@@ -156,6 +160,8 @@ struct ExerciseProgressView: View {
                     y: .value("Minutes", point.totalMinutes),
                     series: .value("Series", "Time")
                 )
+                .foregroundStyle(Color.primary)
+                .lineStyle(StrokeStyle(lineWidth: 2))
                 .symbol(.circle)
             }
             .chartYAxisLabel("min")
@@ -165,7 +171,7 @@ struct ExerciseProgressView: View {
             .accessibilityValue(cardioTimeChartSummary(points))
 
             HStack(spacing: 4) {
-                chartLegendSwatch(color: .accentColor, label: "Minutes")
+                ChartLegendStroke(color: .primary, label: "Minutes")
             }
             .font(.caption)
 
@@ -181,7 +187,8 @@ struct ExerciseProgressView: View {
                     x: .value("Date", point.date),
                     y: .value("Incline", point.averageIncline)
                 )
-                .foregroundStyle(.green)
+                .foregroundStyle(GymTheme.red)
+                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
                 .symbol(.square)
             }
             .chartYAxisLabel("%")
@@ -191,7 +198,7 @@ struct ExerciseProgressView: View {
             .accessibilityValue(cardioInclineChartSummary(points))
 
             HStack(spacing: 4) {
-                chartLegendSwatch(color: .green, label: "Avg incline %")
+                ChartLegendStroke(color: GymTheme.red, dashed: true, label: "Avg incline %")
             }
             .font(.caption)
 
@@ -201,7 +208,8 @@ struct ExerciseProgressView: View {
                         x: .value("Date", point.date),
                         y: .value("Distance", unitSystem.displayDistance(fromKilometers: point.totalDistance))
                     )
-                    .foregroundStyle(.purple)
+                    .foregroundStyle(Color.primary)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [2, 3]))
                     .symbol(.circle)
                 }
                 .chartYAxisLabel(unitSystem.distanceLabel)
@@ -211,7 +219,7 @@ struct ExerciseProgressView: View {
                 .accessibilityValue(cardioDistanceChartSummary(points))
 
                 HStack(spacing: 4) {
-                    chartLegendSwatch(color: .purple, label: "Distance per day")
+                    ChartLegendStroke(color: .primary, dotted: true, label: "Distance per day")
                 }
                 .font(.caption)
             }
@@ -271,14 +279,6 @@ struct ExerciseProgressView: View {
     private func cardioDistanceChartSummary(_ points: [CardioProgressPoint]) -> String {
         guard let latest = points.last else { return "No distance yet" }
         return "Latest \(Formatters.distance(latest.totalDistance, unit: unitSystem))."
-    }
-
-    private func chartLegendSwatch(color: Color, label: String) -> some View {
-        HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 8, height: 8).accessibilityHidden(true)
-            Text(label).foregroundStyle(.secondary)
-        }
-        .padding(.trailing, 8)
     }
 
     private func recordCell(title: String, value: String) -> some View {

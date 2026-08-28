@@ -62,8 +62,19 @@ private struct StartWorkoutView: View {
                 Button {
                     WorkoutSessionService.startEmptySession(in: modelContext)
                 } label: {
-                    Label("Quick Start", systemImage: "bolt.fill")
-                        .font(.headline)
+                    HStack(spacing: 12) {
+                        Image(systemName: "bolt.fill")
+                            .foregroundStyle(GymTheme.red)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Quick Start")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Text("Add exercises as you go")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
                 }
                 .accessibilityIdentifier("quickStart")
             }
@@ -150,13 +161,19 @@ private struct PlanStartRow: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(plan.name)
-                    .foregroundStyle(.primary)
-                Text(summary.listCaption())
-                    .font(.caption)
-                    .foregroundStyle(summary.canStart ? Color.secondary : Color.red)
-                    .lineLimit(2)
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: summary.modalitySymbol)
+                    .foregroundStyle(summary.canStart ? Color.primary : GymTheme.red)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(plan.name)
+                        .foregroundStyle(.primary)
+                    Text(summary.listCaption())
+                        .font(.caption)
+                        .foregroundStyle(summary.canStart ? Color.secondary : GymTheme.red)
+                        .lineLimit(2)
+                }
+                Spacer()
             }
         }
         .accessibilityIdentifier("startPlan-\(plan.name)")
@@ -236,7 +253,7 @@ private struct PlanPreviewSheet: View {
 }
 
 /// Rest duration and unit system preferences.
-struct WorkoutSettingsMenu: View {
+struct WorkoutSettingsPickers: View {
     @AppStorage(SettingsKeys.unitSystem)
     private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
@@ -245,20 +262,26 @@ struct WorkoutSettingsMenu: View {
     private static let restOptions = [30, 60, 90, 120, 180, 240, 300]
 
     var body: some View {
-        Menu {
-            Picker("Rest timer", selection: $restDuration) {
-                ForEach(Self.restOptions, id: \.self) { seconds in
-                    Text(Formatters.countdown(seconds)).tag(seconds)
-                }
+        Picker("Rest timer", selection: $restDuration) {
+            ForEach(Self.restOptions, id: \.self) { seconds in
+                Text(Formatters.countdown(seconds)).tag(seconds)
             }
-            .pickerStyle(.menu)
+        }
+        .pickerStyle(.menu)
 
-            Picker("Units", selection: $unitSystem) {
-                ForEach(UnitSystem.allCases) { unit in
-                    Text(unit.displayName).tag(unit)
-                }
+        Picker("Units", selection: $unitSystem) {
+            ForEach(UnitSystem.allCases) { unit in
+                Text(unit.displayName).tag(unit)
             }
-            .pickerStyle(.menu)
+        }
+        .pickerStyle(.menu)
+    }
+}
+
+struct WorkoutSettingsMenu: View {
+    var body: some View {
+        Menu {
+            WorkoutSettingsPickers()
         } label: {
             Label("Settings", systemImage: "gearshape")
         }

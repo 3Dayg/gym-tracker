@@ -62,4 +62,15 @@ struct SessionHistorySummary: Equatable {
     func caption(duration: TimeInterval, unit: UnitSystem) -> String {
         ([Formatters.duration(duration)] + captionBits(unit: unit)).joined(separator: " · ")
     }
+
+    var modalitySymbol: String {
+        let hasStrength = strengthSets > 0
+        let hasTimed = timedRounds > 0
+        let hasCardio = cardioBlocks > 0
+        let count = [hasStrength, hasTimed, hasCardio].filter { $0 }.count
+        if count > 1 { return "dumbbell" }
+        if hasTimed { return "figure.boxing" }
+        if hasCardio { return "figure.walk" }
+        return "dumbbell"
+    }
 }

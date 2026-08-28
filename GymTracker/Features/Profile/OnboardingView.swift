@@ -12,10 +12,6 @@ struct OnboardingView: View {
     @State private var heightFeet: Int = 5
     @State private var heightInches: Int = 7
 
-    private var canContinue: Bool {
-        weight > 0 && resolvedHeightCentimeters > 0
-    }
-
     private var resolvedHeightCentimeters: Double {
         switch unitSystem {
         case .metric:
@@ -84,7 +80,6 @@ struct OnboardingView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save & Continue") { save() }
-                        .disabled(!canContinue)
                         .accessibilityIdentifier("continueOnboarding")
                 }
             }
@@ -116,10 +111,11 @@ struct OnboardingView: View {
     }
 
     private func save() {
-        guard weight > 0, resolvedHeightCentimeters > 0 else { return }
+        let height = resolvedHeightCentimeters > 0 ? resolvedHeightCentimeters : nil
+        let kilograms = weight > 0 ? unitSystem.kilograms(fromDisplayWeight: weight) : nil
         ProfileService.completeOnboarding(
-            heightCentimeters: resolvedHeightCentimeters,
-            weight: unitSystem.kilograms(fromDisplayWeight: weight),
+            heightCentimeters: height,
+            weight: kilograms,
             in: modelContext
         )
     }

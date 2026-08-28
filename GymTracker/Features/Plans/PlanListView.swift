@@ -51,16 +51,14 @@ struct PlanListView: View {
             }
             .overlay {
                 if plans.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Plans Yet", systemImage: "list.bullet.rectangle")
-                    } description: {
-                        Text("Create a workout plan to reuse it whenever you train.")
-                    } actions: {
-                        Button("Create Plan") {
-                            addPlan()
-                        }
-                        .accessibilityIdentifier("emptyPlansCreatePlan")
-                    }
+                    EmptyStateBlock(
+                        title: "No Plans Yet",
+                        systemImage: "list.bullet.rectangle",
+                        description: "Create a workout plan to reuse it whenever you train.",
+                        actionTitle: "Create Plan",
+                        actionIdentifier: "emptyPlansCreatePlan",
+                        action: { addPlan() }
+                    )
                 }
             }
             .onChange(of: navigation.planToEdit) { _, plan in
@@ -74,16 +72,21 @@ struct PlanListView: View {
                 get: { planPendingDelete != nil },
                 set: { if !$0 { planPendingDelete = nil } }
             )) {
-                DeletePlanSheet(
-                    planName: planPendingDelete?.name ?? "Plan",
+                ConfirmDestructiveSheet(
+                    title: "Delete this plan?",
+                    message: "\(planPendingDelete?.name ?? "Plan") will be removed. Workouts you already logged from it stay in History.",
+                    keepTitle: "Keep Plan",
+                    deleteTitle: "Delete Plan",
+                    keepIdentifier: "keepPlan",
+                    deleteIdentifier: "confirmDeletePlan",
+                    onKeep: { planPendingDelete = nil },
                     onDelete: {
                         if let planPendingDelete {
                             modelContext.delete(planPendingDelete)
                             try? modelContext.save()
                         }
                         planPendingDelete = nil
-                    },
-                    onKeep: { planPendingDelete = nil }
+                    }
                 )
                 .presentationDetents([.medium])
                 .interactiveDismissDisabled()
@@ -131,43 +134,20 @@ private struct PlanListRow: View {
 
     var body: some View {
         NavigationLink(value: plan) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(plan.name)
-                Text(summary.listCaption())
-                    .font(.caption)
-                    .foregroundStyle(summary.canStart ? Color.secondary : Color.red)
-                    .lineLimit(2)
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: summary.modalitySymbol)
+                    .foregroundStyle(summary.canStart ? Color.primary : GymTheme.red)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(plan.name)
+                    Text(summary.listCaption())
+                        .font(.caption)
+                        .foregroundStyle(summary.canStart ? Color.secondary : GymTheme.red)
+                        .lineLimit(2)
+                }
             }
         }
         .accessibilityIdentifier("planRow-\(plan.name)")
     }
 }
 
-private struct DeletePlanSheet: View {
-    let planName: String
-    let onDelete: () -> Void
-    let onKeep: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text("\(planName) will be removed. Workouts you already logged from it stay in History.")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Delete this plan?")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Keep Plan", action: onKeep)
-                        .accessibilityIdentifier("keepPlan")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Delete Plan", role: .destructive, action: onDelete)
-                        .accessibilityIdentifier("confirmDeletePlan")
-                }
-            }
-        }
-    }
-}

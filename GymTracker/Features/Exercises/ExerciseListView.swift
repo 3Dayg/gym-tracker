@@ -32,7 +32,7 @@ struct ExerciseListView: View {
                                     .font(.caption2)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(.tint.opacity(0.15), in: Capsule())
+                                    .overlay(Capsule().stroke(Color.primary, lineWidth: 1))
                             }
                         }
                     }
@@ -75,15 +75,20 @@ struct ExerciseListView: View {
                 set: { if !$0 { exercisePendingDelete = nil } }
             )) {
                 if let exercisePendingDelete {
-                    DeleteCustomExerciseSheet(
-                        exerciseName: exercisePendingDelete.name,
-                        planNames: ExerciseService.affectedPlanNames(for: exercisePendingDelete),
+                    ConfirmDestructiveSheet(
+                        title: "Delete \(exercisePendingDelete.name)?",
+                        message: deleteWarning(for: exercisePendingDelete),
+                        keepTitle: "Keep Exercise",
+                        deleteTitle: "Delete Exercise",
+                        keepIdentifier: "keepCustomExercise",
+                        deleteIdentifier: "confirmDeleteCustomExercise",
+                        warningIdentifier: "deleteExerciseWarning",
+                        onKeep: { self.exercisePendingDelete = nil },
                         onDelete: {
                             ExerciseService.deleteCustom(exercisePendingDelete, in: modelContext)
                             try? modelContext.save()
                             self.exercisePendingDelete = nil
-                        },
-                        onKeep: { self.exercisePendingDelete = nil }
+                        }
                     )
                     .presentationDetents([.medium])
                     .interactiveDismissDisabled()
@@ -91,75 +96,45 @@ struct ExerciseListView: View {
             }
             .overlay {
                 if filteredExercises.isEmpty {
-                    ContentUnavailableView {
-                        Label(
-                            searchText.isEmpty && muscleGroupFilter == nil
-                                ? "No Exercises"
-                                : "No Matching Exercises",
-                            systemImage: "dumbbell"
-                        )
-                    } description: {
-                        Text(
-                            searchText.isEmpty && muscleGroupFilter == nil
-                                ? "Add a custom exercise to get started."
-                                : "Try a different search, or add your own."
-                        )
-                    } actions: {
-                        if !searchText.isEmpty || muscleGroupFilter != nil {
-                            Button("Clear Filters") {
-                                searchText = ""
-                                muscleGroupFilter = nil
-                            }
-                            .accessibilityIdentifier("emptyExercisesClearFilters")
-                        }
-                        Button("Add Exercise") {
-                            isAddingExercise = true
-                        }
-                        .accessibilityIdentifier("emptyExercisesAddExercise")
-                    }
-                }
-            }
-        }
-    }
-}
-
-private struct DeleteCustomExerciseSheet: View {
-    let exerciseName: String
-    let planNames: [String]
-    let onDelete: () -> Void
-    let onKeep: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text(warning)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("deleteExerciseWarning")
-                }
-            }
-            .navigationTitle("Delete \(exerciseName)?")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Keep Exercise", action: onKeep)
-                        .accessibilityIdentifier("keepCustomExercise")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Delete Exercise", role: .destructive, action: onDelete)
-                        .accessibilityIdentifier("confirmDeleteCustomExercise")
+                    exerciseEmptyState
                 }
             }
         }
     }
 
-    private var warning: String {
+    private var isFiltered: Bool {
+        !searchText.isEmpty || muscleGroupFilter != nil
+    }
+
+    private var exerciseEmptyState: some View {
+        EmptyStateBlock(
+            title: isFiltered ? "No Matching Exercises" : "No Exercises",
+            systemImage: "dumbbell",
+            description: isFiltered
+                ? "Try a different search, or add your own."
+                : "Add a custom exercise to get started.",
+            actionTitle: "Add Exercise",
+            actionIdentifier: "emptyExercisesAddExercise",
+            action: { isAddingExercise = true },
+            secondaryActionTitle: isFiltered ? "Clear Filters" : nil,
+            secondaryActionIdentifier: isFiltered ? "emptyExercisesClearFilters" : nil,
+            secondaryAction: isFiltered ? clearFilters : nil
+        )
+    }
+
+    private func deleteWarning(for exercise: Exercise) -> String {
         var parts = [
             "Past workouts keep this name. It will be removed from any plans that use it."
         ]
+        let planNames = ExerciseService.affectedPlanNames(for: exercise)
         if !planNames.isEmpty {
             parts.append("Used in: \(planNames.joined(separator: ", ")).")
         }
         return parts.joined(separator: " ")
+    }
+
+    private func clearFilters() {
+        searchText = ""
+        muscleGroupFilter = nil
     }
 }

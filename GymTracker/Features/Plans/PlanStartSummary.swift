@@ -92,6 +92,16 @@ struct PlanStartSummary: Equatable {
         return bits
     }
 
+    var modalitySymbol: String {
+        if timedRounds > 0 && strengthSets == 0 && cardioBlocks == 0 {
+            return "figure.boxing"
+        }
+        if cardioBlocks > 0 && strengthSets == 0 && timedRounds == 0 {
+            return "figure.walk"
+        }
+        return "dumbbell"
+    }
+
     var blockedReason: String {
         if missingExerciseCount > 0 && startableExerciseCount == 0 {
             return "Every exercise in this plan was deleted. Edit the plan and add exercises before starting."

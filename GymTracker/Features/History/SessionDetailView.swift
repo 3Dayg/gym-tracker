@@ -75,7 +75,9 @@ struct SessionDetailView: View {
                                 )
                             )
                             .monospacedDigit()
-                            .foregroundStyle(set.isSkipped || set.isFailed ? .secondary : .primary)
+                            .foregroundStyle(
+                                set.isFailed ? GymTheme.failed : (set.isSkipped ? .secondary : .primary)
+                            )
                         }
                     }
                 }

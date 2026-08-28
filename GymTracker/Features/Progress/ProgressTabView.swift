@@ -22,12 +22,15 @@ struct ProgressTabView: View {
             List {
                 Section("Exercise progress") {
                     if exercisesWithHistory.isEmpty {
-                        Text("Finish a workout to see progress charts.")
-                            .foregroundStyle(.secondary)
-                        Button("Start Workout") {
-                            navigation.openWorkout()
-                        }
-                        .accessibilityIdentifier("emptyProgressStartWorkout")
+                        EmptyStateBlock(
+                            title: "No progress yet",
+                            systemImage: "chart.line.uptrend.xyaxis",
+                            description: "Finish a workout to see progress charts.",
+                            actionTitle: "Start Workout",
+                            actionIdentifier: "emptyProgressStartWorkout",
+                            action: { navigation.openWorkout() }
+                        )
+                        .listRowBackground(Color.clear)
                     } else {
                         NavigationLink {
                             ExerciseProgressPicker(
@@ -88,7 +91,7 @@ private struct ExerciseProgressPicker: View {
                     Spacer()
                     if exercise.persistentModelID == selection?.persistentModelID {
                         Image(systemName: "checkmark")
-                            .foregroundStyle(.tint)
+                            .foregroundStyle(Color.primary)
                     }
                 }
             }

@@ -20,7 +20,7 @@ struct BodyWeightView: View {
                     y: .value("Weight", unitSystem.displayWeight(fromKilograms: measurement.weight))
                 )
                 .symbol(.circle)
-                .foregroundStyle(.green)
+                .foregroundStyle(Color.primary)
             }
             .chartYScale(domain: .automatic(includesZero: false))
             .chartYAxisLabel(unitSystem.weightLabel)

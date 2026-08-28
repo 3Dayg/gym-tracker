@@ -58,14 +58,16 @@ struct ProfileView: View {
                     Text("Not set yet")
                         .foregroundStyle(.secondary)
                 }
-                HeightWheelPicker(
-                    unit: unitSystem,
-                    centimeters: $heightCentimeters,
-                    feet: $heightFeet,
-                    inches: $heightInches
-                )
-                Button("Save Height") { saveHeight() }
-                    .disabled(resolvedHeightCentimeters <= 0)
+                DisclosureGroup("Adjust") {
+                    HeightWheelPicker(
+                        unit: unitSystem,
+                        centimeters: $heightCentimeters,
+                        feet: $heightFeet,
+                        inches: $heightInches
+                    )
+                    Button("Save Height") { saveHeight() }
+                        .disabled(resolvedHeightCentimeters <= 0)
+                }
             } header: {
                 Text("Height")
             } footer: {
@@ -73,10 +75,6 @@ struct ProfileView: View {
             }
 
             Section {
-                WeightWheelPicker(weight: $weight, unit: unitSystem)
-                Button("Update Weight") { saveWeight() }
-                    .disabled(weight <= 0)
-
                 if let latestWeight {
                     LabeledContent("Last logged") {
                         Text(Formatters.weight(latestWeight.weight, unit: unitSystem))
@@ -84,9 +82,16 @@ struct ProfileView: View {
                         + Text(latestWeight.date, format: .dateTime.day().month().year())
                     }
                 }
+                DisclosureGroup("Adjust") {
+                    WeightWheelPicker(weight: $weight, unit: unitSystem)
+                    Button("Update Weight") { saveWeight() }
+                        .disabled(weight <= 0)
+                }
 
-                NavigationLink("Weight history") {
-                    BodyWeightHistoryList()
+                if !measurements.isEmpty {
+                    NavigationLink("Weight history") {
+                        BodyWeightHistoryList()
+                    }
                 }
             } header: {
                 Text("Body weight")
@@ -114,7 +119,15 @@ struct ProfileView: View {
             loadHeightFromProfile()
         }
         .sheet(isPresented: $isConfirmingDeleteAll) {
-            DeleteAllDataSheet(
+            ConfirmDestructiveSheet(
+                title: "Delete all data?",
+                message: "This removes workouts, plans, custom exercises, and body measurements from this iPhone. There is no account to restore from. Export a backup first if you want to keep a copy. This cannot be undone.",
+                keepTitle: "Keep Data",
+                deleteTitle: "Delete All Data",
+                keepIdentifier: "keepAllData",
+                deleteIdentifier: "confirmDeleteAllData",
+                warningIdentifier: "deleteAllDataWarning",
+                onKeep: { isConfirmingDeleteAll = false },
                 onDelete: {
                     isConfirmingDeleteAll = false
                     do {
@@ -122,8 +135,7 @@ struct ProfileView: View {
                     } catch {
                         // Export errors are surfaced in the data section.
                     }
-                },
-                onKeep: { isConfirmingDeleteAll = false }
+                }
             )
             .presentationDetents([.medium, .large])
             .interactiveDismissDisabled()
@@ -232,31 +244,3 @@ private struct DataAndPrivacySection: View {
     }
 }
 
-private struct DeleteAllDataSheet: View {
-    let onDelete: () -> Void
-    let onKeep: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text("This removes workouts, plans, custom exercises, and body measurements from this iPhone. There is no account to restore from. Export a backup first if you want to keep a copy. This cannot be undone.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("deleteAllDataWarning")
-                }
-            }
-            .navigationTitle("Delete all data?")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Keep Data", action: onKeep)
-                        .accessibilityIdentifier("keepAllData")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Delete All Data", role: .destructive, action: onDelete)
-                        .accessibilityIdentifier("confirmDeleteAllData")
-                }
-            }
-        }
-    }
-}

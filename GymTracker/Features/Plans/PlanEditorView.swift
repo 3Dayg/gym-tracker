@@ -12,6 +12,7 @@ struct PlanEditorView: View {
     @Query(filter: #Predicate<WorkoutSession> { $0.endedAt == nil })
     private var activeSessions: [WorkoutSession]
     @State private var isPickingExercise = false
+    @State private var showWorkoutInProgress = false
 
     private var isCreating: Bool { plan.isDraft }
 
@@ -101,7 +102,11 @@ struct PlanEditorView: View {
                 }
                 if startSummary.canStart {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Start") { startWorkout() }
+                        Button("Follow along") { startWorkout(followAlong: true) }
+                            .accessibilityIdentifier("startFollowAlongFromEditor")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Start") { startWorkout(followAlong: false) }
                             .fontWeight(.semibold)
                             .accessibilityLabel("Start Workout")
                             .accessibilityIdentifier("startPlanFromEditor")
@@ -116,13 +121,22 @@ struct PlanEditorView: View {
                 }
             }
         }
+        .alert("A workout is already in progress", isPresented: $showWorkoutInProgress) {
+            Button("Open Workout") { navigation.openWorkout() }
+            Button("Keep Editing", role: .cancel) {}
+        } message: {
+            Text("Finish or discard it before starting this plan.")
+        }
     }
 
-    private func startWorkout() {
+    private func startWorkout(followAlong: Bool) {
         guard startSummary.canStart else { return }
-        if activeSessions.isEmpty {
-            WorkoutSessionService.startSession(from: plan, in: modelContext)
+        if !activeSessions.isEmpty {
+            showWorkoutInProgress = true
+            return
         }
+        let session = WorkoutSessionService.startSession(from: plan, in: modelContext)
+        session.isFollowAlong = followAlong
         navigation.openWorkout()
     }
 
@@ -218,6 +232,7 @@ private struct PlannedExerciseRow: View {
                         .font(.subheadline.monospacedDigit())
                 }
                 .buttonStyle(.bordered)
+                .tint(Color.primary)
                 .controlSize(.small)
             }
         }

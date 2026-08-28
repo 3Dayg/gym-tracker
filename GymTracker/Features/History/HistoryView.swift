@@ -59,16 +59,14 @@ struct HistoryView: View {
             }
             .overlay {
                 if sessions.isEmpty {
-                    ContentUnavailableView {
-                        Label("No Workouts Yet", systemImage: "clock.arrow.circlepath")
-                    } description: {
-                        Text("Finish a workout and it will show up here.")
-                    } actions: {
-                        Button("Start Workout") {
-                            navigation.openWorkout()
-                        }
-                        .accessibilityIdentifier("emptyHistoryStartWorkout")
-                    }
+                    EmptyStateBlock(
+                        title: "No Workouts Yet",
+                        systemImage: "clock.arrow.circlepath",
+                        description: "Finish a workout and it will show up here.",
+                        actionTitle: "Start Workout",
+                        actionIdentifier: "emptyHistoryStartWorkout",
+                        action: { navigation.openWorkout() }
+                    )
                 }
             }
             .onChange(of: navigation.sessionToReveal) { _, session in
@@ -81,16 +79,21 @@ struct HistoryView: View {
                 get: { sessionPendingDelete != nil },
                 set: { if !$0 { sessionPendingDelete = nil } }
             )) {
-                DeleteHistoryWorkoutSheet(
-                    planName: sessionPendingDelete?.planName ?? "Workout",
+                ConfirmDestructiveSheet(
+                    title: "Delete this workout?",
+                    message: "\(sessionPendingDelete?.planName ?? "Workout") will be removed from History. This cannot be undone.",
+                    keepTitle: "Keep Workout",
+                    deleteTitle: "Delete Workout",
+                    keepIdentifier: "cancelDeleteHistory",
+                    deleteIdentifier: "confirmDeleteHistory",
+                    onKeep: { sessionPendingDelete = nil },
                     onDelete: {
                         if let sessionPendingDelete {
                             modelContext.delete(sessionPendingDelete)
                             try? modelContext.save()
                         }
                         sessionPendingDelete = nil
-                    },
-                    onKeep: { sessionPendingDelete = nil }
+                    }
                 )
                 .presentationDetents([.medium])
                 .interactiveDismissDisabled()
@@ -114,50 +117,27 @@ private struct SessionSummaryRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(session.planName ?? "Workout")
-                    .font(.headline)
-                Spacer()
-                Text(session.startedAt, format: .dateTime.day().month())
-                    .font(.subheadline)
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: SessionHistorySummary.from(session).modalitySymbol)
+                .foregroundStyle(Color.primary)
+                .frame(width: 28)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(session.planName ?? "Workout")
+                        .font(.headline)
+                    Spacer()
+                    Text(session.startedAt, format: .dateTime.day().month())
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Text(caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .accessibilityIdentifier("historySummary-\(session.planName ?? "Workout")")
             }
-            Text(caption)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .accessibilityIdentifier("historySummary-\(session.planName ?? "Workout")")
         }
         .padding(.vertical, 2)
     }
 }
 
-private struct DeleteHistoryWorkoutSheet: View {
-    let planName: String
-    let onDelete: () -> Void
-    let onKeep: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    Text("\(planName) will be removed from History. This cannot be undone.")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Delete this workout?")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Keep Workout", action: onKeep)
-                        .accessibilityIdentifier("cancelDeleteHistory")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Delete Workout", role: .destructive, action: onDelete)
-                        .accessibilityIdentifier("confirmDeleteHistory")
-                }
-            }
-        }
-    }
-}
