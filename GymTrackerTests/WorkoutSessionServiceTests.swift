@@ -306,4 +306,31 @@ final class WorkoutSessionServiceTests: XCTestCase {
 
         XCTAssertEqual(entry.orderedSets.first?.durationSeconds, 75)
     }
+
+    func testRecentlyLoggedOrdersByLastFinishedSession() throws {
+        let bench = makeExercise("Bench")
+        let squat = makeExercise("Squat")
+
+        let first = WorkoutSessionService.startEmptySession(in: context)
+        let firstEntry = WorkoutSessionService.addExercise(bench, to: first, in: context)
+        firstEntry.orderedSets.first?.isCompleted = true
+        try WorkoutSessionService.finish(first, in: context)
+        first.endedAt = Date().addingTimeInterval(-120)
+
+        let second = WorkoutSessionService.startEmptySession(in: context)
+        let secondEntry = WorkoutSessionService.addExercise(squat, to: second, in: context)
+        secondEntry.orderedSets.first?.isCompleted = true
+        try WorkoutSessionService.finish(second, in: context)
+
+        let recent = WorkoutSessionService.recentlyLoggedExercises(from: [bench, squat])
+        XCTAssertEqual(recent.map(\.name), ["Squat", "Bench"])
+    }
+
+    func testRecentlyLoggedIgnoresUnfinishedSessions() {
+        let bench = makeExercise()
+        let live = WorkoutSessionService.startEmptySession(in: context)
+        _ = WorkoutSessionService.addExercise(bench, to: live, in: context)
+
+        XCTAssertTrue(WorkoutSessionService.recentlyLoggedExercises(from: [bench]).isEmpty)
+    }
 }

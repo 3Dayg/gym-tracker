@@ -13,7 +13,7 @@ Only one workout can be active at a time. If you close or even quit the app, the
 
 Each exercise is a section with one row per set, round, or cardio block. The top of the live list shows **Logged** (completed and skipped versus total) and **Next** so you can see the upcoming row without scrolling. The next row is highlighted; finished rows are dimmed.
 
-- **Strength:** tap **weight** or **reps** to adjust, then tick the circle when the set is done. The rest timer starts.
+- **Strength:** on the next set, tap **−** / **+** to change weight by a plate (2.5 kg or 5 lb), or tap the weight or reps chip for the wheel. Tick the circle when the set is done. The rest timer starts.
 - **Timed** (plank, jump rope, bag rounds): set the duration, then tap **Start**. The round counts down on the row (Pause / Resume if you need a break). At zero the round is ticked and rest begins. You can still tick the circle by hand if you finish early.
 - **Cardio:** tap **time**, **speed**, or **incline**, then tick the circle when the block is done. **Distance** fills in automatically from speed × time; overwrite it with what the treadmill shows if you prefer. The rest timer does **not** start — keep moving.
 - **Skip** — you passed on this row. It stays in History as Skipped.
@@ -29,8 +29,7 @@ Each exercise is a section with one row per set, round, or cardio block. The top
 Timed rounds have their own work countdown. Rest is a separate bar at the bottom — only one of them runs at a time.
 
 - **Work:** tap **Start** on a timed row. Pause and Resume keep the remaining time. At zero, the round is marked done and rest starts. A notification fires if the phone is locked (“Round over”).
-- **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning uses **1:00**; other plans use the gear-icon setting (default 1:30) unless you set rest on the plan itself.
-- Tap **Skip rest** to dismiss it early.
+- **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning uses **1:00**; other plans use the gear-icon setting (default 1:30) unless you set rest on the plan itself. **−15** / **+15** nudge the countdown (capped at 10 minutes). **Skip** dismisses it early.
 - If you leave the app, remaining time still follows the clock, and a notification fires when rest is over (allow notifications when the app asks).
 - If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back — a timed round that ended while closed is marked complete and the app tells you.
 - The live workout shows **Elapsed** time plus **Logged** and **Next**. **Plan guidance** starts collapsed so the first set stays in reach. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.

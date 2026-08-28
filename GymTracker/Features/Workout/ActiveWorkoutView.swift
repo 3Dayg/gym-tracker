@@ -724,16 +724,52 @@ private struct SetRow: View {
                 placeholder: "Auto",
                 unit: unitSystem.distanceLabel
             )
-        default:
-            Button {
-                activeMetric = metric
-            } label: {
-                Text(chipText(for: metric))
-                    .font(.subheadline.monospacedDigit())
+        case .weight:
+            if set.isPending && isNext {
+                HStack(spacing: 4) {
+                    Button {
+                        set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: -1)
+                    } label: {
+                        Image(systemName: "minus")
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("decrementWeight")
+                    .accessibilityLabel("Decrease weight")
+
+                    metricChip(for: .weight)
+
+                    Button {
+                        set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: 1)
+                    } label: {
+                        Image(systemName: "plus")
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("incrementWeight")
+                    .accessibilityLabel("Increase weight")
+                }
+            } else {
+                metricChip(for: .weight)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
+        case .reps, .duration:
+            metricChip(for: metric)
         }
+    }
+
+    private func metricChip(for metric: SetMetric) -> some View {
+        Button {
+            activeMetric = metric
+        } label: {
+            Text(chipText(for: metric))
+                .font(.subheadline.monospacedDigit())
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .accessibilityIdentifier(metric == .weight ? "weightValue" : "metricChip-\(metric.rawValue)")
+        .accessibilityValue(chipText(for: metric))
     }
 
     private func numericField(value: Binding<Double?>, placeholder: String, unit: String) -> some View {
@@ -861,21 +897,44 @@ private struct RestTimerBar: View {
     let sessionTimer: SessionTimer
 
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "timer")
             Text("Rest: \(Formatters.countdown(sessionTimer.remainingSeconds))")
                 .font(.headline.monospacedDigit())
                 .accessibilityIdentifier("restBarCountdown")
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
-            Spacer()
+            Spacer(minLength: 4)
 
-            Button("Skip rest") { sessionTimer.stop() }
+            Button {
+                sessionTimer.adjustRest(by: -15)
+            } label: {
+                Text("−15")
+                    .frame(minWidth: 44, minHeight: 44)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("decrementRest")
+            .accessibilityLabel("Subtract 15 seconds of rest")
+
+            Button {
+                sessionTimer.adjustRest(by: 15)
+            } label: {
+                Text("+15")
+                    .frame(minWidth: 44, minHeight: 44)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("incrementRest")
+            .accessibilityLabel("Add 15 seconds of rest")
+
+            Button("Skip") { sessionTimer.stop() }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .controlSize(.regular)
                 .accessibilityIdentifier("skipRest")
                 .accessibilityLabel("Skip rest")
         }
-        .padding()
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(.bar)
     }
 }

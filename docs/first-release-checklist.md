@@ -136,7 +136,7 @@ Gym Tracker is close to a first App Store submission. Units, onboarding, boxing 
 - **Effort:** L
 - **Acceptance:** A user can create a readable backup and intentionally reset the app without hidden system steps.
 
-### - [ ] 15. Add convenience controls after the core loop is stable
+### - [x] 15. Add convenience controls after the core loop is stable
 
 - **User problem:** Advanced users may want quicker weight changes, rest adjustments, workout reordering, and faster exercise selection.
 - **Why it matters:** These improve repeat use but should not displace correctness and clarity.
@@ -144,6 +144,7 @@ Gym Tracker is close to a first App Store submission. Units, onboarding, boxing 
 - **Where:** Live workout, rest bar, exercise picker, Progress.
 - **Effort:** M–L
 - **Acceptance:** Each addition measurably reduces taps without making the default screen denser or harder to use one-handed.
+- **Shipped:** Plate-step weight −/+ on the next pending set (wheel still available); rest −15/+15 on the rest bar; Recent in the exercise picker. Live reordering and favorites were skipped — the plan editor already reorders, and a second live-list control would fight one-handed density.
 
 ### - [ ] 16. Add Follow along after the log loop is trusted
 

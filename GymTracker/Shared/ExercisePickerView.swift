@@ -24,6 +24,16 @@ struct ExercisePickerView: View {
         }
     }
 
+    private var recentExercises: [Exercise] {
+        guard searchText.isEmpty, muscleGroupFilter == nil else { return [] }
+        return WorkoutSessionService.recentlyLoggedExercises(from: exercises)
+    }
+
+    private var remainingExercises: [Exercise] {
+        let recentIDs = Set(recentExercises.map(\.persistentModelID))
+        return filteredExercises.filter { !recentIDs.contains($0.persistentModelID) }
+    }
+
     var body: some View {
         List(selection: allowsMultipleSelection ? $selectedIDs : nil) {
             Section {
@@ -34,8 +44,18 @@ struct ExercisePickerView: View {
             }
             .selectionDisabled()
 
+            if !recentExercises.isEmpty {
+                Section("Recent") {
+                    ForEach(recentExercises) { exercise in
+                        row(for: exercise)
+                            .tag(exercise.persistentModelID)
+                            .accessibilityIdentifier("recentExercise-\(exercise.name)")
+                    }
+                }
+            }
+
             Section {
-                ForEach(filteredExercises) { exercise in
+                ForEach(remainingExercises) { exercise in
                     row(for: exercise)
                         .tag(exercise.persistentModelID)
                         .accessibilityIdentifier("toggleExercise-\(exercise.name)")

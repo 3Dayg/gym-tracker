@@ -143,6 +143,19 @@ enum WorkoutSessionService {
             .flatMap { $0.orderedSets.filter(\.isCompleted) }
     }
 
+    /// Exercises used in finished workouts, newest first.
+    static func recentlyLoggedExercises(from exercises: [Exercise], limit: Int = 8) -> [Exercise] {
+        let ranked: [(Exercise, Date)] = exercises.compactMap { exercise in
+            let last = exercise.sessionExercises.compactMap(\.session?.endedAt).max()
+            guard let last else { return nil }
+            return (exercise, last)
+        }
+        return ranked
+            .sorted { $0.1 > $1.1 }
+            .prefix(limit)
+            .map(\.0)
+    }
+
     private static func makeSet(sortOrder: Int, from planned: PlannedExercise) -> SetEntry {
         guard let exercise = planned.exercise else {
             return SetEntry(sortOrder: sortOrder)

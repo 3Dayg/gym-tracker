@@ -141,6 +141,40 @@ final class SessionTimerTests: XCTestCase {
         XCTAssertNil(timer.makeSnapshot())
     }
 
+    func testAdjustRestLengthensAndShortens() {
+        let timer = SessionTimer()
+        timer.startRest(seconds: 60)
+        timer.adjustRest(by: 15)
+
+        XCTAssertEqual(timer.phase, .rest)
+        XCTAssertGreaterThanOrEqual(timer.remainingSeconds, 74)
+        XCTAssertLessThanOrEqual(timer.remainingSeconds, 75)
+
+        timer.adjustRest(by: -15)
+        XCTAssertEqual(timer.phase, .rest)
+        XCTAssertGreaterThanOrEqual(timer.remainingSeconds, 59)
+        XCTAssertLessThanOrEqual(timer.remainingSeconds, 61)
+    }
+
+    func testAdjustRestToZeroStopsTheTimer() {
+        let timer = SessionTimer()
+        timer.startRest(seconds: 10)
+        timer.adjustRest(by: -15)
+
+        XCTAssertEqual(timer.phase, .idle)
+        XCTAssertEqual(timer.remainingSeconds, 0)
+    }
+
+    func testAdjustRestIsIgnoredDuringWork() {
+        let set = makeSet(durationSeconds: 30)
+        let timer = SessionTimer()
+        timer.startWork(seconds: 30, set: set)
+        timer.adjustRest(by: 15)
+
+        XCTAssertEqual(timer.phase, .work)
+        XCTAssertLessThanOrEqual(timer.remainingSeconds, 30)
+    }
+
     private func makeSet(durationSeconds: Int) -> SetEntry {
         let set = SetEntry(sortOrder: 0, durationSeconds: durationSeconds)
         context.insert(set)

@@ -14,7 +14,7 @@ You can edit them or add your own.
 1. Go to the **Plans** tab and tap **+** (or **Create Plan** if the list is empty).
 2. Give the plan a name (and optional notes). **Cancel** throws the draft away; nothing is saved until you tap **Create**.
 3. Optionally set **Rest between sets**. Boxing Conditioning ships at 1:00; leave it on “Use app setting” to follow the Workout tab gear (default 1:30). Timed rounds start this rest when their countdown hits zero.
-4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more.
+4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more. After you have trained, **Recent** sits at the top of the picker.
 5. Tap **Create**. **Cancel** throws the draft away.
 
 After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one.

@@ -54,6 +54,15 @@ enum UnitSystem: String, CaseIterable, Identifiable {
     func kilometersPerHour(fromDisplaySpeed value: Double) -> Double {
         kilometers(fromDisplayDistance: value)
     }
+
+    /// Plate-style step in the display unit: 2.5 kg or 5 lb.
+    var weightStepDisplay: Double { self == .metric ? 2.5 : 5 }
+
+    func bumpKilograms(_ kilograms: Double, byDisplaySteps steps: Int) -> Double {
+        let display = displayWeight(fromKilograms: kilograms)
+        let next = max(0, display + Double(steps) * weightStepDisplay)
+        return self.kilograms(fromDisplayWeight: (next * 10).rounded() / 10)
+    }
 }
 
 extension Double {

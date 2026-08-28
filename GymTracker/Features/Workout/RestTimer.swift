@@ -95,6 +95,30 @@ final class SessionTimer {
         onPersist?()
     }
 
+    /// Lengthen or shorten a running rest. At or below zero, rest ends.
+    func adjustRest(by seconds: Int) {
+        guard phase == .rest else { return }
+        updateRemaining()
+        guard phase == .rest else { return }
+        let next = remainingSeconds + seconds
+        if next <= 0 {
+            stop()
+            return
+        }
+        let capped = min(next, 600)
+        remainingSeconds = capped
+        totalSeconds = max(totalSeconds, capped)
+        endDate = Date().addingTimeInterval(TimeInterval(capped))
+        cancelNotification(Self.restNotificationID)
+        scheduleNotification(
+            identifier: Self.restNotificationID,
+            after: capped,
+            title: "Rest over",
+            body: "Time for your next set."
+        )
+        onPersist?()
+    }
+
     /// Catch up after the app was locked or backgrounded. The tick loop
     /// may not have run, but `endDate` is wall-clock so remaining time
     /// is still correct.

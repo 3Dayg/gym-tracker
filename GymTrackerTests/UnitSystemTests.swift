@@ -71,4 +71,22 @@ final class UnitSystemTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: SettingsKeys.unitSystem), UnitSystem.metric.rawValue)
         XCTAssertEqual(defaults.string(forKey: SettingsKeys.legacyWeightUnit), "lb")
     }
+
+    func testBumpKilogramsUsesPlateSteps() {
+        XCTAssertEqual(UnitSystem.metric.bumpKilograms(80, byDisplaySteps: 1), 82.5)
+        XCTAssertEqual(UnitSystem.metric.bumpKilograms(2.5, byDisplaySteps: -1), 0)
+        XCTAssertEqual(UnitSystem.metric.bumpKilograms(0, byDisplaySteps: -1), 0)
+
+        let fivePoundsAsKg = UnitSystem.imperial.bumpKilograms(0, byDisplaySteps: 1)
+        XCTAssertEqual(
+            UnitSystem.imperial.displayWeight(fromKilograms: fivePoundsAsKg),
+            5,
+            accuracy: 0.05
+        )
+        XCTAssertEqual(
+            UnitSystem.imperial.bumpKilograms(fivePoundsAsKg, byDisplaySteps: -1),
+            0,
+            accuracy: 0.001
+        )
+    }
 }
