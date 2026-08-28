@@ -30,6 +30,7 @@ Custom exercises are marked with a "Custom" badge and work exactly like built-in
 
 ## Editing and deleting
 
-- Custom exercises can be edited from their detail screen (**Edit** button) and deleted by swiping them left in the list.
-- Built-in exercises can't be edited or deleted.
-- Deleting a custom exercise does **not** touch your history — past workouts keep the exercise's name. It also disappears from any plans that used it, so check your plans after deleting.
+- Custom exercises can be edited from their detail screen (**Edit** button) and deleted by swiping them left in the list. Built-in exercises never show a delete action.
+- Names must be unique (ignoring case). The app warns if you reuse a name.
+- **Type** locks after the exercise has been logged so old workouts stay readable.
+- Deleting a custom exercise asks first and lists any plans that use it. Those plan rows are removed so a workout cannot silently skip them. Past workouts keep the exercise name.

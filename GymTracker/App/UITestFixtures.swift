@@ -48,6 +48,26 @@ enum UITestFixtures {
             return
         }
 
+        if args.contains("-restoreExpiredWork") {
+            ProfileService.skipOnboarding(in: context)
+            guard let jumpRope = exerciseNamed("Jump Rope", in: context) else { return }
+            let session = WorkoutSessionService.startEmptySession(in: context)
+            session.planName = "Boxing Conditioning"
+            let entry = WorkoutSessionService.addExercise(jumpRope, to: session, in: context)
+            entry.sets.first?.durationSeconds = 180
+            session.liveTimer = LiveTimerState(
+                phase: .work,
+                endAt: Date().addingTimeInterval(-90),
+                totalSeconds: 180,
+                remainingSeconds: 0,
+                exerciseSortOrder: 0,
+                setSortOrder: 0,
+                followOnRestSeconds: 60
+            )
+            try? context.save()
+            return
+        }
+
         if args.contains("-seedHistorySummaries") {
             ProfileService.skipOnboarding(in: context)
             seedHistorySummaries(in: context)
@@ -65,6 +85,14 @@ enum UITestFixtures {
         if args.contains("-seedUnstartablePlans") {
             ProfileService.skipOnboarding(in: context)
             seedUnstartablePlans(in: context)
+            try? context.save()
+            return
+        }
+
+        if args.contains("-seedDraftPlan") {
+            ProfileService.skipOnboarding(in: context)
+            let draft = WorkoutPlan(name: "Unfinished Draft", isDraft: true)
+            context.insert(draft)
             try? context.save()
             return
         }
@@ -107,6 +135,16 @@ enum UITestFixtures {
         context.insert(broken)
         let planned = PlannedExercise(exercise: gone, sortOrder: 0)
         planned.plan = broken
+
+        if let bench = exerciseNamed("Barbell Bench Press", in: context) {
+            let mixed = WorkoutPlan(name: "Half Broken")
+            context.insert(mixed)
+            let keep = PlannedExercise(exercise: bench, sortOrder: 0)
+            keep.plan = mixed
+            let missing = PlannedExercise(exercise: gone, sortOrder: 1)
+            missing.plan = mixed
+        }
+
         context.delete(gone)
     }
 

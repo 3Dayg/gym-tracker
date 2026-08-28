@@ -46,4 +46,19 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["elapsedWorkoutTime"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["restBarCountdown"].exists)
     }
+
+    func testExpiredWorkRoundShowsCompletionNotice() {
+        app.launchArguments = ["-inMemoryStore", "-restoreExpiredWork"]
+        app.launch()
+
+        XCTAssertTrue(app.alerts["Round finished"].waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            app.alerts["Round finished"].staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "marked complete")
+            ).firstMatch.exists
+        )
+        app.alerts["Round finished"].buttons["OK"].tap()
+        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["restBarCountdown"].exists)
+    }
 }

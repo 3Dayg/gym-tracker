@@ -59,6 +59,18 @@ struct ExerciseProgressView: View {
             }
             .font(.caption)
 
+            if points.count == 1 {
+                Text("One workout so far. Log another session to see a trend.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("onePointGuidance")
+            }
+
+            Text("Est. 1RM is an estimated one-rep max using the Epley formula: weight × (1 + reps ÷ 30). Failed sets are left out.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("oneRepMaxFootnote")
+
             if let records {
                 Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 6) {
                     GridRow {
@@ -106,6 +118,13 @@ struct ExerciseProgressView: View {
             }
             .font(.caption)
 
+            if points.count == 1 {
+                Text("One day so far. Log another session to see a trend.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("onePointGuidance")
+            }
+
             if let records {
                 Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 6) {
                     GridRow {
@@ -138,22 +157,40 @@ struct ExerciseProgressView: View {
                     series: .value("Series", "Time")
                 )
                 .symbol(.circle)
-
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Incline", point.averageIncline),
-                    series: .value("Series", "Incline")
-                )
-                .foregroundStyle(.green)
-                .symbol(.square)
             }
+            .chartYAxisLabel("min")
             .frame(height: 220)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Cardio minutes and incline")
+            .accessibilityLabel("Cardio minutes")
             .accessibilityValue(cardioTimeChartSummary(points))
 
             HStack(spacing: 4) {
                 chartLegendSwatch(color: .accentColor, label: "Minutes")
+            }
+            .font(.caption)
+
+            if points.count == 1 {
+                Text("One day so far. Log another session to see a trend.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("onePointGuidance")
+            }
+
+            Chart(points) { point in
+                LineMark(
+                    x: .value("Date", point.date),
+                    y: .value("Incline", point.averageIncline)
+                )
+                .foregroundStyle(.green)
+                .symbol(.square)
+            }
+            .chartYAxisLabel("%")
+            .frame(height: 160)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Average incline")
+            .accessibilityValue(cardioInclineChartSummary(points))
+
+            HStack(spacing: 4) {
                 chartLegendSwatch(color: .green, label: "Avg incline %")
             }
             .font(.caption)
@@ -224,6 +261,11 @@ struct ExerciseProgressView: View {
     private func cardioTimeChartSummary(_ points: [CardioProgressPoint]) -> String {
         guard let latest = points.last else { return "No logged cardio yet" }
         return "\(points.count) days. Latest \(Formatters.durationSeconds(latest.totalSeconds)), incline \(Formatters.incline(latest.averageIncline))."
+    }
+
+    private func cardioInclineChartSummary(_ points: [CardioProgressPoint]) -> String {
+        guard let latest = points.last else { return "No incline yet" }
+        return "Latest \(Formatters.incline(latest.averageIncline))."
     }
 
     private func cardioDistanceChartSummary(_ points: [CardioProgressPoint]) -> String {

@@ -2,7 +2,7 @@
 
 ## Ship call
 
-Gym Tracker is not ready for a public App Store submission yet. Plan create/edit no longer leaves empty templates, but a public privacy-policy URL and a VoiceOver pass on a real device are still needed before submit. Complete every **Now** item and the release acceptance pass before submitting.
+Gym Tracker is close to a first App Store submission. Units, onboarding, boxing timers, skip/fail/finish, live-timer restore, History summaries, plan create/edit, custom-exercise safety, and Progress first-week copy are in place. The public privacy policy is [docs/privacy.md](privacy.md). Remaining before submit: a VoiceOver and large-text pass on a real iPhone, archive validation, and pasting the privacy URL plus nutrition-label answers into App Store Connect.
 
 ## Now — must fix before submit
 
@@ -107,7 +107,7 @@ Gym Tracker is not ready for a public App Store submission yet. Plan create/edit
 - **Effort:** M
 - **Acceptance:** A user can build a three-exercise plan in one pass, cancel without leaving debris, start it from the editor, and cannot erase it accidentally.
 
-### - [ ] 12. Make custom exercises safe and understandable
+### - [x] 12. Make custom exercises safe and understandable
 
 - **User problem:** Built-ins appear swipe-deletable but nothing happens; duplicate custom names are allowed; changing a logged exercise type can invalidate old displays; deletion leaves broken plan rows.
 - **Why it matters:** These dead ends can silently damage plans and progress.
@@ -116,7 +116,7 @@ Gym Tracker is not ready for a public App Store submission yet. Plan create/edit
 - **Effort:** M
 - **Acceptance:** Built-ins never advertise deletion, duplicates are caught, logged history remains readable, and deleting a custom exercise cannot leave a plan that silently skips work.
 
-### - [ ] 13. Make Progress readable after the first workouts
+### - [x] 13. Make Progress readable after the first workouts
 
 - **User problem:** One-point charts look broken, body-weight trends lack guidance, estimated 1RM is unexplained, and cardio minutes and incline share a misleading scale.
 - **Why it matters:** Progress is the reward for logging and should reinforce first-week use.
@@ -145,15 +145,24 @@ Gym Tracker is not ready for a public App Store submission yet. Plan create/edit
 - **Effort:** M–L
 - **Acceptance:** Each addition measurably reduces taps without making the default screen denser or harder to use one-handed.
 
+### - [ ] 16. Add Follow along after the log loop is trusted
+
+- **User problem:** Consistent trainers with known plans still tap every set. The phone should run work and rest so they can train without staring at a list.
+- **Why it matters:** Comfort for repeat use, without a second source of truth for logged data.
+- **Proposed change:** A second presentation of the same session: one card at a time, Done/Skip/Fail, rest auto-advance. Never auto-log strength. See [Follow along](follow-along.md).
+- **Where:** Plan preview, live workout.
+- **Effort:** L
+- **Acceptance:** A known plan can be followed with one primary tap per strength set; numbers remain editable; switching back to the list never loses or invents sets.
+
 ## Implementation order
 
 - [x] Phase 1: Fix canonical unit handling and revise onboarding.
 - [x] Phase 2: Correct History summaries, save errors, and destructive-action safety.
 - [x] Phase 3: Build timed-round control, rest restoration, and skip/fail/finish behavior.
 - [x] Phase 4: Surface plan guidance and improve one-handed next-set logging.
-- [ ] Phase 5: Improve empty states, plan/custom exercise flows, and Progress clarity.
+- [x] Phase 5: Improve empty states, plan/custom exercise flows, and Progress clarity.
 - [x] Phase 6: Complete icon, privacy, and accessibility work.
-- [ ] Phase 7: Run the clean-install release acceptance pass below.
+- [ ] Phase 7: VoiceOver, large text, and archive validation on a real iPhone (functional flows are covered by unit/UI tests).
 
 ## Release acceptance pass
 

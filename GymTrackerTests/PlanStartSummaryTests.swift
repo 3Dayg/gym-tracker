@@ -95,4 +95,26 @@ final class PlanStartSummaryTests: XCTestCase {
         XCTAssertFalse(summary.canStart)
         XCTAssertTrue(summary.blockedReason.contains("deleted"))
     }
+
+    func testPlanWithSomeDeletedExercisesCannotStart() throws {
+        let keep = Exercise(name: "Bench", muscleGroup: .chest, equipment: .barbell)
+        let gone = Exercise(name: "Gone", muscleGroup: .back, equipment: .barbell, isCustom: true)
+        context.insert(keep)
+        context.insert(gone)
+        let plan = WorkoutPlan(name: "Half Broken")
+        context.insert(plan)
+        let plannedKeep = PlannedExercise(exercise: keep, sortOrder: 0)
+        plannedKeep.plan = plan
+        let plannedGone = PlannedExercise(exercise: gone, sortOrder: 1)
+        plannedGone.plan = plan
+        context.delete(gone)
+        try context.save()
+
+        let summary = PlanStartSummary.from(plan)
+        XCTAssertEqual(summary.startableExerciseCount, 1)
+        XCTAssertEqual(summary.missingExerciseCount, 1)
+        XCTAssertFalse(summary.canStart)
+        XCTAssertTrue(summary.listCaption().contains("Can't start — missing exercises"))
+        XCTAssertTrue(summary.blockedReason.contains("nothing is skipped"))
+    }
 }

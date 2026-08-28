@@ -37,7 +37,12 @@ struct WorkoutTabView: View {
 private struct StartWorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppNavigation.self) private var navigation
-    @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
+    @Query(
+        filter: #Predicate<WorkoutPlan> { $0.isDraft == false },
+        sort: \WorkoutPlan.createdAt,
+        order: .reverse
+    )
+    private var plans: [WorkoutPlan]
 
     @State private var planToPreview: WorkoutPlan?
     @AppStorage(SettingsKeys.hasDismissedWorkoutOrientation)

@@ -20,14 +20,6 @@ struct ProgressTabView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    NavigationLink {
-                        ProfileView()
-                    } label: {
-                        Label("Profile", systemImage: "person.crop.circle")
-                    }
-                }
-
                 Section("Exercise progress") {
                     if exercisesWithHistory.isEmpty {
                         Text("Finish a workout to see progress charts.")
@@ -37,12 +29,15 @@ struct ProgressTabView: View {
                         }
                         .accessibilityIdentifier("emptyProgressStartWorkout")
                     } else {
-                        Picker("Exercise", selection: $selectedExercise) {
-                            Text("Choose…").tag(Exercise?.none)
-                            ForEach(exercisesWithHistory) { exercise in
-                                Text(exercise.name).tag(Exercise?.some(exercise))
-                            }
+                        NavigationLink {
+                            ExerciseProgressPicker(
+                                exercises: exercisesWithHistory,
+                                selection: $selectedExercise
+                            )
+                        } label: {
+                            LabeledContent("Exercise", value: selectedExercise?.name ?? "Choose…")
                         }
+                        .accessibilityIdentifier("chooseProgressExercise")
 
                         if let exercise = selectedExercise {
                             ExerciseProgressView(exercise: exercise)
@@ -66,5 +61,41 @@ struct ProgressTabView: View {
                 }
             }
         }
+    }
+}
+
+private struct ExerciseProgressPicker: View {
+    let exercises: [Exercise]
+    @Binding var selection: Exercise?
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+
+    private var filtered: [Exercise] {
+        exercises.filter {
+            searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    var body: some View {
+        List(filtered) { exercise in
+            Button {
+                selection = exercise
+                dismiss()
+            } label: {
+                HStack {
+                    Text(exercise.name)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    if exercise.persistentModelID == selection?.persistentModelID {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(.tint)
+                    }
+                }
+            }
+            .accessibilityIdentifier("selectProgressExercise-\(exercise.name)")
+        }
+        .searchable(text: $searchText, prompt: "Search logged exercises")
+        .navigationTitle("Exercise")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

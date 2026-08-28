@@ -52,5 +52,5 @@ What you edit depends on the exercise:
 - Edits to an existing plan save as you type. A brand-new plan is a draft until you tap **Create**.
 - If you have no plans, **Create Plan** on the empty screen (or **+**) opens a new template.
 - Swipe a plan left on the Plans list and confirm **Delete Plan** to remove it. Workouts you already logged from that plan stay in History.
-- To start training, tap **Start Workout** in the plan editor, or go to the **Workout** tab and tap the plan. Read the preview, then **Start Workout**. Plans with no usable exercises cannot start; they offer **Edit Plan** instead.
+- To start training, tap **Start Workout** in the plan editor, or go to the **Workout** tab and tap the plan. Read the preview, then **Start Workout**. Plans with no usable exercises — or with deleted exercises still attached — cannot start; they offer **Edit Plan** instead so nothing is skipped.
 - The live workout keeps a collapsible **Plan guidance** block with the same notes. It starts closed so the next set stays on screen; tap it if you want the reminder.

@@ -8,6 +8,7 @@ struct ExerciseListView: View {
     @State private var searchText = ""
     @State private var muscleGroupFilter: MuscleGroup?
     @State private var isAddingExercise = false
+    @State private var exercisePendingDelete: Exercise?
 
     private var filteredExercises: [Exercise] {
         exercises.filter { exercise in
@@ -35,8 +36,16 @@ struct ExerciseListView: View {
                             }
                         }
                     }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if exercise.isCustom {
+                            Button("Delete") {
+                                exercisePendingDelete = exercise
+                            }
+                            .tint(.red)
+                            .accessibilityIdentifier("deleteCustomExercise")
+                        }
+                    }
                 }
-                .onDelete(perform: deleteExercises)
             }
             .searchable(text: $searchText, prompt: "Search exercises")
             .navigationTitle("Exercises")
@@ -60,6 +69,25 @@ struct ExerciseListView: View {
             }
             .sheet(isPresented: $isAddingExercise) {
                 ExerciseEditorView()
+            }
+            .sheet(isPresented: Binding(
+                get: { exercisePendingDelete != nil },
+                set: { if !$0 { exercisePendingDelete = nil } }
+            )) {
+                if let exercisePendingDelete {
+                    DeleteCustomExerciseSheet(
+                        exerciseName: exercisePendingDelete.name,
+                        planNames: ExerciseService.affectedPlanNames(for: exercisePendingDelete),
+                        onDelete: {
+                            ExerciseService.deleteCustom(exercisePendingDelete, in: modelContext)
+                            try? modelContext.save()
+                            self.exercisePendingDelete = nil
+                        },
+                        onKeep: { self.exercisePendingDelete = nil }
+                    )
+                    .presentationDetents([.medium])
+                    .interactiveDismissDisabled()
+                }
             }
             .overlay {
                 if filteredExercises.isEmpty {
@@ -93,15 +121,45 @@ struct ExerciseListView: View {
             }
         }
     }
+}
 
-    /// Only custom exercises can be deleted; built-in ones are part of the
-    /// seeded library. History stays intact because session entries keep
-    /// the exercise name.
-    private func deleteExercises(at offsets: IndexSet) {
-        for index in offsets {
-            let exercise = filteredExercises[index]
-            guard exercise.isCustom else { continue }
-            modelContext.delete(exercise)
+private struct DeleteCustomExerciseSheet: View {
+    let exerciseName: String
+    let planNames: [String]
+    let onDelete: () -> Void
+    let onKeep: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text(warning)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("deleteExerciseWarning")
+                }
+            }
+            .navigationTitle("Delete \(exerciseName)?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Keep Exercise", action: onKeep)
+                        .accessibilityIdentifier("keepCustomExercise")
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Delete Exercise", role: .destructive, action: onDelete)
+                        .accessibilityIdentifier("confirmDeleteCustomExercise")
+                }
+            }
         }
+    }
+
+    private var warning: String {
+        var parts = [
+            "Past workouts keep this name. It will be removed from any plans that use it."
+        ]
+        if !planNames.isEmpty {
+            parts.append("Used in: \(planNames.joined(separator: ", ")).")
+        }
+        return parts.joined(separator: " ")
     }
 }

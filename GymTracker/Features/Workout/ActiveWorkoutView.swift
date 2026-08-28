@@ -20,6 +20,7 @@ struct ActiveWorkoutView: View {
     @State private var saveErrorMessage: String?
     @State private var isStalePrompt = false
     @State private var isPlanGuidanceExpanded = false
+    @State private var expiredRoundNotice = false
 
     private var effectiveRestSeconds: Int {
         session.restSeconds ?? restDuration
@@ -127,6 +128,7 @@ struct ActiveWorkoutView: View {
                 .accessibilityIdentifier("discardWorkout")
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
+                WorkoutSettingsMenu()
                 Button {
                     isPickingExercise = true
                 } label: {
@@ -175,7 +177,12 @@ struct ActiveWorkoutView: View {
         .alert("Nothing to save", isPresented: $nothingToSaveAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Tick a set you did, or Discard this workout. Skip marks a set you passed on; incomplete rows are dropped.")
+            Text("Complete at least one set to save. Skip only marks a set you passed on — it is not enough to finish. Discard throws this workout away.")
+        }
+        .alert("Round finished", isPresented: $expiredRoundNotice) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("That timed round ended while the app was closed. It’s marked complete.")
         }
         .sheet(isPresented: Binding(
             get: { saveErrorMessage != nil },
@@ -241,6 +248,9 @@ struct ActiveWorkoutView: View {
     private func restoreTimerIfNeeded() {
         guard sessionTimer.phase == .idle, let state = session.liveTimer else { return }
         let action = LiveTimerRestorer.action(from: state)
+        if case .completeSetAndIdle = action {
+            expiredRoundNotice = true
+        }
         sessionTimer.apply(action) { exercise, set in
             session.setEntry(exerciseOrder: exercise, setOrder: set)
         }
@@ -385,7 +395,7 @@ private struct FinishWorkoutSheet: View {
         if preview.incompleteCount > 0 {
             parts.append("Incomplete rows will not be saved.")
         }
-        parts.append("Missed a target? Lower the reps (or time), tick the set, then mark Failed so it stays out of PRs.")
+        parts.append("Missed a target? Lower the reps or time, then tap Fail — it logs the set and keeps it out of PRs.")
         return parts.joined(separator: " ")
     }
 }

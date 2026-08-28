@@ -17,18 +17,20 @@ Swipe left on a History row to delete it. The app asks first; **Keep Workout** c
 
 ## Progress charts
 
-The **Progress** tab charts one exercise at a time — pick it from the dropdown. Only exercises you've actually logged appear there.
+The **Progress** tab charts one exercise at a time. Tap **Exercise** to search the ones you've logged.
 
 **Strength exercises** show two lines per workout day:
 
 - **Top set** (solid) — the heaviest weight you lifted that day.
-- **Est. 1RM** (dashed orange) — your estimated one-rep max, calculated with the Epley formula: weight × (1 + reps ÷ 30).
+- **Est. 1RM** (dashed orange) — your estimated one-rep max, calculated with the Epley formula: weight × (1 + reps ÷ 30). Failed sets are left out.
 
-Plus personal records: heaviest set, best estimated 1RM, most reps. Failed sets are left out of these records.
+After one workout the chart explains that another session is needed before a trend appears.
+
+Plus personal records: heaviest set, best estimated 1RM, most reps.
 
 **Timed exercises** (plank, jump rope, bag rounds) show total minutes per day, plus records for the longest round and the longest session.
 
-**Cardio exercises** show minutes and average incline, a distance-per-day chart, and records for longest session, steepest incline, top speed, and longest distance.
+**Cardio exercises** show minutes and average incline on **separate** labeled charts, a distance-per-day chart, and records for longest session, steepest incline, top speed, and longest distance.
 
 ## Body weight
 
@@ -37,5 +39,5 @@ Set height and today's weight on first launch, then update them anytime in **[Pr
 The Progress tab still has the trend chart:
 
 - **Log Body Weight** — record a weight for any date.
-- Once you have two or more entries, a trend chart appears.
+- Once you have two or more entries, a trend chart appears. A single entry asks you to log another weight before the trend shows.
 - **All entries** opens the full list, where you can swipe to delete mistakes.

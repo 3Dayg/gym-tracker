@@ -69,4 +69,25 @@ final class PlanGuidanceUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Empty Template"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["planEditorBlockedReason"].waitForExistence(timeout: 5))
     }
+
+    func testMixedMissingExercisesCannotStart() {
+        app.launchArguments = ["-inMemoryStore", "-seedUnstartablePlans"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["startPlan-Half Broken"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Can't start")).firstMatch.exists)
+        app.buttons["startPlan-Half Broken"].tap()
+        XCTAssertTrue(app.staticTexts["planPreviewBlockedReason"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["planPreviewBlockedReason"].label.contains("nothing is skipped"))
+        XCTAssertFalse(app.buttons["startPlanFromPreview"].exists)
+    }
+
+    func testDraftPlansDoNotAppearOnWorkoutStart() {
+        app.launchArguments = ["-inMemoryStore", "-seedDraftPlan"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Unfinished Draft"].exists)
+        XCTAssertFalse(app.buttons["startPlan-Unfinished Draft"].exists)
+    }
 }

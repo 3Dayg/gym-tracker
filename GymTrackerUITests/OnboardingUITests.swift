@@ -16,7 +16,10 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "calorie")).firstMatch.exists)
         XCTAssertTrue(app.buttons["skipOnboarding"].exists)
         XCTAssertTrue(app.buttons["continueOnboarding"].exists)
-        XCTAssertTrue(app.staticTexts["Optional. You can add this later in Profile."].exists)
+        app.swipeUp()
+        XCTAssertTrue(
+            app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Skip for now leaves them unset")).firstMatch.waitForExistence(timeout: 5)
+        )
         XCTAssertTrue(app.buttons["onboardingPrivacyPolicy"].exists)
         app.swipeUp()
         XCTAssertTrue(app.staticTexts["Body weight"].waitForExistence(timeout: 5))

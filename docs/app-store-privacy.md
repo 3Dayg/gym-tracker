@@ -17,9 +17,11 @@ Apple’s word “collect” means transmitting data off the device so you (or a
 
 ## Privacy policy URL
 
-App Store Connect asks for a public URL. Until you host one (a GitHub page is enough), testers can still read the same text in the app: **Profile → Privacy**.
+App Store Connect asks for a public URL. Use:
 
-When you publish a page, paste the on-device Privacy screen there word for word so they stay the same.
+**https://github.com/3Dayg/gym-tracker/blob/main/docs/privacy.md**
+
+That page is the same wording as the in-app screen: **Profile → Privacy**. Edit [docs/privacy.md](privacy.md) and the in-app `PrivacyPolicyView` together so they stay the same.
 
 ## Encryption
 

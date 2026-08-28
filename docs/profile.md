@@ -1,6 +1,6 @@
 # Profile and first launch
 
-On the first open, Gym Tracker shows a **Welcome** screen. Pick Metric or Imperial, then either enter height and body weight or tap **Skip for now**. Workouts stay on this iPhone — there is no account and no internet.
+On the first open, Gym Tracker shows a **Welcome** screen. Pick Metric or Imperial, then either **Save & Continue** (stores the height and weight on the wheels) or tap **Skip for now** (leaves them unset). Workouts stay on this iPhone — there is no account and no internet. The same wording is published at [Privacy](privacy.md) for App Store Connect.
 
 Height is optional. Body weight is only used for the trend chart on the **Progress** tab. You can add either later from Profile.
 
@@ -10,7 +10,7 @@ Pick **Metric** (kg, cm, km) or **Imperial** (lb, ft/in, mi). This is the same u
 
 ## Opening your profile
 
-After the welcome screen, tap the **person** icon (top of Workout, Plans, History, Progress, or Exercises) or open **Profile** at the top of the Progress tab.
+After the welcome screen, tap the **person** icon at the top of Workout, Plans, History, Progress, or Exercises.
 
 On the profile page you can:
 

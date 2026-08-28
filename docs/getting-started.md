@@ -2,13 +2,13 @@
 
 ## First launch
 
-On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional — tap **Skip for now** if you just want to train. Two plans are ready immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
+On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional. **Skip for now** leaves them unset so you can train immediately. **Save & Continue** stores the numbers currently on the wheels. Two plans are ready immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
 
 The Workout tab shows a short **Your first workout** card: pick Quick Start or a plan, complete sets, then find results in History and Progress. Tap **Got it** to hide it. Empty History and Progress offer **Start Workout**; empty Plans offer **Create Plan**.
 
 ## Settings
 
-Tap the gear icon in the top-right of the **Workout** tab:
+Tap the gear icon in the top-right of the **Workout** tab (also available during a live workout):
 
 - **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses 1:00.
 - Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Round over” and “Rest over” still fire when the phone is locked.

@@ -34,6 +34,10 @@ struct BodyWeightView: View {
         if measurements.isEmpty {
             Text("Log your weight to see a trend over time. This stays on this iPhone.")
                 .foregroundStyle(.secondary)
+        } else if measurements.count == 1 {
+            Text("Log another weight to see a trend over time.")
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("onePointBodyWeightGuidance")
         }
 
         if let latest = measurements.last {

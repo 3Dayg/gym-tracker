@@ -13,7 +13,7 @@ struct PlanStartSummary: Equatable {
     var notes: String = ""
     var exerciseNames: [String] = []
 
-    var canStart: Bool { startableExerciseCount > 0 }
+    var canStart: Bool { startableExerciseCount > 0 && missingExerciseCount == 0 }
 
     var rowCount: Int { strengthSets + timedRounds + cardioBlocks }
 
@@ -44,23 +44,20 @@ struct PlanStartSummary: Equatable {
 
     /// Short line for the Workout and Plans lists.
     func listCaption() -> String {
-        var bits: [String] = []
+        if missingExerciseCount > 0 {
+            return "Can't start — missing exercises"
+        }
         if startableExerciseCount == 0 {
-            if missingExerciseCount > 0 {
-                bits.append("Can't start — missing exercises")
-            } else {
-                bits.append("Can't start — no exercises")
-            }
-        } else {
-            bits.append(
-                startableExerciseCount == 1 ? "1 exercise" : "\(startableExerciseCount) exercises"
-            )
-            if knownWorkSeconds > 0 {
-                bits.append("\(Formatters.durationSeconds(knownWorkSeconds)) work")
-            }
-            if let restSeconds {
-                bits.append("\(Formatters.countdown(restSeconds)) rest")
-            }
+            return "Can't start — no exercises"
+        }
+        var bits: [String] = [
+            startableExerciseCount == 1 ? "1 exercise" : "\(startableExerciseCount) exercises"
+        ]
+        if knownWorkSeconds > 0 {
+            bits.append("\(Formatters.durationSeconds(knownWorkSeconds)) work")
+        }
+        if let restSeconds {
+            bits.append("\(Formatters.countdown(restSeconds)) rest")
         }
         return bits.joined(separator: " · ")
     }
@@ -98,6 +95,9 @@ struct PlanStartSummary: Equatable {
     var blockedReason: String {
         if missingExerciseCount > 0 && startableExerciseCount == 0 {
             return "Every exercise in this plan was deleted. Edit the plan and add exercises before starting."
+        }
+        if missingExerciseCount > 0 {
+            return "This plan includes deleted exercises. Edit the plan before starting so nothing is skipped."
         }
         return "Add at least one exercise before starting. An empty plan would open a blank workout."
     }

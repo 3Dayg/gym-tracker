@@ -55,4 +55,34 @@ final class SetOutcomeUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Skipped"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Failed")).firstMatch.exists)
     }
+
+    func testSkipOnlyWorkoutCannotSave() {
+        XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
+        app.buttons["skipOnboarding"].tap()
+
+        XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
+        app.buttons["quickStart"].tap()
+
+        XCTAssertTrue(app.staticTexts["emptyWorkoutHint"].waitForExistence(timeout: 8))
+        app.buttons["addExercise"].tap()
+
+        XCTAssertTrue(app.navigationBars["Choose Exercise"].waitForExistence(timeout: 8))
+        let search = app.textFields["searchExercises"]
+        XCTAssertTrue(search.waitForExistence(timeout: 8))
+        search.tap()
+        search.typeText("Barbell Bench Press")
+        XCTAssertTrue(app.staticTexts["Barbell Bench Press"].waitForExistence(timeout: 8))
+        app.staticTexts["Barbell Bench Press"].tap()
+
+        XCTAssertTrue(app.buttons["skipSet"].waitForExistence(timeout: 8))
+        app.buttons["skipSet"].tap()
+        app.buttons["finishWorkout"].tap()
+
+        XCTAssertTrue(app.alerts["Nothing to save"].waitForExistence(timeout: 8))
+        XCTAssertTrue(
+            app.alerts["Nothing to save"].staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", "Complete at least one set")
+            ).firstMatch.exists
+        )
+    }
 }

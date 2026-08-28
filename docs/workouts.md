@@ -17,7 +17,7 @@ Each exercise is a section with one row per set, round, or cardio block. The top
 - **Timed** (plank, jump rope, bag rounds): set the duration, then tap **Start**. The round counts down on the row (Pause / Resume if you need a break). At zero the round is ticked and rest begins. You can still tick the circle by hand if you finish early.
 - **Cardio:** tap **time**, **speed**, or **incline**, then tick the circle when the block is done. **Distance** fills in automatically from speed × time; overwrite it with what the treadmill shows if you prefer. The rest timer does **not** start — keep moving.
 - **Skip** — you passed on this row. It stays in History as Skipped.
-- **Fail** — you did the work but missed the target. Log the reps or time you actually did, then tap Fail. It is saved and counted in volume, but left out of personal records. You can also tick the set and tap **Mark failed**.
+- **Fail** — you did the work but missed the target. Log the reps or time you actually did, then tap Fail (one tap logs the set and keeps it out of PRs). You can also tick the set and tap **Mark failed**.
 - Form cues, when present, sit under the exercise name in the section header.
 - **Add Set** / **Add Round** / **Add Block** duplicates the last row of that exercise. A matching control also sits next to **Next** so you do not have to hunt for it.
 - **Add Exercise** is at the bottom of the list and as **+** next to Finish, so it stays reachable while a timer is covering the list.
@@ -32,12 +32,12 @@ Timed rounds have their own work countdown. Rest is a separate bar at the bottom
 - **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning uses **1:00**; other plans use the gear-icon setting (default 1:30) unless you set rest on the plan itself.
 - Tap **Skip rest** to dismiss it early.
 - If you leave the app, remaining time still follows the clock, and a notification fires when rest is over (allow notifications when the app asks).
-- If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back.
+- If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back — a timed round that ended while closed is marked complete and the app tells you.
 - The live workout shows **Elapsed** time plus **Logged** and **Next**. **Plan guidance** starts collapsed so the first set stays in reach. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.
 
 ## Finishing or discarding
 
-- **Finish** (top-right) always works. If you have not ticked a set, it explains that there is nothing to save. Otherwise you see how many rows are completed, skipped, failed, and incomplete before you confirm.
+- **Finish** (top-right) always works. You need at least one completed set to save — Skip alone is not enough. Otherwise you see how many rows are completed, skipped, failed, and incomplete before you confirm.
 - Incomplete rows are dropped. Skipped and failed rows are kept. Failed sets do not count toward PRs.
 - After saving, a **Workout saved** summary appears with a **View in History** link.
 - If saving fails, your sets stay on screen. Tap **Retry**, or **Keep Going** to keep logging.

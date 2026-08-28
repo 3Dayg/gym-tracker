@@ -64,7 +64,7 @@ struct OnboardingView: View {
                 } header: {
                     Text("Height")
                 } footer: {
-                    Text("Optional. You can add this later in Profile.")
+                    Text("Optional. You can add this later in Profile. Save & Continue stores the numbers on these wheels; Skip for now leaves them unset.")
                 }
 
                 Section {
@@ -83,7 +83,7 @@ struct OnboardingView: View {
                         .accessibilityIdentifier("skipOnboarding")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Continue") { save() }
+                    Button("Save & Continue") { save() }
                         .disabled(!canContinue)
                         .accessibilityIdentifier("continueOnboarding")
                 }
