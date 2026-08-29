@@ -45,11 +45,13 @@ extension View {
     func gymPrimaryButton() -> some View {
         buttonStyle(.borderedProminent)
             .tint(Color.primary)
+            .foregroundStyle(Color(.systemBackground))
     }
 
     func gymSecondaryButton() -> some View {
         buttonStyle(.bordered)
             .tint(Color.primary)
+            .foregroundStyle(Color.primary)
     }
 
     func gymFailButton() -> some View {
@@ -115,6 +117,7 @@ struct MetricChip: View {
         }
         .buttonStyle(.bordered)
         .tint(Color.primary)
+        .foregroundStyle(Color.primary)
         .controlSize(controlSize)
     }
 }

@@ -5,6 +5,7 @@ struct RootView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
     @State private var navigation = AppNavigation()
+    @AppStorage(SettingsKeys.appearance) private var appearance: AppearancePreference = .system
 
     var body: some View {
         Group {
@@ -15,6 +16,7 @@ struct RootView: View {
             }
         }
         .environment(navigation)
+        .preferredColorScheme(preferredColorScheme)
         .task {
             AppSettings.migrateUnitPreferenceIfNeeded()
             if ProcessInfo.processInfo.arguments.contains("-inMemoryStore") {
@@ -22,11 +24,20 @@ struct RootView: View {
                 // still gets Boxing Conditioning and Incline Walk.
                 UserDefaults.standard.removeObject(forKey: PlanSeeder.seededNamesKey)
                 UserDefaults.standard.removeObject(forKey: SettingsKeys.hasDismissedWorkoutOrientation)
+                UserDefaults.standard.removeObject(forKey: SettingsKeys.appearance)
             }
             // Exercises first: plan seeds reference them by name.
             ExerciseSeeder.seedIfNeeded(in: modelContext)
             PlanSeeder.seedIfNeeded(in: modelContext)
             UITestFixtures.seedIfNeeded(in: modelContext)
+        }
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch appearance {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 }

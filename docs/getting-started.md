@@ -10,14 +10,15 @@ The Workout tab shows a short **Your first workout** card: pick Quick Start or a
 
 Open **Profile** from the person icon at the top-left of any tab:
 
-- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses **1:00**. During rest, **−15** / **+15** adjust the remaining time. In a live workout, rest and units are also under **More** (top-right).
+- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses **1:00**. During rest, **−15** / **+15** adjust the remaining time.
+- **Appearance** — Light, Dark, or System (default). System follows the iPhone, including scheduled Dark Mode.
 - Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Time’s up” and “Rest over” still fire when the phone is locked.
 - **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
 
 ## A typical flow
 
 1. **Build a plan** (optional but recommended). Go to **Plans**, create "Push Day", add exercises, and set target sets/reps/weights. See [Workout plans](plans.md).
-2. **Train.** On the **Workout** tab, tap a plan, read the preview, then **Start Workout**. Strength: tap **Done** when a set is finished, or Skip / Fail. Timed rounds: tap **Start** and let the countdown finish. If a machine is busy, tap **Later** or open **Exercises**. See [Logging a workout](workouts.md) and [Follow along](follow-along.md).
+2. **Train.** On the **Workout** tab, tap a plan, read the preview, then **Start Workout**. Strength: tap **Done** when a set is finished, or Skip / Fail. Timed rounds: tap **Start** and let the 3-2-1, then the countdown, finish. If a machine is busy, open **Exercises**. See [Logging a workout](workouts.md) and [Follow along](follow-along.md).
 3. **Finish.** Tap **Finish**, check what will be saved, then confirm. A summary offers **View in History**.
 4. **Watch your progress.** After a few workouts, the **Progress** tab shows charts of your top set weight and estimated one-rep max per exercise. See [History and progress](history-and-progress.md).
 

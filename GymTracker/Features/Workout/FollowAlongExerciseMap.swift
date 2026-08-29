@@ -28,6 +28,9 @@ struct FollowAlongExerciseMap: View {
                                 }
                             } label: {
                                 HStack {
+                                    Image(systemName: item.hasPending ? "circle" : "checkmark.circle.fill")
+                                        .foregroundStyle(item.hasPending ? Color.secondary : Color.primary)
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.name)
                                             .foregroundStyle(.primary)

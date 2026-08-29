@@ -115,20 +115,6 @@ final class FollowAlongFocusTests: XCTestCase {
         XCTAssertEqual(LiveWorkoutProgress.from(session).nextLine, "Next: Cable Fly · Set 1")
     }
 
-    func testLaterMovesFocusWithoutSkipping() throws {
-        let session = try threeLiftSession()
-        let benchSet = try XCTUnwrap(session.orderedExercises[0].orderedSets.first)
-        XCTAssertTrue(LiveWorkoutProgress.canDefer(in: session))
-        XCTAssertTrue(LiveWorkoutProgress.deferCurrentExercise(in: session))
-
-        XCTAssertTrue(benchSet.isPending)
-        XCTAssertFalse(benchSet.isSkipped)
-        XCTAssertEqual(
-            FollowAlongFocus.current(session: session, timerPhase: .idle),
-            .currentSet(exerciseName: "Cable Fly", setNumber: 1, setCount: 1, kind: .strength)
-        )
-    }
-
     func testCompletingFocusedExerciseReturnsToFirstPending() throws {
         let session = try threeLiftSession()
         LiveWorkoutProgress.jump(to: session.orderedExercises[1], in: session)
@@ -143,26 +129,14 @@ final class FollowAlongFocusTests: XCTestCase {
         )
     }
 
-    func testLaterWrapsToAnEarlierPendingExercise() throws {
+    func testExerciseItemsShowPendingVersusComplete() throws {
         let session = try threeLiftSession()
-        LiveWorkoutProgress.jump(to: session.orderedExercises[2], in: session)
-        XCTAssertTrue(LiveWorkoutProgress.deferCurrentExercise(in: session))
-        XCTAssertEqual(
-            FollowAlongFocus.current(session: session, timerPhase: .idle),
-            .currentSet(exerciseName: "Bench Press", setNumber: 1, setCount: 1, kind: .strength)
-        )
-    }
-
-    func testCannotDeferWhenOnlyOneExerciseHasPendingWork() throws {
-        let session = try threeLiftSession()
-        try XCTUnwrap(session.orderedExercises[1].orderedSets.first).markCompleted()
-        try XCTUnwrap(session.orderedExercises[2].orderedSets.first).markCompleted()
-        XCTAssertFalse(LiveWorkoutProgress.canDefer(in: session))
-        XCTAssertFalse(LiveWorkoutProgress.deferCurrentExercise(in: session))
-        XCTAssertEqual(
-            FollowAlongFocus.current(session: session, timerPhase: .idle),
-            .currentSet(exerciseName: "Bench Press", setNumber: 1, setCount: 1, kind: .strength)
-        )
+        try XCTUnwrap(session.orderedExercises[0].orderedSets.first).markCompleted()
+        let items = LiveWorkoutProgress.exerciseItems(in: session)
+        XCTAssertFalse(items[0].hasPending)
+        XCTAssertEqual(items[0].caption, "1 of 1")
+        XCTAssertTrue(items[1].hasPending)
+        XCTAssertTrue(items[1].isFocused)
     }
 
     private func threeLiftSession() throws -> WorkoutSession {

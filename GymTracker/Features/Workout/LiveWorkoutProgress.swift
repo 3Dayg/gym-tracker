@@ -82,27 +82,6 @@ struct LiveWorkoutProgress: Equatable {
         session.focusedExerciseSortOrder = exercise.sortOrder
     }
 
-    /// Leave the current exercise pending and show the next other exercise
-    /// that still has work. Does not skip or complete any set.
-    @discardableResult
-    static func deferCurrentExercise(in session: WorkoutSession) -> Bool {
-        let current = nextPendingSet(in: session)?.sessionExercise
-        let ordered = session.orderedExercises
-        guard let current, let start = ordered.firstIndex(where: { $0 === current }) else {
-            return false
-        }
-        let candidates = Array(ordered[(start + 1)...]) + Array(ordered[..<start])
-        guard let next = candidates.first(where: { $0.orderedSets.contains(where: \.isPending) }) else {
-            return false
-        }
-        session.focusedExerciseSortOrder = next.sortOrder
-        return true
-    }
-
-    static func canDefer(in session: WorkoutSession) -> Bool {
-        session.orderedExercises.filter { $0.orderedSets.contains(where: \.isPending) }.count > 1
-    }
-
     static func exerciseItems(in session: WorkoutSession) -> [FollowAlongExerciseItem] {
         let focusedOrder = session.focusedExerciseSortOrder
             ?? nextPendingSet(in: session)?.sessionExercise?.sortOrder

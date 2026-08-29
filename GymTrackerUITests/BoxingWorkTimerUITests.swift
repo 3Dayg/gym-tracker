@@ -39,6 +39,7 @@ final class BoxingWorkTimerUITests: XCTestCase {
         // Deliver a possible notification-permission interruption.
         app.navigationBars["Boxing Conditioning"].tap()
 
+        XCTAssertTrue(app.staticTexts["workPrepCountdown"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["pauseWork"].firstMatch.waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["workCountdown"].exists)
 

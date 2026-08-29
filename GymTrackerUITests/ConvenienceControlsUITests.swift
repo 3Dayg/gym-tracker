@@ -84,7 +84,7 @@ final class ConvenienceControlsUITests: XCTestCase {
         }
 
         app.buttons["finishWorkout"].tap()
-        XCTAssertTrue(app.navigationBars["Save workout?"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["finishWorkoutTitle"].waitForExistence(timeout: 8))
         app.buttons["confirmFinish"].tap()
         XCTAssertTrue(app.navigationBars["Workout saved"].waitForExistence(timeout: 8))
         app.buttons["savedDone"].tap()

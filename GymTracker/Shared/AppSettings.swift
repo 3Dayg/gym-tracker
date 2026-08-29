@@ -65,6 +65,22 @@ enum UnitSystem: String, CaseIterable, Identifiable {
     }
 }
 
+enum AppearancePreference: String, CaseIterable, Identifiable {
+    case light
+    case dark
+    case system
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .light: "Light"
+        case .dark: "Dark"
+        case .system: "System"
+        }
+    }
+}
+
 extension Double {
     func rounded(toDecimalPlaces places: Int) -> Double {
         let factor = pow(10.0, Double(places))
@@ -75,6 +91,7 @@ extension Double {
 enum SettingsKeys {
     static let unitSystem = "unitSystem"
     static let restDurationSeconds = "restDurationSeconds"
+    static let appearance = "appearance"
     /// Pre-conversion preference: `"kg"` or `"lb"`. Migrated once onto `unitSystem`.
     static let legacyWeightUnit = "weightUnit"
     static let hasDismissedWorkoutOrientation = "hasDismissedWorkoutOrientation"
@@ -96,10 +113,11 @@ enum AppSettings {
         defaults.removeObject(forKey: SettingsKeys.legacyWeightUnit)
     }
 
-    /// Units, rest, and first-workout card — not the SwiftData store.
+    /// Units, rest, appearance, and first-workout card — not the SwiftData store.
     static func resetPreferences(defaults: UserDefaults = .standard) {
         defaults.removeObject(forKey: SettingsKeys.unitSystem)
         defaults.removeObject(forKey: SettingsKeys.restDurationSeconds)
+        defaults.removeObject(forKey: SettingsKeys.appearance)
         defaults.removeObject(forKey: SettingsKeys.legacyWeightUnit)
         defaults.removeObject(forKey: SettingsKeys.hasDismissedWorkoutOrientation)
     }

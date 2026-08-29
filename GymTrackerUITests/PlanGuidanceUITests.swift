@@ -26,11 +26,8 @@ final class PlanGuidanceUITests: XCTestCase {
         app.buttons["startPlanFromPreview"].tap()
 
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.buttons["planGuidance"].waitForExistence(timeout: 5))
-        app.buttons["planGuidance"].tap()
-        XCTAssertTrue(
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Tap Start on a timed round")).firstMatch.waitForExistence(timeout: 5)
-        )
+        XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["planGuidance"].exists)
     }
 
     func testInclineWalkPreviewExplainsCardioBlocks() {
@@ -47,11 +44,8 @@ final class PlanGuidanceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["planPreviewSummary"].label.contains("5 sets"))
         app.buttons["startPlanFromPreview"].tap()
         XCTAssertTrue(app.navigationBars["Incline Walk"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.buttons["planGuidance"].waitForExistence(timeout: 5))
-        app.buttons["planGuidance"].tap()
-        XCTAssertTrue(
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "keep walking")).firstMatch.waitForExistence(timeout: 5)
-        )
+        XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["planGuidance"].exists)
     }
 
     func testEmptyPlanCannotStartAndOpensEditor() {

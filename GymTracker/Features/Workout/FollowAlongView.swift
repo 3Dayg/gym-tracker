@@ -13,7 +13,7 @@ struct FollowAlongView: View {
     @State private var restEndedTick = 0
     @State private var isShowingExerciseMap = false
     @State private var editingExerciseSortOrder: Int?
-    @State private var isPlanGuidanceExpanded = false
+    @State private var workPrep = WorkPrepCountdown()
 
     private var progress: LiveWorkoutProgress { LiveWorkoutProgress.from(session) }
 
@@ -36,6 +36,11 @@ struct FollowAlongView: View {
         session.exercises.contains { $0.kind == .timed }
     }
 
+    private var focusedSetKey: String {
+        guard let set = currentSet, let exercise = set.sessionExercise else { return "" }
+        return "\(exercise.sortOrder)-\(set.sortOrder)"
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -44,10 +49,6 @@ struct FollowAlongView: View {
                     progress: progress,
                     onShowExercises: session.exercises.isEmpty ? nil : { isShowingExerciseMap = true }
                 )
-
-                if !session.planNotes.isEmpty {
-                    planGuidance
-                }
 
                 if hasTimedExercise {
                     LabeledContent("Rest after a round", value: Formatters.countdown(restSeconds))
@@ -75,7 +76,8 @@ struct FollowAlongView: View {
                             setNumber: number,
                             setCount: count,
                             unitSystem: unitSystem,
-                            sessionTimer: sessionTimer
+                            sessionTimer: sessionTimer,
+                            prepRemaining: workPrep.remaining
                         )
                     } else {
                         Text(name)
@@ -92,6 +94,15 @@ struct FollowAlongView: View {
             if oldPhase == .rest, newPhase == .idle {
                 restEndedTick += 1
             }
+        }
+        .onChange(of: focusedSetKey) { _, _ in
+            workPrep.cancel()
+        }
+        .onChange(of: isShowingExerciseMap) { _, showing in
+            if showing { workPrep.cancel() }
+        }
+        .onChange(of: editingExerciseSortOrder) { _, order in
+            if order != nil { workPrep.cancel() }
         }
         .safeAreaInset(edge: .bottom) {
             bottomBar
@@ -126,16 +137,6 @@ struct FollowAlongView: View {
                 )
             }
         }
-    }
-
-    private var planGuidance: some View {
-        DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
-            Text(session.planNotes)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(GymTheme.cardFill, in: RoundedRectangle(cornerRadius: GymTheme.cardRadius))
-        .accessibilityIdentifier("planGuidance")
     }
 
     private var emptyCard: some View {
@@ -173,8 +174,7 @@ struct FollowAlongView: View {
                     kind: kind,
                     sessionTimer: sessionTimer,
                     restSeconds: restSeconds,
-                    canDefer: LiveWorkoutProgress.canDefer(in: session),
-                    onLater: deferCurrentExercise
+                    workPrep: workPrep
                 )
             }
 
@@ -196,13 +196,6 @@ struct FollowAlongView: View {
         .padding()
         .background(.bar)
     }
-
-    private func deferCurrentExercise() {
-        if let set = currentSet, sessionTimer.isTiming(set) {
-            sessionTimer.stop()
-        }
-        _ = LiveWorkoutProgress.deferCurrentExercise(in: session)
-    }
 }
 
 private struct FollowAlongSetCard: View {
@@ -212,6 +205,7 @@ private struct FollowAlongSetCard: View {
     let setCount: Int
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
+    var prepRemaining: Int?
 
     @State private var activeMetric: SetMetric?
 
@@ -241,7 +235,9 @@ private struct FollowAlongSetCard: View {
                         .accessibilityLabel(formNotes)
                 }
 
-                if isTimingThisSet {
+                if let prepRemaining {
+                    WorkPrepCountdownLabel(remaining: prepRemaining)
+                } else if isTimingThisSet {
                     VStack(alignment: .leading, spacing: 4) {
                         CountdownText(
                             seconds: sessionTimer.remainingSeconds,
@@ -434,8 +430,7 @@ private struct FollowAlongActions: View {
     let kind: ExerciseKind
     let sessionTimer: SessionTimer
     let restSeconds: Int
-    let canDefer: Bool
-    let onLater: () -> Void
+    let workPrep: WorkPrepCountdown
 
     private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
 
@@ -445,6 +440,7 @@ private struct FollowAlongActions: View {
                 timedPrimary
             } else {
                 Button("Done") {
+                    workPrep.cancel()
                     SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                 }
                 .gymPrimaryButton()
@@ -457,25 +453,22 @@ private struct FollowAlongActions: View {
             HStack(spacing: 12) {
                 if kind.hasWorkTimer {
                     Button("Done") {
+                        workPrep.cancel()
                         SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                     }
                     .gymSecondaryButton()
                     .controlSize(.large)
                     .accessibilityIdentifier("followAlongDone")
                 }
-                Button("Later") { onLater() }
-                    .gymSecondaryButton()
-                    .controlSize(.large)
-                    .disabled(!canDefer)
-                    .accessibilityIdentifier("deferExercise")
-                    .accessibilityHint("Leaves this exercise unfinished and shows the next one")
                 Button("Skip") {
+                    workPrep.cancel()
                     SetLogging.skip(set, timer: sessionTimer)
                 }
                 .gymSecondaryButton()
                 .controlSize(.large)
                 .accessibilityIdentifier("skipSet")
                 Button("Fail") {
+                    workPrep.cancel()
                     SetLogging.fail(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                 }
                 .gymFailButton()
@@ -488,7 +481,13 @@ private struct FollowAlongActions: View {
 
     @ViewBuilder
     private var timedPrimary: some View {
-        if isTimingThisSet && sessionTimer.isPaused {
+        if workPrep.isActive {
+            Button("Cancel") { workPrep.cancel() }
+                .gymSecondaryButton()
+                .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("cancelWorkPrep")
+        } else if isTimingThisSet && sessionTimer.isPaused {
             Button("Resume") { sessionTimer.resume() }
                 .gymPrimaryButton()
                 .controlSize(.large)
@@ -500,6 +499,21 @@ private struct FollowAlongActions: View {
                 .controlSize(.large)
                 .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("pauseWork")
+        } else if kind == .timed {
+            Button("Start") {
+                workPrep.start {
+                    sessionTimer.startWork(
+                        seconds: set.durationSeconds,
+                        set: set,
+                        followOnRestSeconds: kind.startsRestTimer ? restSeconds : 0
+                    )
+                }
+            }
+            .gymPrimaryButton()
+            .controlSize(.large)
+            .frame(maxWidth: .infinity)
+            .disabled(set.durationSeconds <= 0)
+            .accessibilityIdentifier("startWork")
         } else {
             Button("Start") {
                 sessionTimer.startWork(

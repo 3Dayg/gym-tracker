@@ -9,6 +9,7 @@ struct ProfileView: View {
     @AppStorage(SettingsKeys.unitSystem) private var unitSystem: UnitSystem = .metric
     @AppStorage(SettingsKeys.restDurationSeconds)
     private var restDuration: Int = SettingsDefaults.restDurationSeconds
+    @AppStorage(SettingsKeys.appearance) private var appearance: AppearancePreference = .system
 
     /// Entered in the display unit; converted to kilograms on save.
     @State private var weight: Double = 70
@@ -47,6 +48,20 @@ struct ProfileView: View {
                 Text("Units")
             } footer: {
                 Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. Switching converts everything automatically — nothing is lost.")
+            }
+
+            Section {
+                Picker("Appearance", selection: $appearance) {
+                    ForEach(AppearancePreference.allCases) { option in
+                        Text(option.displayName).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("appearancePicker")
+            } header: {
+                Text("Appearance")
+            } footer: {
+                Text("System follows the iPhone, including scheduled Dark Mode in Settings → Display.")
             }
 
             Section {

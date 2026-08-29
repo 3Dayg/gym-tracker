@@ -16,9 +16,9 @@ Only one workout can be active at a time. If you close or even quit the app, the
 The card shows the current exercise and the next pending set, round, or cardio set. The top of the screen shows **Logged** (completed and skipped versus total) and **Next**.
 
 - **Strength:** tap **−** / **+** to change weight by a plate (2.5 kg or 5 lb), or tap the weight or reps chip for the wheel. Tap **Done** when the set is finished. The rest timer starts.
-- **Timed** (plank, jump rope, bag rounds): set the duration, then tap **Start**. The round counts down on the card (Pause / Resume if you need a break). At zero the round is logged and rest begins. You can still tap **Done** if you finish early.
-- **Cardio:** tap **time**, **speed**, or **incline**. Type time by hand, or **Start** the work countdown. At zero the set is logged. **Done** still logs when you get off the machine. **Distance** fills in automatically from speed × time; overwrite it with what the treadmill shows if you prefer. The rest timer does **not** start — keep moving.
-- **Later** — the machine is busy. Leave this exercise unfinished and switch to the next one with work left. Open **Exercises** to pick any pending exercise, or a finished one to edit a past row.
+- **Timed** (plank, jump rope, bag rounds): set the duration, then tap **Start**. A 3-2-1 on the card gives you time to get into position, then the round counts down (Pause / Resume if you need a break). At zero the round is logged and rest begins. You can still tap **Done** if you finish early.
+- **Cardio:** tap **time**, **speed**, or **incline**. Type time by hand, or **Start** the work countdown (no 3-2-1 — you’re already on the machine). At zero the set is logged. **Done** still logs when you get off the machine. **Distance** fills in automatically from speed × time; overwrite it with what the treadmill shows if you prefer. The rest timer does **not** start — keep moving.
+- **Exercises** — a machine is busy, or you want a different row. Open the map, jump to any pending exercise, or tap a finished one to edit a past row.
 - **Skip** — you passed on this row. It stays in History as Skipped.
 - **Fail** — you did the work but missed the target. Log the reps or time you actually did, then tap Fail (one tap logs the set and keeps it out of PRs).
 - Form cues, when present, sit under the exercise name on the card.
@@ -34,7 +34,7 @@ Timed rounds and cardio sets have a work countdown. Rest is a separate bar at th
 - **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning uses **1:00**; other plans use the rest timer on Profile (default 1:30) unless you set rest on the plan itself. **−15** / **+15** nudge the countdown (capped at 10 minutes). **Skip** dismisses it early.
 - If you leave the app, remaining time still follows the clock, and a notification fires when rest is over (allow notifications when the app asks).
 - If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back — a timed round that ended while closed is marked complete and the app tells you.
-- The live workout shows **Elapsed** time plus **Logged** and **Next**. **Plan guidance** starts collapsed so the first set stays in reach. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.
+- The live workout shows **Elapsed** time plus **Logged** and **Next**. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.
 
 ## Finishing or discarding
 

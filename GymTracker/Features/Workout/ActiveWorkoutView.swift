@@ -19,7 +19,6 @@ struct ActiveWorkoutView: View {
     @State private var nothingToSaveAlert = false
     @State private var saveErrorMessage: String?
     @State private var isStalePrompt = false
-    @State private var isPlanGuidanceExpanded = false
     @State private var expiredRoundNotice = false
 
     private var effectiveRestSeconds: Int {
@@ -294,15 +293,6 @@ struct ActiveWorkoutView: View {
                 }
             }
 
-            if !session.planNotes.isEmpty {
-                Section {
-                    DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
-                        Text(session.planNotes)
-                    }
-                    .accessibilityIdentifier("planGuidance")
-                }
-            }
-
             if hasTimedExercise {
                 Section {
                     LabeledContent("Rest after a round", value: Formatters.countdown(effectiveRestSeconds))
@@ -407,6 +397,9 @@ private struct FinishWorkoutSheet: View {
         NavigationStack {
             List {
                 Section {
+                    Text("Save this workout?")
+                        .font(.title2.weight(.semibold))
+                        .accessibilityIdentifier("finishWorkoutTitle")
                     LabeledContent("Completed", value: "\(preview.completedCount)")
                     if preview.failedCount > 0 {
                         LabeledContent("Failed (kept, not in PRs)", value: "\(preview.failedCount)")
@@ -419,7 +412,6 @@ private struct FinishWorkoutSheet: View {
                     Text(footerCopy)
                 }
             }
-            .navigationTitle("Save workout?")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -566,6 +558,7 @@ private struct SetRow: View {
     let onDidWork: () -> Void
 
     @State private var activeMetric: SetMetric?
+    @State private var workPrep = WorkPrepCountdown()
 
     private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
 
@@ -598,6 +591,7 @@ private struct SetRow: View {
         .sheet(item: $activeMetric) { metric in
             pickerSheet(for: metric)
         }
+        .onDisappear { workPrep.cancel() }
     }
 
     private var rowOpacity: Double {
@@ -638,6 +632,8 @@ private struct SetRow: View {
                 Text(sessionTimer.isPaused ? "Paused" : "Work")
                     .font(.subheadline)
                     .foregroundStyle(GymTheme.work)
+            } else if let remaining = workPrep.remaining {
+                WorkPrepCountdownLabel(remaining: remaining, font: .title.monospacedDigit())
             } else if set.isSkipped {
                 Text("Skipped")
                     .font(.subheadline)
@@ -671,7 +667,12 @@ private struct SetRow: View {
 
     private var workControls: some View {
         Group {
-            if isTimingThisSet && sessionTimer.isPaused {
+            if workPrep.isActive {
+                Button("Cancel") { workPrep.cancel() }
+                    .gymSecondaryButton()
+                    .controlSize(.large)
+                    .accessibilityIdentifier("cancelWorkPrep")
+            } else if isTimingThisSet && sessionTimer.isPaused {
                 Button("Resume") { sessionTimer.resume() }
                     .gymPrimaryButton()
                     .controlSize(.large)
@@ -681,6 +682,20 @@ private struct SetRow: View {
                     .gymSecondaryButton()
                     .controlSize(.large)
                     .accessibilityIdentifier("pauseWork")
+            } else if kind == .timed {
+                Button("Start") {
+                    workPrep.start {
+                        sessionTimer.startWork(
+                            seconds: set.durationSeconds,
+                            set: set,
+                            followOnRestSeconds: followOnRestSeconds
+                        )
+                    }
+                }
+                .gymPrimaryButton()
+                .controlSize(.large)
+                .disabled(set.durationSeconds <= 0)
+                .accessibilityIdentifier("startWork")
             } else {
                 Button("Start") {
                     sessionTimer.startWork(
@@ -871,11 +886,13 @@ private struct SetRow: View {
     }
 
     private func skip() {
+        workPrep.cancel()
         stopTimingIfNeeded()
         set.markSkipped()
     }
 
     private func fail() {
+        workPrep.cancel()
         stopTimingIfNeeded()
         fillDerivedDistanceIfNeeded()
         set.markCompleted(failed: true)
@@ -883,6 +900,7 @@ private struct SetRow: View {
     }
 
     private func toggleCompleted() {
+        workPrep.cancel()
         stopTimingIfNeeded()
         if set.isCompleted {
             set.clearOutcome()

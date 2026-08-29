@@ -37,7 +37,7 @@ final class FollowAlongUITests: XCTestCase {
         XCTAssertFalse(app.buttons["showAllSets"].exists)
     }
 
-    func testLaterAndExerciseMapJumpWithoutSkipping() {
+    func testExerciseMapJumpWithoutSkipping() {
         app.launchArguments = ["-inMemoryStore"]
         app.launch()
 
@@ -49,21 +49,24 @@ final class FollowAlongUITests: XCTestCase {
         XCTAssertTrue(app.buttons["startPlanFromPreview"].waitForExistence(timeout: 8))
         app.buttons["startPlanFromPreview"].tap()
 
-        XCTAssertTrue(app.buttons["deferExercise"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["deferExercise"].exists)
         let nextBefore = app.staticTexts["nextSetCue"].label
         XCTAssertFalse(nextBefore.contains("Incline"), nextBefore)
-        app.buttons["deferExercise"].tap()
 
-        let nextAfterLater = app.staticTexts["nextSetCue"].label
-        XCTAssertTrue(nextAfterLater.contains("Incline Treadmill Walk"), nextAfterLater)
+        app.buttons["showExerciseMap"].tap()
+        XCTAssertTrue(app.buttons["exerciseMapRow-1"].waitForExistence(timeout: 8))
+        app.buttons["exerciseMapRow-1"].tap()
+
+        let nextAfterJump = app.staticTexts["nextSetCue"].label
+        XCTAssertTrue(nextAfterJump.contains("Incline Treadmill Walk"), nextAfterJump)
 
         app.buttons["showExerciseMap"].tap()
         XCTAssertTrue(app.buttons["exerciseMapRow-0"].waitForExistence(timeout: 8))
         app.buttons["exerciseMapRow-0"].tap()
 
-        let nextAfterJump = app.staticTexts["nextSetCue"].label
-        XCTAssertFalse(nextAfterJump.contains("Incline"), nextAfterJump)
+        let nextAfterReturn = app.staticTexts["nextSetCue"].label
+        XCTAssertFalse(nextAfterReturn.contains("Incline"), nextAfterReturn)
     }
 
     func testStrengthDoneStartsRestWithoutLoggingTheNextSet() {
