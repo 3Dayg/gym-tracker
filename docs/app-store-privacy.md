@@ -21,7 +21,7 @@ App Store Connect asks for a public URL. Use:
 
 **https://github.com/3Dayg/gym-tracker/blob/main/docs/privacy.md**
 
-That page is the same wording as the in-app screen: **Profile → Privacy**. Edit [docs/privacy.md](privacy.md) and the in-app `PrivacyPolicyView` together so they stay the same.
+That page is the same wording as the in-app screen: **Settings → Privacy**. Edit [docs/privacy.md](privacy.md) and the in-app `PrivacyPolicyView` together so they stay the same.
 
 ## Encryption
 

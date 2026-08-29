@@ -25,6 +25,7 @@ final class LiveWorkoutProgressTests: XCTestCase {
         let session = WorkoutSessionService.startEmptySession(in: context)
         let progress = LiveWorkoutProgress.from(session)
         XCTAssertEqual(progress.caption, "No rows yet")
+        XCTAssertEqual(progress.percentComplete, 0)
         XCTAssertEqual(progress.nextLine, "Add an exercise to log a set")
     }
 
@@ -41,6 +42,8 @@ final class LiveWorkoutProgressTests: XCTestCase {
         XCTAssertEqual(progress.loggedCount, 1)
         XCTAssertEqual(progress.totalCount, 3)
         XCTAssertEqual(progress.caption, "1 of 3")
+        XCTAssertEqual(progress.percentComplete, 33)
+        XCTAssertEqual(progress.percentCaption, "33%")
         XCTAssertEqual(progress.nextLine, "Next: Bench Press · Set 2")
         XCTAssertTrue(LiveWorkoutProgress.nextPendingSet(in: session) === entry.orderedSets[1])
     }
@@ -59,6 +62,7 @@ final class LiveWorkoutProgressTests: XCTestCase {
 
         let progress = LiveWorkoutProgress.from(session)
         XCTAssertEqual(progress.caption, "1 of 1")
+        XCTAssertEqual(progress.percentComplete, 100)
         XCTAssertEqual(progress.nextLine, "All rows logged")
         XCTAssertNil(LiveWorkoutProgress.nextPendingSet(in: session))
     }

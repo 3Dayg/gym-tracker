@@ -41,9 +41,9 @@ final class OnboardingUITests: XCTestCase {
         app.buttons["continueOnboarding"].tap()
 
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
-        app.buttons["Profile"].firstMatch.tap()
+        app.buttons["Settings"].firstMatch.tap()
 
-        XCTAssertTrue(app.navigationBars["Profile"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["profilePrivacyCopy"].exists)
         XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "calorie")).firstMatch.exists)
     }

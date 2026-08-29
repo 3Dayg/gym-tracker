@@ -2,11 +2,11 @@
 
 Gym Tracker does not use an account, iCloud, or the internet. Nothing you log is uploaded, sold, or shared.
 
-This page matches the in-app Privacy screen (Profile → Privacy). Keep them in sync if you edit either.
+This page matches the in-app Privacy screen (Settings → Privacy). Keep them in sync if you edit either.
 
 ## What stays on this iPhone
 
-Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app or using **Delete All Data** in Profile deletes this data. Export a JSON or CSV backup from Profile if you want a copy on another device.
+Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app or using **Delete All Data** in Settings deletes this data. Export a JSON or CSV backup from Settings if you want a copy on another device.
 
 ## Notifications
 
@@ -18,4 +18,4 @@ No location, contacts, photos, Health app access, analytics, advertising identif
 
 ## Your choices
 
-Height and body weight are optional. You can skip them on first launch and add or remove them later in Profile. You can export a JSON or CSV backup, or delete all data, from Profile. You can turn off notifications in iOS Settings.
+Height and body weight are optional. You can skip them on first launch and add or remove them later in Settings. You can export a JSON or CSV backup, or delete all data, from Settings. You can turn off notifications in iOS Settings.

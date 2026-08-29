@@ -23,8 +23,8 @@ final class PrivacyPolicyUITests: XCTestCase {
     func testProfilePrivacyLinkOpensPolicy() {
         XCTAssertTrue(app.buttons["skipOnboarding"].waitForExistence(timeout: 8))
         app.buttons["skipOnboarding"].tap()
-        XCTAssertTrue(app.buttons["Profile"].firstMatch.waitForExistence(timeout: 8))
-        app.buttons["Profile"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Settings"].firstMatch.waitForExistence(timeout: 8))
+        app.buttons["Settings"].firstMatch.tap()
         XCTAssertTrue(app.buttons["privacyPolicy"].waitForExistence(timeout: 8))
         app.buttons["privacyPolicy"].tap()
         XCTAssertTrue(app.navigationBars["Privacy"].waitForExistence(timeout: 8))

@@ -46,8 +46,6 @@ struct ProfileView: View {
                 .pickerStyle(.segmented)
             } header: {
                 Text("Units")
-            } footer: {
-                Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. Switching converts everything automatically — nothing is lost.")
             }
 
             Section {
@@ -60,8 +58,6 @@ struct ProfileView: View {
                 .accessibilityIdentifier("appearancePicker")
             } header: {
                 Text("Appearance")
-            } footer: {
-                Text("System follows the iPhone, including scheduled Dark Mode in Settings → Display.")
             }
 
             Section {
@@ -124,7 +120,7 @@ struct ProfileView: View {
 
             DataAndPrivacySection(isConfirmingDeleteAll: $isConfirmingDeleteAll)
         }
-        .navigationTitle("Profile")
+        .navigationTitle("Settings")
         .onAppear {
             loadWeightFromLatestMeasurement()
             loadHeightFromProfile()
@@ -201,7 +197,7 @@ struct ProfileToolbarButton: View {
         NavigationLink {
             ProfileView()
         } label: {
-            Label("Profile", systemImage: "person.crop.circle")
+            Label("Settings", systemImage: "person.crop.circle")
         }
     }
 }

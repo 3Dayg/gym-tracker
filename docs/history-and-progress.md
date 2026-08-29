@@ -34,7 +34,7 @@ Plus personal records: heaviest set, best estimated 1RM, most reps.
 
 ## Body weight
 
-Set height and today's weight on first launch, then update them anytime in **[Profile](profile.md)** (person icon).
+Set height and today's weight on first launch, then update them anytime in **[Settings](profile.md)** (person icon).
 
 The Progress tab still has the trend chart:
 

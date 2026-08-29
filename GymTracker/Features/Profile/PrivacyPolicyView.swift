@@ -9,7 +9,7 @@ struct PrivacyPolicyView: View {
             }
 
             Section("What stays on this iPhone") {
-                Text("Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app or using Delete All Data in Profile deletes this data. Export a JSON or CSV backup from Profile if you want a copy.")
+                Text("Workouts, plans, custom exercises, units, rest-timer preference, and optional height and body weight. Deleting the app or using Delete All Data in Settings deletes this data. Export a JSON or CSV backup from Settings if you want a copy.")
             }
 
             Section("Notifications") {
@@ -21,7 +21,7 @@ struct PrivacyPolicyView: View {
             }
 
             Section("Your choices") {
-                Text("Height and body weight are optional. You can skip them on first launch and add or remove them later in Profile. You can export a JSON or CSV backup, or delete all data, from Profile. You can turn off notifications in iOS Settings.")
+                Text("Height and body weight are optional. You can skip them on first launch and add or remove them later in Settings. You can export a JSON or CSV backup, or delete all data, from Settings. You can turn off notifications in iOS Settings.")
             }
         }
         .navigationTitle("Privacy")

@@ -6,7 +6,7 @@ New to the app? Read the **[User Guide](docs/README.md)** — it walks through e
 
 ## Features
 
-- **Profile** — first-launch units, optional height and body weight, then a profile page to update them. Data stays on the phone.
+- **Settings** — first-launch units, optional height and body weight, then Settings to update them. Data stays on the phone.
 - **Exercise library** — built-in gym and boxing exercises, searchable and filterable by muscle group, plus custom exercises.
 - **Workout plans** — build reusable plans with target sets, reps, and weight per exercise. **Boxing Conditioning** and **Incline Walk** plans are included.
 - **Live workout logging** — start from a plan (targets and last-used weights pre-filled) or from scratch; check off sets as you go, with an automatic rest timer between sets.
@@ -59,5 +59,5 @@ GymTrackerTests/  # Unit tests (1RM/PR math, seeding, session flow)
 
 ### Notes
 
-- Weights, speeds, and distances are stored in metric and converted for display. Switch Metric/Imperial from Profile; the numbers you see change, the data does not.
+- Weights, speeds, and distances are stored in metric and converted for display. Switch Metric/Imperial from Settings; the numbers you see change, the data does not.
 - Deleting a custom exercise keeps past workout history intact (session entries store the exercise name).

@@ -76,7 +76,7 @@ enum AppearancePreference: String, CaseIterable, Identifiable {
         switch self {
         case .light: "Light"
         case .dark: "Dark"
-        case .system: "System"
+        case .system: "Auto"
         }
     }
 }

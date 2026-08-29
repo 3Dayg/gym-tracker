@@ -45,7 +45,6 @@ struct FollowAlongView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 WorkoutProgressHeader(
-                    startedAt: session.startedAt,
                     progress: progress,
                     onShowExercises: session.exercises.isEmpty ? nil : { isShowingExerciseMap = true }
                 )
@@ -435,46 +434,31 @@ private struct FollowAlongActions: View {
     private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
 
     var body: some View {
-        VStack(spacing: 12) {
+        HStack(spacing: 8) {
             if kind.hasWorkTimer {
                 timedPrimary
             } else {
-                Button("Done") {
+                actionButton("Done", style: .primary, identifier: "followAlongDone") {
                     workPrep.cancel()
                     SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                 }
-                .gymPrimaryButton()
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("followAlongDone")
                 .accessibilityLabel("Mark set complete")
             }
 
-            HStack(spacing: 12) {
-                if kind.hasWorkTimer {
-                    Button("Done") {
-                        workPrep.cancel()
-                        SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
-                    }
-                    .gymSecondaryButton()
-                    .controlSize(.large)
-                    .accessibilityIdentifier("followAlongDone")
-                }
-                Button("Skip") {
+            if kind.hasWorkTimer {
+                actionButton("Done", style: .secondary, identifier: "followAlongDone") {
                     workPrep.cancel()
-                    SetLogging.skip(set, timer: sessionTimer)
+                    SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                 }
-                .gymSecondaryButton()
-                .controlSize(.large)
-                .accessibilityIdentifier("skipSet")
-                Button("Fail") {
-                    workPrep.cancel()
-                    SetLogging.fail(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
-                }
-                .gymFailButton()
-                .controlSize(.large)
-                .accessibilityIdentifier("failSet")
-                Spacer()
+            }
+
+            actionButton("Skip", style: .secondary, identifier: "skipSet") {
+                workPrep.cancel()
+                SetLogging.skip(set, timer: sessionTimer)
+            }
+            actionButton("Fail", style: .fail, identifier: "failSet") {
+                workPrep.cancel()
+                SetLogging.fail(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
             }
         }
     }
@@ -482,25 +466,19 @@ private struct FollowAlongActions: View {
     @ViewBuilder
     private var timedPrimary: some View {
         if workPrep.isActive {
-            Button("Cancel") { workPrep.cancel() }
-                .gymSecondaryButton()
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("cancelWorkPrep")
+            actionButton("Cancel", style: .secondary, identifier: "cancelWorkPrep") {
+                workPrep.cancel()
+            }
         } else if isTimingThisSet && sessionTimer.isPaused {
-            Button("Resume") { sessionTimer.resume() }
-                .gymPrimaryButton()
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("resumeWork")
+            actionButton("Resume", style: .primary, identifier: "resumeWork") {
+                sessionTimer.resume()
+            }
         } else if isTimingThisSet {
-            Button("Pause") { sessionTimer.pause() }
-                .gymSecondaryButton()
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier("pauseWork")
+            actionButton("Pause", style: .secondary, identifier: "pauseWork") {
+                sessionTimer.pause()
+            }
         } else if kind == .timed {
-            Button("Start") {
+            actionButton("Start", style: .primary, identifier: "startWork") {
                 workPrep.start {
                     sessionTimer.startWork(
                         seconds: set.durationSeconds,
@@ -509,24 +487,55 @@ private struct FollowAlongActions: View {
                     )
                 }
             }
-            .gymPrimaryButton()
-            .controlSize(.large)
-            .frame(maxWidth: .infinity)
             .disabled(set.durationSeconds <= 0)
-            .accessibilityIdentifier("startWork")
         } else {
-            Button("Start") {
+            actionButton("Start", style: .primary, identifier: "startWork") {
                 sessionTimer.startWork(
                     seconds: set.durationSeconds,
                     set: set,
                     followOnRestSeconds: kind.startsRestTimer ? restSeconds : 0
                 )
             }
-            .gymPrimaryButton()
-            .controlSize(.large)
-            .frame(maxWidth: .infinity)
             .disabled(set.durationSeconds <= 0)
-            .accessibilityIdentifier("startWork")
+        }
+    }
+
+    private enum ActionStyle {
+        case primary, secondary, fail
+    }
+
+    @ViewBuilder
+    private func actionButton(
+        _ title: String,
+        style: ActionStyle,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        switch style {
+        case .primary:
+            Button(title, action: action)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .gymPrimaryButton()
+                .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier(identifier)
+        case .secondary:
+            Button(title, action: action)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .gymSecondaryButton()
+                .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier(identifier)
+        case .fail:
+            Button(title, action: action)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .gymFailButton()
+                .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier(identifier)
         }
     }
 }

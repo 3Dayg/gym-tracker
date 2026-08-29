@@ -13,6 +13,19 @@ struct LiveWorkoutProgress: Equatable {
         return "\(loggedCount) of \(totalCount)"
     }
 
+    var fractionComplete: Double {
+        guard totalCount > 0 else { return 0 }
+        return Double(loggedCount) / Double(totalCount)
+    }
+
+    var percentComplete: Int {
+        Int((fractionComplete * 100).rounded())
+    }
+
+    var percentCaption: String {
+        "\(percentComplete)%"
+    }
+
     var nextLine: String {
         if let nextExerciseName, let nextSetLabel {
             return "Next: \(nextExerciseName) · \(nextSetLabel)"

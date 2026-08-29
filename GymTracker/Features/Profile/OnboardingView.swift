@@ -46,8 +46,6 @@ struct OnboardingView: View {
                     .accessibilityIdentifier("onboardingUnits")
                 } header: {
                     Text("Units")
-                } footer: {
-                    Text("Metric shows kg, cm, and km; Imperial shows lb, ft/in, and mi. You can switch anytime — values convert automatically.")
                 }
 
                 Section {
@@ -60,7 +58,7 @@ struct OnboardingView: View {
                 } header: {
                     Text("Height")
                 } footer: {
-                    Text("Optional. You can add this later in Profile. Save & Continue stores the numbers on these wheels; Skip for now leaves them unset.")
+                    Text("Optional. You can add this later in Settings. Save & Continue stores the numbers on these wheels; Skip for now leaves them unset.")
                 }
 
                 Section {

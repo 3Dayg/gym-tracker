@@ -258,7 +258,6 @@ struct ActiveWorkoutView: View {
 
     private var progressHeader: some View {
         WorkoutProgressHeader(
-            startedAt: session.startedAt,
             progress: liveProgress,
             addSetTitle: nextPendingSet.flatMap { set in
                 set.sessionExercise.map { "Add \($0.kind.setLabel)" }

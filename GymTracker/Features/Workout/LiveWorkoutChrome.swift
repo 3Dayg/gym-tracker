@@ -1,9 +1,8 @@
 import SwiftUI
 
-/// Elapsed / logged / next, plus the exercise map. Shared so rest and the
-/// card feel like the same product.
+/// Completion, next cue, and the exercise map. Elapsed time is still
+/// recorded from `startedAt` at finish — it is not shown live.
 struct WorkoutProgressHeader: View {
-    let startedAt: Date
     let progress: LiveWorkoutProgress
     var addSetTitle: String?
     var onAddSet: (() -> Void)?
@@ -11,16 +10,18 @@ struct WorkoutProgressHeader: View {
 
     var body: some View {
         GymCard {
-            VStack(alignment: .leading, spacing: 6) {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    LabeledContent(
-                        "Elapsed",
-                        value: Formatters.elapsed(context.date.timeIntervalSince(startedAt))
-                    )
-                    .accessibilityIdentifier("elapsedWorkoutTime")
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .center, spacing: 12) {
+                    ProgressView(value: progress.fractionComplete)
+                        .progressViewStyle(.linear)
+                        .tint(Color.primary)
+                        .accessibilityHidden(true)
+                    Text(progress.percentCaption)
+                        .font(.subheadline.monospacedDigit().weight(.semibold))
+                        .accessibilityIdentifier("workoutProgress")
+                        .accessibilityValue(progress.caption)
                 }
-                LabeledContent("Logged", value: progress.caption)
-                    .accessibilityIdentifier("workoutProgress")
+
                 Text(progress.nextLine)
                     .font(GymTheme.meta)
                     .foregroundStyle(.secondary)
@@ -40,6 +41,7 @@ struct WorkoutProgressHeader: View {
                 }
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: progress.fractionComplete)
     }
 }
 

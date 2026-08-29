@@ -8,12 +8,12 @@ The Workout tab shows a short **Your first workout** card: pick Quick Start or a
 
 ## Settings
 
-Open **Profile** from the person icon at the top-left of any tab:
+Open **Settings** from the person icon at the top-left of any tab:
 
 - **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses **1:00**. During rest, **−15** / **+15** adjust the remaining time.
-- **Appearance** — Light, Dark, or System (default). System follows the iPhone, including scheduled Dark Mode.
+- **Appearance** — Light, Dark, or Auto (default). Auto follows the iPhone, including scheduled Dark Mode.
 - Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Time’s up” and “Rest over” still fire when the phone is locked.
-- **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
+- **Units** — Metric or Imperial. Switching converts every stored number for display; the values themselves stay in metric on the phone.
 
 ## A typical flow
 
@@ -25,5 +25,5 @@ Open **Profile** from the person icon at the top-left of any tab:
 ## Tips
 
 - Allow notifications when asked — that's how the app tells you your rest is over while your phone is locked.
-- Log your body weight from **Profile** (today's weight) or the **Progress** tab (any date).
-- There is no iCloud backup. Export JSON or CSV from **Profile** if you want a copy; **Delete All Data** wipes the phone and returns to Welcome.
+- Log your body weight from **Settings** (today's weight) or the **Progress** tab (any date).
+- There is no iCloud backup. Export JSON or CSV from **Settings** if you want a copy; **Delete All Data** wipes the phone and returns to Welcome.

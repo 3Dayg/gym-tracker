@@ -21,7 +21,7 @@ final class LiveWorkoutProgressUITests: XCTestCase {
 
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["workoutProgress"].label.contains("0 of 31"))
+        XCTAssertEqual(app.staticTexts["workoutProgress"].label, "0%")
         XCTAssertTrue(app.staticTexts["nextSetCue"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["nextSetCue"].label, "Next: Jump Rope · Round 1")
         XCTAssertTrue(
@@ -40,7 +40,7 @@ final class LiveWorkoutProgressUITests: XCTestCase {
         }
 
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["workoutProgress"].label.contains("1 of 31"))
+        XCTAssertEqual(app.staticTexts["workoutProgress"].label, "3%")
         XCTAssertEqual(app.staticTexts["nextSetCue"].label, "Next: Jump Rope · Round 2")
     }
 }

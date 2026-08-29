@@ -21,7 +21,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.buttons["resumeStaleWorkout"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["elapsedWorkoutTime"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
         app.buttons["resumeStaleWorkout"].tap()
 
         XCTAssertTrue(app.navigationBars["Push Day"].waitForExistence(timeout: 5))
@@ -35,7 +35,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 10))
         app.navigationBars["Boxing Conditioning"].tap()
         XCTAssertTrue(app.staticTexts["restBarCountdown"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["elapsedWorkoutTime"].exists)
+        XCTAssertTrue(app.staticTexts["workoutProgress"].exists)
     }
 
     func testExpiredRestDoesNotShowAStaleTimer() {
@@ -43,7 +43,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["elapsedWorkoutTime"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["restBarCountdown"].exists)
     }
 
