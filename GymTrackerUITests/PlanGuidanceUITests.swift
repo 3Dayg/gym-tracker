@@ -44,7 +44,7 @@ final class PlanGuidanceUITests: XCTestCase {
         app.buttons["startPlan-Incline Walk"].tap()
         XCTAssertTrue(app.staticTexts["planPreviewNotes"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["planPreviewNotes"].label.contains("keep walking"))
-        XCTAssertTrue(app.staticTexts["planPreviewSummary"].label.contains("5 blocks"))
+        XCTAssertTrue(app.staticTexts["planPreviewSummary"].label.contains("5 sets"))
         app.buttons["startPlanFromPreview"].tap()
         XCTAssertTrue(app.navigationBars["Incline Walk"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["planGuidance"].waitForExistence(timeout: 5))

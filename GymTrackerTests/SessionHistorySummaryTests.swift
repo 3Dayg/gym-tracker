@@ -33,7 +33,7 @@ final class SessionHistorySummaryTests: XCTestCase {
         summary.cardioDistanceKilometers = 2.5
 
         let bits = summary.captionBits(unit: .metric)
-        XCTAssertTrue(bits.contains("3 blocks"))
+        XCTAssertTrue(bits.contains("3 sets"))
         XCTAssertTrue(bits.contains("25 min"))
         XCTAssertTrue(bits.contains { $0.contains("km") })
     }
@@ -53,7 +53,7 @@ final class SessionHistorySummaryTests: XCTestCase {
         XCTAssertTrue(line.contains("1h 0m"))
         XCTAssertTrue(line.contains("2 sets"))
         XCTAssertTrue(line.contains("1 round"))
-        XCTAssertTrue(line.contains("1 block"))
+        XCTAssertTrue(line.contains("10 min"))
         XCTAssertTrue(line.contains("1 skipped"))
     }
 
@@ -159,6 +159,6 @@ final class SessionHistorySummaryFromSessionTests: XCTestCase {
         let line = summary.caption(duration: session.duration, unit: .metric)
         XCTAssertTrue(line.contains("1 set"))
         XCTAssertTrue(line.contains("1 round"))
-        XCTAssertTrue(line.contains("1 block"))
+        XCTAssertTrue(line.contains("5 min"))
     }
 }

@@ -30,14 +30,14 @@ final class HistorySummaryUITests: XCTestCase {
 
         let cardio = app.staticTexts["historySummary-Incline Walk"]
         XCTAssertTrue(cardio.waitForExistence(timeout: 5))
-        XCTAssertTrue(cardio.label.localizedCaseInsensitiveContains("block"))
+        XCTAssertTrue(cardio.label.localizedCaseInsensitiveContains("set"))
         XCTAssertFalse(cardio.label.localizedCaseInsensitiveContains("kg"))
 
         let mixed = app.staticTexts["historySummary-Mixed Day"]
         XCTAssertTrue(mixed.waitForExistence(timeout: 5))
         XCTAssertTrue(mixed.label.localizedCaseInsensitiveContains("set"))
         XCTAssertTrue(mixed.label.localizedCaseInsensitiveContains("round"))
-        XCTAssertTrue(mixed.label.localizedCaseInsensitiveContains("block"))
+        XCTAssertTrue(mixed.label.localizedCaseInsensitiveContains("km"))
 
         app.buttons["historyRow-Boxing Conditioning"].tap()
         XCTAssertTrue(app.staticTexts["Rounds"].waitForExistence(timeout: 8))

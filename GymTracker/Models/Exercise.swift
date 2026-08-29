@@ -63,16 +63,19 @@ enum ExerciseKind: String, CaseIterable, Identifiable, Codable {
         }
     }
 
-    /// Cardio blocks are continuous, so completing one starts no rest timer.
+    /// Cardio rows are continuous, so completing one starts no rest timer.
     /// Timed rounds (bag work, planks) have real rests between them.
     var startsRestTimer: Bool { self != .cardio }
+
+    /// Timed rounds and cardio both offer a Start/Pause work countdown.
+    /// Strength is logged with Done; rest is separate.
+    var hasWorkTimer: Bool { self != .strength }
 
     /// What one logged row is called in the UI.
     var setLabel: String {
         switch self {
-        case .strength: "Set"
+        case .strength, .cardio: "Set"
         case .timed: "Round"
-        case .cardio: "Block"
         }
     }
 

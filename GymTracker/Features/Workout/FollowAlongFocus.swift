@@ -33,6 +33,7 @@ enum SetLogging {
     static func skip(_ set: SetEntry, timer: SessionTimer) {
         if timer.isTiming(set) { timer.stop() }
         set.markSkipped()
+        LiveWorkoutProgress.clearExpiredFocus(in: set.sessionExercise?.session)
     }
 
     @MainActor
@@ -45,6 +46,7 @@ enum SetLogging {
         if timer.isTiming(set) { timer.stop() }
         fillDerivedDistanceIfNeeded(set, kind: kind)
         set.markCompleted(failed: true)
+        LiveWorkoutProgress.clearExpiredFocus(in: set.sessionExercise?.session)
         if kind.startsRestTimer, timer.phase != .work {
             timer.startRest(seconds: restSeconds)
         }
@@ -60,6 +62,7 @@ enum SetLogging {
         if timer.isTiming(set) { timer.stop() }
         fillDerivedDistanceIfNeeded(set, kind: kind)
         set.markCompleted()
+        LiveWorkoutProgress.clearExpiredFocus(in: set.sessionExercise?.session)
         if kind.startsRestTimer, timer.phase != .work {
             timer.startRest(seconds: restSeconds)
         }

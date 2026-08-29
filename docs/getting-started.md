@@ -11,13 +11,13 @@ The Workout tab shows a short **Your first workout** card: pick Quick Start or a
 Tap the gear icon in the top-right of the **Workout** tab (also available during a live workout):
 
 - **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses 1:00. During rest, **−15** / **+15** adjust the remaining time.
-- Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Round over” and “Rest over” still fire when the phone is locked.
+- Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Time’s up” and “Rest over” still fire when the phone is locked.
 - **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
 
 ## A typical flow
 
 1. **Build a plan** (optional but recommended). Go to **Plans**, create "Push Day", add exercises, and set target sets/reps/weights. See [Workout plans](plans.md).
-2. **Train.** On the **Workout** tab, tap a plan, read the preview, then **Start Workout** or **Follow along**. Strength: tick a set (or tap **Done** in Follow along) when it is done, or Skip / Fail. Timed rounds: tap **Start** and let the countdown finish. See [Logging a workout](workouts.md) and [Follow along](follow-along.md).
+2. **Train.** On the **Workout** tab, tap a plan, read the preview, then **Start Workout**. Strength: tap **Done** when a set is finished, or Skip / Fail. Timed rounds: tap **Start** and let the countdown finish. If a machine is busy, tap **Later** or open **Exercises**. See [Logging a workout](workouts.md) and [Follow along](follow-along.md).
 3. **Finish.** Tap **Finish**, check what will be saved, then confirm. A summary offers **View in History**.
 4. **Watch your progress.** After a few workouts, the **Progress** tab shows charts of your top set weight and estimated one-rep max per exercise. See [History and progress](history-and-progress.md).
 

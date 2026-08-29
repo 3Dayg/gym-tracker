@@ -41,9 +41,10 @@ struct SessionDetailView: View {
                 }
                 if summary.cardioBlocks > 0 {
                     LabeledContent(
-                        summary.cardioBlocks == 1 ? "Block" : "Blocks",
+                        summary.cardioBlocks == 1 ? "Cardio set" : "Cardio sets",
                         value: "\(summary.cardioBlocks)"
                     )
+                    .accessibilityIdentifier("historyDetailCardioSets")
                     LabeledContent(
                         "Cardio time",
                         value: Formatters.durationSeconds(summary.cardioSeconds)

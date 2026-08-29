@@ -106,10 +106,7 @@ private struct StartWorkoutView: View {
                 PlanPreviewSheet(
                     plan: planToPreview,
                     onStart: {
-                        startPlan(planToPreview, followAlong: false)
-                    },
-                    onFollowAlong: {
-                        startPlan(planToPreview, followAlong: true)
+                        startPlan(planToPreview)
                     },
                     onEdit: {
                         let plan = planToPreview
@@ -123,9 +120,9 @@ private struct StartWorkoutView: View {
         }
     }
 
-    private func startPlan(_ plan: WorkoutPlan, followAlong: Bool) {
+    private func startPlan(_ plan: WorkoutPlan) {
         let session = WorkoutSessionService.startSession(from: plan, in: modelContext)
-        session.isFollowAlong = followAlong
+        session.isFollowAlong = true
         planToPreview = nil
     }
 }
@@ -183,7 +180,6 @@ private struct PlanStartRow: View {
 private struct PlanPreviewSheet: View {
     let plan: WorkoutPlan
     let onStart: () -> Void
-    let onFollowAlong: () -> Void
     let onEdit: () -> Void
     let onCancel: () -> Void
 
@@ -193,6 +189,9 @@ private struct PlanPreviewSheet: View {
         NavigationStack {
             List {
                 Section {
+                    Text(plan.name)
+                        .font(.title2.weight(.semibold))
+                        .accessibilityIdentifier("planPreviewTitle")
                     Text(summary.detailBits().joined(separator: " · "))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -201,16 +200,6 @@ private struct PlanPreviewSheet: View {
                         Text(summary.blockedReason)
                             .foregroundStyle(.secondary)
                             .accessibilityIdentifier("planPreviewBlockedReason")
-                    }
-                }
-
-                if summary.canStart {
-                    Section {
-                        Button("Follow along", action: onFollowAlong)
-                            .fontWeight(.semibold)
-                            .accessibilityIdentifier("startFollowAlongFromPreview")
-                    } footer: {
-                        Text("One card at a time. Rest advances on its own. Strength is never logged until you tap Done.")
                     }
                 }
 
@@ -229,7 +218,6 @@ private struct PlanPreviewSheet: View {
                     }
                 }
             }
-            .navigationTitle(plan.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

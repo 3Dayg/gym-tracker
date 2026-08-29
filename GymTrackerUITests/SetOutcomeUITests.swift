@@ -28,12 +28,10 @@ final class SetOutcomeUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Barbell Bench Press"].waitForExistence(timeout: 8))
         app.staticTexts["Barbell Bench Press"].tap()
 
-        let completeButtons = app.buttons.matching(identifier: "completeSet")
-        XCTAssertTrue(completeButtons.element(boundBy: 0).waitForExistence(timeout: 8))
-        app.buttons["addSet"].tap()
-        app.buttons["addSet"].tap()
-        XCTAssertEqual(completeButtons.count, 3)
-        completeButtons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["followAlongDone"].waitForExistence(timeout: 8))
+        app.buttons["addSetToCurrent"].tap()
+        app.buttons["addSetToCurrent"].tap()
+        app.buttons["followAlongDone"].tap()
         if app.buttons["skipRest"].waitForExistence(timeout: 2) {
             app.buttons["skipRest"].tap()
         }

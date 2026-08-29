@@ -4,7 +4,7 @@ The app includes a ready-made **Incline Walk** plan for fat loss. It is only tre
 
 Find it on the **Plans** tab, or start it from the **Workout** tab. Tapping the plan opens a preview with warm-up / incline / cool-down, times, and the note that the rest timer does not start for cardio.
 
-Treadmill work is a **cardio** exercise: it is logged as **time, speed, incline, and distance** — not reps and weight. Distance fills in automatically from speed × time when you tick a block, or you can type what the treadmill display shows.
+Treadmill work is a **cardio** exercise: it is logged as **time, speed, incline, and distance** — not reps and weight. Distance fills in automatically from speed × time when you complete a set, or you can type what the treadmill display shows.
 
 ## The session
 
@@ -18,7 +18,7 @@ About **40 minutes** total.
 
 If 12% feels too steep, lower it in the plan or while you walk, then add 1% when it feels easy. Speed should stay a walk, not a jog.
 
-When a block ends, tick it and **keep walking**. The rest timer does not start on cardio exercises.
+When a set ends, log it and **keep walking**. The rest timer does not start on cardio exercises.
 
 ## How often
 
@@ -30,8 +30,8 @@ Log body weight on the **Progress** tab once a week, at the same time of day.
 
 Stay with walking only:
 
-1. First, finish all three 10-minute incline blocks without stopping.
-2. Then add a 4th incline block (40 minutes of work).
+1. First, finish all three 10-minute incline sets without stopping.
+2. Then add a 4th incline set (40 minutes of work).
 3. Or keep 30 minutes and raise the incline by 1%.
 
 The Progress tab charts minutes, incline, and distance for cardio exercises, not lifting PRs.

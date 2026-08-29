@@ -102,11 +102,7 @@ struct PlanEditorView: View {
                 }
                 if startSummary.canStart {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Follow along") { startWorkout(followAlong: true) }
-                            .accessibilityIdentifier("startFollowAlongFromEditor")
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Start") { startWorkout(followAlong: false) }
+                        Button("Start") { startWorkout() }
                             .fontWeight(.semibold)
                             .accessibilityLabel("Start Workout")
                             .accessibilityIdentifier("startPlanFromEditor")
@@ -129,14 +125,14 @@ struct PlanEditorView: View {
         }
     }
 
-    private func startWorkout(followAlong: Bool) {
+    private func startWorkout() {
         guard startSummary.canStart else { return }
         if !activeSessions.isEmpty {
             showWorkoutInProgress = true
             return
         }
         let session = WorkoutSessionService.startSession(from: plan, in: modelContext)
-        session.isFollowAlong = followAlong
+        session.isFollowAlong = true
         navigation.openWorkout()
     }
 

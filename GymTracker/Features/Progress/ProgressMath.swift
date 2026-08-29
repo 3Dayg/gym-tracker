@@ -23,7 +23,7 @@ struct PersonalRecords: Equatable {
     let mostRepsInASet: Int
 }
 
-/// A completed timed round or cardio block. Timed exercises leave speed,
+/// A completed timed round or cardio set. Timed exercises leave speed,
 /// incline, and distance at their empty values.
 struct CardioSample: Equatable {
     let date: Date

@@ -17,7 +17,7 @@ You can edit them or add your own.
 4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more. After you have trained, **Recent** sits at the top of the picker.
 5. Tap **Create**. **Cancel** throws the draft away.
 
-After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one. From the Workout tab preview you can **Start Workout** (list) or **Follow along** (one card). See [Follow along](follow-along.md).
+After **Create**, **Start** appears on the same screen for any plan that has at least one usable exercise. If a workout is already running, it takes you back to that session instead of starting a second one. From the Workout tab preview, **Start Workout** opens the live card. See [Follow along](follow-along.md).
 
 ## Setting targets
 
@@ -36,11 +36,11 @@ What you edit depends on the exercise:
 
 **Cardio** (treadmill, bike, rower, and similar):
 
-- **Blocks** — how many time chunks to log (a 30-minute session can be 1 × 30 min or 3 × 10 min).
-- **Time** — duration of one block, in minutes and seconds.
+- **Sets** — how many time chunks to log (a 30-minute session can be 1 × 30 min or 3 × 10 min).
+- **Time** — duration of one set, in minutes and seconds.
 - **Speed** — shown as km/h in Metric or mph in Imperial; stored once and converted when you switch units.
 - **Incline** — percent grade, if the machine has one (otherwise leave it at 0).
-- **Distance** — optional. When left empty, the workout derives it from speed and time as you complete blocks.
+- **Distance** — optional. When left empty, the workout derives it from speed and time as you complete sets.
 
 ## Reordering and removing exercises
 

@@ -32,7 +32,7 @@ final class BoxingWorkTimerUITests: XCTestCase {
         app.buttons["startPlanFromPreview"].tap()
 
         XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Rest after a round"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["timedRestHint"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["startWork"].firstMatch.waitForExistence(timeout: 5))
 
         app.buttons["startWork"].firstMatch.tap()

@@ -31,7 +31,7 @@ enum WorkoutSessionService {
         return session
     }
 
-    /// Appends an exercise to a running session with one block/set pre-filled
+    /// Appends an exercise to a running session with one set pre-filled
     /// from the user's most recent log of that exercise.
     @discardableResult
     static func addExercise(
@@ -69,7 +69,7 @@ enum WorkoutSessionService {
         return sessionExercise
     }
 
-    /// Adds a set, round, or cardio block copying metrics from the current
+    /// Adds a set, round, or cardio set copying metrics from the current
     /// last row.
     @discardableResult
     static func addSet(to sessionExercise: SessionExercise) -> SetEntry {

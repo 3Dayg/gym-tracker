@@ -77,4 +77,20 @@ final class LiveWorkoutProgressTests: XCTestCase {
         XCTAssertEqual(entry.exerciseNotes, "Stay light on the balls of your feet.")
         XCTAssertTrue(LiveWorkoutProgress.nextPendingSet(in: session) === entry.orderedSets.first)
     }
+
+    func testNextFollowsFocusedExerciseNotPlanOrder() throws {
+        let bench = Exercise(name: "Bench Press", muscleGroup: .chest, equipment: .barbell)
+        let fly = Exercise(name: "Cable Fly", muscleGroup: .chest, equipment: .cable)
+        context.insert(bench)
+        context.insert(fly)
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        _ = WorkoutSessionService.addExercise(bench, to: session, in: context)
+        let flyEntry = WorkoutSessionService.addExercise(fly, to: session, in: context)
+        LiveWorkoutProgress.jump(to: flyEntry, in: session)
+
+        let progress = LiveWorkoutProgress.from(session)
+        XCTAssertEqual(progress.nextLine, "Next: Cable Fly · Set 1")
+        XCTAssertTrue(LiveWorkoutProgress.nextPendingSet(in: session) === flyEntry.orderedSets.first)
+        XCTAssertEqual(LiveWorkoutProgress.firstPendingSet(in: session)?.sessionExercise?.exerciseName, "Bench Press")
+    }
 }

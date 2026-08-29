@@ -11,6 +11,9 @@ struct FollowAlongView: View {
     let onAddExercise: () -> Void
 
     @State private var restEndedTick = 0
+    @State private var isShowingExerciseMap = false
+    @State private var editingExerciseSortOrder: Int?
+    @State private var isPlanGuidanceExpanded = false
 
     private var progress: LiveWorkoutProgress { LiveWorkoutProgress.from(session) }
 
@@ -29,16 +32,29 @@ struct FollowAlongView: View {
             ?? session.orderedExercises.last
     }
 
+    private var hasTimedExercise: Bool {
+        session.exercises.contains { $0.kind == .timed }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 WorkoutProgressHeader(
                     startedAt: session.startedAt,
                     progress: progress,
-                    isFollowAlong: true,
-                    showsPresentationToggle: true,
-                    onTogglePresentation: { session.isFollowAlong = false }
+                    onShowExercises: session.exercises.isEmpty ? nil : { isShowingExerciseMap = true }
                 )
+
+                if !session.planNotes.isEmpty {
+                    planGuidance
+                }
+
+                if hasTimedExercise {
+                    LabeledContent("Rest after a round", value: Formatters.countdown(restSeconds))
+                        .font(GymTheme.meta)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("timedRestHint")
+                }
 
                 switch focus {
                 case .rest:
@@ -80,12 +96,57 @@ struct FollowAlongView: View {
         .safeAreaInset(edge: .bottom) {
             bottomBar
         }
+        .sheet(isPresented: $isShowingExerciseMap) {
+            FollowAlongExerciseMap(
+                session: session,
+                onJump: { exercise in
+                    LiveWorkoutProgress.jump(to: exercise, in: session)
+                    isShowingExerciseMap = false
+                },
+                onEdit: { exercise in
+                    isShowingExerciseMap = false
+                    editingExerciseSortOrder = exercise.sortOrder
+                }
+            )
+            .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: Binding(
+            get: { editingExerciseSortOrder != nil },
+            set: { if !$0 { editingExerciseSortOrder = nil } }
+        )) {
+            if let order = editingExerciseSortOrder,
+               let exercise = session.orderedExercises.first(where: { $0.sortOrder == order }) {
+                FollowAlongEditSheet(
+                    sessionExercise: exercise,
+                    unitSystem: unitSystem,
+                    sessionTimer: sessionTimer,
+                    restSeconds: restSeconds,
+                    nextPendingSet: currentSet,
+                    onClose: { editingExerciseSortOrder = nil }
+                )
+            }
+        }
+    }
+
+    private var planGuidance: some View {
+        DisclosureGroup("Plan guidance", isExpanded: $isPlanGuidanceExpanded) {
+            Text(session.planNotes)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(GymTheme.cardFill, in: RoundedRectangle(cornerRadius: GymTheme.cardRadius))
+        .accessibilityIdentifier("planGuidance")
     }
 
     private var emptyCard: some View {
         GymCard {
-            Text("Add an exercise to follow along.")
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Quick Start is empty")
+                    .font(.headline)
+                Text("Add an exercise to log a set. Tick what you did, Skip what you pass on, or Discard to throw this workout away.")
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("emptyWorkoutHint")
+            }
         }
     }
 
@@ -94,7 +155,7 @@ struct FollowAlongView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("All rows logged")
                     .font(.title2.weight(.semibold))
-                Text("Finish from the top-right to save, or open All sets to change a row.")
+                Text("Finish from the top-right to save, or open Exercises to change a row.")
                     .foregroundStyle(.secondary)
             }
         }
@@ -111,7 +172,9 @@ struct FollowAlongView: View {
                     set: set,
                     kind: kind,
                     sessionTimer: sessionTimer,
-                    restSeconds: restSeconds
+                    restSeconds: restSeconds,
+                    canDefer: LiveWorkoutProgress.canDefer(in: session),
+                    onLater: deferCurrentExercise
                 )
             }
 
@@ -132,6 +195,13 @@ struct FollowAlongView: View {
         }
         .padding()
         .background(.bar)
+    }
+
+    private func deferCurrentExercise() {
+        if let set = currentSet, sessionTimer.isTiming(set) {
+            sessionTimer.stop()
+        }
+        _ = LiveWorkoutProgress.deferCurrentExercise(in: session)
     }
 }
 
@@ -156,15 +226,20 @@ private struct FollowAlongSetCard: View {
                     Text("\(exercise.kind.setLabel) \(setNumber) of \(setCount)")
                         .font(GymTheme.setIndex)
                         .foregroundStyle(.secondary)
-                    if !formNotes.isEmpty {
-                        Text(formNotes)
-                            .font(GymTheme.meta)
-                            .foregroundStyle(.secondary)
-                    }
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("followAlongSetIndex")
                 .accessibilityLabel("\(exercise.exerciseName), \(exercise.kind.setLabel) \(setNumber) of \(setCount)")
+
+                if !formNotes.isEmpty {
+                    Text(formNotes)
+                        .font(GymTheme.meta)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityElement()
+                        .accessibilityIdentifier("exerciseNotes")
+                        .accessibilityLabel(formNotes)
+                }
 
                 if isTimingThisSet {
                     VStack(alignment: .leading, spacing: 4) {
@@ -187,6 +262,7 @@ private struct FollowAlongSetCard: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("followAlongCard")
         .sheet(item: $activeMetric) { metric in
             pickerSheet(for: metric)
@@ -262,42 +338,46 @@ private struct FollowAlongMetrics: View {
                 unit: unitSystem.distanceLabel
             )
         case .weight:
-            HStack {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(metric.fieldTitle)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
-                Spacer()
-                Button {
-                    set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: -1)
-                } label: {
-                    Image(systemName: "minus")
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .gymSecondaryButton()
-                .accessibilityIdentifier("decrementWeight")
-                .accessibilityLabel("Decrease weight")
+                HStack(spacing: 8) {
+                    Button {
+                        set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: -1)
+                    } label: {
+                        Image(systemName: "minus")
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .gymSecondaryButton()
+                    .accessibilityIdentifier("decrementWeight")
+                    .accessibilityLabel("Decrease weight")
 
-                MetricChip(
-                    text: Formatters.weight(set.weight, unit: unitSystem),
-                    font: GymTheme.metricValue,
-                    controlSize: .regular
-                ) {
-                    activeMetric = .weight
-                }
-                .accessibilityIdentifier("weightValue")
+                    MetricChip(
+                        text: Formatters.weight(set.weight, unit: unitSystem),
+                        font: GymTheme.metricValue,
+                        controlSize: .regular
+                    ) {
+                        activeMetric = .weight
+                    }
+                    .accessibilityIdentifier("weightValue")
 
-                Button {
-                    set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: 1)
-                } label: {
-                    Image(systemName: "plus")
-                        .frame(minWidth: 44, minHeight: 44)
+                    Button {
+                        set.weight = unitSystem.bumpKilograms(set.weight, byDisplaySteps: 1)
+                    } label: {
+                        Image(systemName: "plus")
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .gymSecondaryButton()
+                    .accessibilityIdentifier("incrementWeight")
+                    .accessibilityLabel("Increase weight")
+                    Spacer()
                 }
-                .gymSecondaryButton()
-                .accessibilityIdentifier("incrementWeight")
-                .accessibilityLabel("Increase weight")
             }
         case .reps, .duration:
             HStack {
                 Text(metric.fieldTitle)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 MetricChip(
@@ -307,6 +387,7 @@ private struct FollowAlongMetrics: View {
                 ) {
                     activeMetric = metric
                 }
+                .accessibilityIdentifier(metric == .duration ? "durationValue" : "repsValue")
             }
         }
     }
@@ -319,13 +400,19 @@ private struct FollowAlongMetrics: View {
     ) -> some View {
         HStack {
             Text(title)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
             TextField(placeholder, value: value, format: .number.precision(.fractionLength(0...2)))
                 .keyboardType(.decimalPad)
+                .font(.subheadline.monospacedDigit())
                 .multilineTextAlignment(.trailing)
-                .frame(width: 72)
+                .frame(width: 64)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 8))
             Text(unit)
+                .font(.caption)
                 .foregroundStyle(.secondary)
         }
     }
@@ -347,12 +434,14 @@ private struct FollowAlongActions: View {
     let kind: ExerciseKind
     let sessionTimer: SessionTimer
     let restSeconds: Int
+    let canDefer: Bool
+    let onLater: () -> Void
 
     private var isTimingThisSet: Bool { sessionTimer.isTiming(set) }
 
     var body: some View {
         VStack(spacing: 12) {
-            if kind == .timed {
+            if kind.hasWorkTimer {
                 timedPrimary
             } else {
                 Button("Done") {
@@ -366,7 +455,7 @@ private struct FollowAlongActions: View {
             }
 
             HStack(spacing: 12) {
-                if kind == .timed {
+                if kind.hasWorkTimer {
                     Button("Done") {
                         SetLogging.complete(set, kind: kind, timer: sessionTimer, restSeconds: restSeconds)
                     }
@@ -374,6 +463,12 @@ private struct FollowAlongActions: View {
                     .controlSize(.large)
                     .accessibilityIdentifier("followAlongDone")
                 }
+                Button("Later") { onLater() }
+                    .gymSecondaryButton()
+                    .controlSize(.large)
+                    .disabled(!canDefer)
+                    .accessibilityIdentifier("deferExercise")
+                    .accessibilityHint("Leaves this exercise unfinished and shows the next one")
                 Button("Skip") {
                     SetLogging.skip(set, timer: sessionTimer)
                 }
@@ -410,7 +505,7 @@ private struct FollowAlongActions: View {
                 sessionTimer.startWork(
                     seconds: set.durationSeconds,
                     set: set,
-                    followOnRestSeconds: restSeconds
+                    followOnRestSeconds: kind.startsRestTimer ? restSeconds : 0
                 )
             }
             .gymPrimaryButton()

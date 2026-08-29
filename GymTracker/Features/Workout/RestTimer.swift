@@ -45,7 +45,7 @@ final class SessionTimer {
         scheduleNotification(
             identifier: Self.workNotificationID,
             after: seconds,
-            title: "Round over",
+            title: "Time’s up",
             body: "Time to rest."
         )
         onPersist?()
@@ -84,7 +84,7 @@ final class SessionTimer {
         scheduleNotification(
             identifier: Self.workNotificationID,
             after: remaining,
-            title: "Round over",
+            title: "Time’s up",
             body: "Time to rest."
         )
         onPersist?()
@@ -175,7 +175,7 @@ final class SessionTimer {
             scheduleNotification(
                 identifier: Self.workNotificationID,
                 after: remainingSeconds,
-                title: "Round over",
+                title: "Time’s up",
                 body: "Time to rest."
             )
 

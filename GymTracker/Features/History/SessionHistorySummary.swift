@@ -47,7 +47,7 @@ struct SessionHistorySummary: Equatable {
             bits.append(Formatters.durationSeconds(timedSeconds))
         }
         if cardioBlocks > 0 {
-            bits.append(cardioBlocks == 1 ? "1 block" : "\(cardioBlocks) blocks")
+            bits.append(cardioBlocks == 1 ? "1 set" : "\(cardioBlocks) sets")
             bits.append(Formatters.durationSeconds(cardioSeconds))
             if cardioDistanceKilometers > 0 {
                 bits.append(Formatters.distance(cardioDistanceKilometers, unit: unit))

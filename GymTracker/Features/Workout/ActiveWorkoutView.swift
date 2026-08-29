@@ -162,8 +162,13 @@ struct ActiveWorkoutView: View {
         .onAppear {
             sessionTimer.onWorkFinished = { [weak sessionTimer] set in
                 guard let sessionTimer, set.isPending else { return }
+                let kind = set.sessionExercise?.kind ?? .timed
+                SetLogging.fillDerivedDistanceIfNeeded(set, kind: kind)
                 set.markCompleted()
-                sessionTimer.startRest(seconds: effectiveRestSeconds)
+                LiveWorkoutProgress.clearExpiredFocus(in: set.sessionExercise?.session)
+                if kind.startsRestTimer {
+                    sessionTimer.startRest(seconds: effectiveRestSeconds)
+                }
             }
             sessionTimer.onPersist = { [weak sessionTimer] in
                 guard let sessionTimer else { return }
@@ -256,9 +261,6 @@ struct ActiveWorkoutView: View {
         WorkoutProgressHeader(
             startedAt: session.startedAt,
             progress: liveProgress,
-            isFollowAlong: false,
-            showsPresentationToggle: !session.exercises.isEmpty,
-            onTogglePresentation: { session.isFollowAlong = true },
             addSetTitle: nextPendingSet.flatMap { set in
                 set.sessionExercise.map { "Add \($0.kind.setLabel)" }
             },
@@ -266,7 +268,8 @@ struct ActiveWorkoutView: View {
                 if let exercise = nextPendingSet?.sessionExercise {
                     WorkoutSessionService.addSet(to: exercise)
                 }
-            }
+            },
+            onShowExercises: session.exercises.isEmpty ? nil : { session.isFollowAlong = true }
         )
     }
 
@@ -481,7 +484,7 @@ struct WorkoutSavedSheet: View {
 }
 
 /// One exercise in the running workout: its sets plus an add-set button.
-private struct SessionExerciseSection: View {
+struct SessionExerciseSection: View {
     let sessionExercise: SessionExercise
     let unitSystem: UnitSystem
     let sessionTimer: SessionTimer
@@ -651,7 +654,7 @@ private struct SetRow: View {
 
     private var pendingControls: some View {
         HStack(spacing: 12) {
-            if kind == .timed {
+            if kind.hasWorkTimer {
                 workControls
             }
             Button("Skip") { skip() }

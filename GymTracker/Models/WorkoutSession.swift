@@ -18,9 +18,13 @@ final class WorkoutSession {
     var stalePromptAcknowledged: Bool = false
     /// Plan notes copied at start so guidance survives plan edits or deletion.
     var planNotes: String = ""
-    /// Second presentation of this session: one card at a time. The list
-    /// is still the same `SetEntry` rows; this only changes the live UI.
-    var isFollowAlong: Bool = false
+    /// Live workout is one card at a time. Kept so an in-progress session
+    /// that was started as a list can still open; new sessions start true.
+    var isFollowAlong: Bool = true
+    /// When set, Follow along shows this exercise’s next pending set even
+    /// if an earlier exercise is still unfinished. Cleared when the
+    /// focused exercise has no pending work left. Not kept after Finish.
+    var focusedExerciseSortOrder: Int? = nil
 
     @Relationship(deleteRule: .cascade, inverse: \SessionExercise.session)
     var exercises: [SessionExercise] = []

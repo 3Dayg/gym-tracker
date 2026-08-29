@@ -45,7 +45,7 @@ final class ConvenienceControlsUITests: XCTestCase {
         let after = app.buttons["weightValue"].label
         XCTAssertNotEqual(after, before, "expected weight to change from \(before)")
 
-        app.buttons["addSet"].tap()
+        app.buttons["addSetToCurrent"].tap()
         XCTAssertEqual(app.buttons.matching(identifier: "incrementWeight").count, 1)
     }
 
@@ -77,8 +77,8 @@ final class ConvenienceControlsUITests: XCTestCase {
         app.buttons["addExercise"].tap()
         pickBenchPress()
 
-        XCTAssertTrue(app.buttons["completeSet"].waitForExistence(timeout: 8))
-        app.buttons["completeSet"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["followAlongDone"].waitForExistence(timeout: 8))
+        app.buttons["followAlongDone"].tap()
         if app.buttons["skipRest"].waitForExistence(timeout: 2) {
             app.buttons["skipRest"].tap()
         }

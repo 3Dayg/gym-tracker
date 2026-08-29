@@ -1,15 +1,13 @@
 import SwiftUI
 
-/// Elapsed / logged / next, plus All sets ↔ Follow along. Shared so the
-/// two live presentations feel like the same product.
+/// Elapsed / logged / next, plus the exercise map. Shared so rest and the
+/// card feel like the same product.
 struct WorkoutProgressHeader: View {
     let startedAt: Date
     let progress: LiveWorkoutProgress
-    var isFollowAlong = false
-    var showsPresentationToggle = false
-    var onTogglePresentation: (() -> Void)?
     var addSetTitle: String?
     var onAddSet: (() -> Void)?
+    var onShowExercises: (() -> Void)?
 
     var body: some View {
         GymCard {
@@ -35,16 +33,10 @@ struct WorkoutProgressHeader: View {
                     .accessibilityIdentifier("addSetToCurrent")
                 }
 
-                if showsPresentationToggle, let onTogglePresentation {
-                    if isFollowAlong {
-                        Button("All sets", action: onTogglePresentation)
-                            .accessibilityIdentifier("showAllSets")
-                            .accessibilityHint("Shows every set in a list")
-                    } else {
-                        Button("Follow along", action: onTogglePresentation)
-                            .accessibilityIdentifier("enterFollowAlong")
-                            .accessibilityHint("Shows one set at a time")
-                    }
+                if let onShowExercises {
+                    Button("Exercises", action: onShowExercises)
+                        .accessibilityIdentifier("showExerciseMap")
+                        .accessibilityHint("Shows every exercise so you can jump or come back later")
                 }
             }
         }
@@ -75,6 +67,7 @@ struct RestTakeoverCard: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifierIfPresent(combinedIdentifier)
         .accessibilityHint("Rest countdown. Adjust or skip from the bar below.")
     }

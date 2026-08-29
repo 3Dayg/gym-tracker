@@ -6,10 +6,10 @@ The **History** tab lists every finished workout, newest first, grouped by month
 
 - **Strength:** completed sets and total volume (weight × reps).
 - **Timed** (rounds, planks, jump rope): round count and work time — not "sets · 0 kg".
-- **Cardio:** block count, time, and distance when you logged it.
+- **Cardio:** set count, time, and distance when you logged it.
 - Mixed sessions show each of those parts on the same line. Skipped rows are counted separately.
 
-Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio blocks show time, speed, incline, and distance. Skipped rows say **Skipped**. Failed rows keep the numbers you logged and are marked **Failed** — they do not count toward personal records.
+Tap a workout for the full breakdown. Strength sets show reps and weight; timed rounds show their duration; cardio sets show time, speed, incline, and distance. Skipped rows say **Skipped**. Failed rows keep the numbers you logged and are marked **Failed** — they do not count toward personal records.
 
 If History is empty, **Start Workout** takes you back to the Workout tab.
 

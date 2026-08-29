@@ -84,4 +84,98 @@ final class FollowAlongFocusTests: XCTestCase {
             .rest
         )
     }
+
+    func testCompletingCardioDoesNotStartRest() throws {
+        let walk = Exercise(
+            name: "Treadmill Walk",
+            muscleGroup: .cardio,
+            equipment: .machine,
+            kind: .cardio
+        )
+        context.insert(walk)
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        let entry = WorkoutSessionService.addExercise(walk, to: session, in: context)
+        let set = try XCTUnwrap(entry.orderedSets.first)
+        let timer = SessionTimer()
+        SetLogging.complete(set, kind: .cardio, timer: timer, restSeconds: 90)
+        XCTAssertTrue(set.isCompleted)
+        XCTAssertEqual(timer.phase, .idle)
+    }
+
+    func testJumpShowsALaterExerciseWhileEarlierWorkIsPending() throws {
+        let session = try threeLiftSession()
+        let fly = session.orderedExercises[1]
+        LiveWorkoutProgress.jump(to: fly, in: session)
+
+        XCTAssertEqual(
+            FollowAlongFocus.current(session: session, timerPhase: .idle),
+            .currentSet(exerciseName: "Cable Fly", setNumber: 1, setCount: 1, kind: .strength)
+        )
+        XCTAssertTrue(session.orderedExercises[0].orderedSets[0].isPending)
+        XCTAssertEqual(LiveWorkoutProgress.from(session).nextLine, "Next: Cable Fly · Set 1")
+    }
+
+    func testLaterMovesFocusWithoutSkipping() throws {
+        let session = try threeLiftSession()
+        let benchSet = try XCTUnwrap(session.orderedExercises[0].orderedSets.first)
+        XCTAssertTrue(LiveWorkoutProgress.canDefer(in: session))
+        XCTAssertTrue(LiveWorkoutProgress.deferCurrentExercise(in: session))
+
+        XCTAssertTrue(benchSet.isPending)
+        XCTAssertFalse(benchSet.isSkipped)
+        XCTAssertEqual(
+            FollowAlongFocus.current(session: session, timerPhase: .idle),
+            .currentSet(exerciseName: "Cable Fly", setNumber: 1, setCount: 1, kind: .strength)
+        )
+    }
+
+    func testCompletingFocusedExerciseReturnsToFirstPending() throws {
+        let session = try threeLiftSession()
+        LiveWorkoutProgress.jump(to: session.orderedExercises[1], in: session)
+        let flySet = try XCTUnwrap(session.orderedExercises[1].orderedSets.first)
+        let timer = SessionTimer()
+        SetLogging.complete(flySet, kind: .strength, timer: timer, restSeconds: 90)
+
+        XCTAssertNil(session.focusedExerciseSortOrder)
+        XCTAssertEqual(
+            FollowAlongFocus.current(session: session, timerPhase: .idle),
+            .currentSet(exerciseName: "Bench Press", setNumber: 1, setCount: 1, kind: .strength)
+        )
+    }
+
+    func testLaterWrapsToAnEarlierPendingExercise() throws {
+        let session = try threeLiftSession()
+        LiveWorkoutProgress.jump(to: session.orderedExercises[2], in: session)
+        XCTAssertTrue(LiveWorkoutProgress.deferCurrentExercise(in: session))
+        XCTAssertEqual(
+            FollowAlongFocus.current(session: session, timerPhase: .idle),
+            .currentSet(exerciseName: "Bench Press", setNumber: 1, setCount: 1, kind: .strength)
+        )
+    }
+
+    func testCannotDeferWhenOnlyOneExerciseHasPendingWork() throws {
+        let session = try threeLiftSession()
+        try XCTUnwrap(session.orderedExercises[1].orderedSets.first).markCompleted()
+        try XCTUnwrap(session.orderedExercises[2].orderedSets.first).markCompleted()
+        XCTAssertFalse(LiveWorkoutProgress.canDefer(in: session))
+        XCTAssertFalse(LiveWorkoutProgress.deferCurrentExercise(in: session))
+        XCTAssertEqual(
+            FollowAlongFocus.current(session: session, timerPhase: .idle),
+            .currentSet(exerciseName: "Bench Press", setNumber: 1, setCount: 1, kind: .strength)
+        )
+    }
+
+    private func threeLiftSession() throws -> WorkoutSession {
+        let bench = Exercise(name: "Bench Press", muscleGroup: .chest, equipment: .barbell)
+        let fly = Exercise(name: "Cable Fly", muscleGroup: .chest, equipment: .cable)
+        let incline = Exercise(name: "Incline DB", muscleGroup: .chest, equipment: .dumbbell)
+        context.insert(bench)
+        context.insert(fly)
+        context.insert(incline)
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        _ = WorkoutSessionService.addExercise(bench, to: session, in: context)
+        _ = WorkoutSessionService.addExercise(fly, to: session, in: context)
+        _ = WorkoutSessionService.addExercise(incline, to: session, in: context)
+        return session
+    }
 }

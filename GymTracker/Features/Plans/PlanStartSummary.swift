@@ -76,7 +76,7 @@ struct PlanStartSummary: Equatable {
             bits.append(timedRounds == 1 ? "1 round" : "\(timedRounds) rounds")
         }
         if cardioBlocks > 0 {
-            bits.append(cardioBlocks == 1 ? "1 block" : "\(cardioBlocks) blocks")
+            bits.append(cardioBlocks == 1 ? "1 set" : "\(cardioBlocks) sets")
         }
         if knownWorkSeconds > 0 {
             bits.append("\(Formatters.durationSeconds(knownWorkSeconds)) work")

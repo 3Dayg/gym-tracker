@@ -45,7 +45,7 @@ final class PlannedExercise {
     /// Optional canonical kilograms. When nil, the live workout falls back
     /// to the last weight the user logged for this exercise.
     var targetWeight: Double?
-    /// Seconds per timed round or cardio block. Unused for strength
+    /// Seconds per timed round or cardio set. Unused for strength
     /// exercises.
     var targetDurationSeconds: Int = 0
     /// Canonical kilometers per hour.

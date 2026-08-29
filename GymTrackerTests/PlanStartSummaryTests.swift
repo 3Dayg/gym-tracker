@@ -67,7 +67,7 @@ final class PlanStartSummaryTests: XCTestCase {
         XCTAssertTrue(summary.notes.contains("keep walking"))
         XCTAssertTrue(summary.listCaption().contains("3 exercises"))
         XCTAssertTrue(summary.listCaption().contains("40 min work"))
-        XCTAssertTrue(summary.detailBits().contains("5 blocks"))
+        XCTAssertTrue(summary.detailBits().contains("5 sets"))
     }
 
     func testEmptyPlanCannotStart() {

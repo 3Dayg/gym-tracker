@@ -25,13 +25,16 @@ final class LiveWorkoutProgressUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["nextSetCue"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["nextSetCue"].label, "Next: Jump Rope · Round 1")
         XCTAssertTrue(
-            app.staticTexts.matching(identifier: "exerciseNotes").firstMatch.label
+            app.descendants(matching: .any)["exerciseNotes"].waitForExistence(timeout: 8)
+        )
+        XCTAssertTrue(
+            app.descendants(matching: .any)["exerciseNotes"].label
                 .contains("Stay light on the balls of your feet")
         )
         XCTAssertTrue(app.buttons["addExerciseToolbar"].exists)
         XCTAssertTrue(app.buttons["addSetToCurrent"].exists)
 
-        app.buttons["completeSet"].firstMatch.tap()
+        app.buttons["followAlongDone"].tap()
         if app.buttons["skipRest"].waitForExistence(timeout: 3) {
             app.buttons["skipRest"].tap()
         }
