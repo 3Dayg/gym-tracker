@@ -54,16 +54,16 @@ struct ExerciseListView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
+                    ProfileToolbarButton()
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     MuscleGroupFilterMenu(selection: $muscleGroupFilter)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        ProfileToolbarButton()
-                        Button {
-                            isAddingExercise = true
-                        } label: {
-                            Label("Add Exercise", systemImage: "plus")
-                        }
+                    Button {
+                        isAddingExercise = true
+                    } label: {
+                        Label("Add Exercise", systemImage: "plus")
                     }
                 }
             }

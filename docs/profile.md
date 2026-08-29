@@ -6,7 +6,7 @@ Height is optional. Body weight is only used for the trend chart on the **Progre
 
 ## Units
 
-Pick **Metric** (kg, cm, km) or **Imperial** (lb, ft/in, mi). This is the same unit setting as the Workout gear menu. Switching converts what you see — a 100 kg lift becomes about 220.5 lb — and switching back restores the original numbers.
+Pick **Metric** (kg, cm, km) or **Imperial** (lb, ft/in, mi) on Profile. Switching converts what you see — a 100 kg lift becomes about 220.5 lb — and switching back restores the original numbers.
 
 ## Opening your profile
 

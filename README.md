@@ -59,5 +59,5 @@ GymTrackerTests/  # Unit tests (1RM/PR math, seeding, session flow)
 
 ### Notes
 
-- Weights, speeds, and distances are stored in metric and converted for display. Switch Metric/Imperial from the Workout gear menu or Profile; the numbers you see change, the data does not.
+- Weights, speeds, and distances are stored in metric and converted for display. Switch Metric/Imperial from Profile; the numbers you see change, the data does not.
 - Deleting a custom exercise keeps past workout history intact (session entries store the exercise name).

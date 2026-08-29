@@ -8,9 +8,9 @@ The Workout tab shows a short **Your first workout** card: pick Quick Start or a
 
 ## Settings
 
-Tap the gear icon in the top-right of the **Workout** tab (also available during a live workout):
+Open **Profile** from the person icon at the top-left of any tab:
 
-- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses 1:00. During rest, **−15** / **+15** adjust the remaining time.
+- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses **1:00**. During rest, **−15** / **+15** adjust the remaining time. In a live workout, rest and units are also under **More** (top-right).
 - Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Time’s up” and “Rest over” still fire when the phone is locked.
 - **Units** — Metric (kg, cm, km/h, km) or Imperial (lb, ft/in, mph, mi). Switching converts every stored number for display; the values themselves stay in metric on the phone.
 

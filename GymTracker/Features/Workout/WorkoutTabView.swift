@@ -94,9 +94,6 @@ private struct StartWorkoutView: View {
             ToolbarItem(placement: .topBarLeading) {
                 ProfileToolbarButton()
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                WorkoutSettingsMenu()
-            }
         }
         .sheet(isPresented: Binding(
             get: { planToPreview != nil },
@@ -263,15 +260,5 @@ struct WorkoutSettingsPickers: View {
             }
         }
         .pickerStyle(.menu)
-    }
-}
-
-struct WorkoutSettingsMenu: View {
-    var body: some View {
-        Menu {
-            WorkoutSettingsPickers()
-        } label: {
-            Label("Settings", systemImage: "gearshape")
-        }
     }
 }
