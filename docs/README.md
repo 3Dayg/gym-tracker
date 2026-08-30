@@ -18,7 +18,7 @@ Gym Tracker is a fully offline workout companion. Everything you log stays on yo
 2. [Settings](profile.md) — height, body weight, and the welcome screen
 3. [Logging a workout](workouts.md) — starting, logging sets, the rest timer, finishing
 4. [Workout plans](plans.md) — creating and editing training templates
-5. [Boxing Conditioning](boxing-conditioning.md) — the bundled boxing stamina + muscle plan
+5. [Boxing Conditioning](boxing-conditioning.md) — the bundled A / B / C boxing split
 6. [Incline Walk](incline-walk.md) — the bundled fat-loss treadmill walk plan
 7. [The exercise library](exercises.md) — finding exercises and adding custom ones
 8. [History and progress](history-and-progress.md) — reviewing workouts, charts, and PRs

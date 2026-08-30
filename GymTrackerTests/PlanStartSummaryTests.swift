@@ -32,23 +32,23 @@ final class PlanStartSummaryTests: XCTestCase {
         ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
         let boxing = try XCTUnwrap(
-            try context.fetch(FetchDescriptor<WorkoutPlan>()).first { $0.name == "Boxing Conditioning" }
+            try context.fetch(FetchDescriptor<WorkoutPlan>()).first { $0.name == "Boxing Conditioning A" }
         )
 
         let summary = PlanStartSummary.from(boxing)
         XCTAssertTrue(summary.canStart)
-        XCTAssertEqual(summary.startableExerciseCount, 9)
-        XCTAssertEqual(summary.strengthSets, 16)
-        XCTAssertEqual(summary.timedRounds, 15)
+        XCTAssertEqual(summary.startableExerciseCount, 6)
+        XCTAssertEqual(summary.strengthSets, 15)
+        XCTAssertEqual(summary.timedRounds, 9)
         XCTAssertEqual(summary.cardioBlocks, 0)
-        XCTAssertEqual(summary.knownWorkSeconds, 2295)
+        XCTAssertEqual(summary.knownWorkSeconds, 1380)
         XCTAssertEqual(summary.restSeconds, 60)
         XCTAssertTrue(summary.notes.contains("Tap Start on a timed round"))
-        XCTAssertTrue(summary.listCaption().contains("9 exercises"))
-        XCTAssertTrue(summary.listCaption().contains("38:15 min work"))
+        XCTAssertTrue(summary.listCaption().contains("6 exercises"))
+        XCTAssertTrue(summary.listCaption().contains("23 min work"))
         XCTAssertTrue(summary.listCaption().contains("1:00 rest"))
-        XCTAssertTrue(summary.detailBits().contains("16 sets"))
-        XCTAssertTrue(summary.detailBits().contains("15 rounds"))
+        XCTAssertTrue(summary.detailBits().contains("15 sets"))
+        XCTAssertTrue(summary.detailBits().contains("9 rounds"))
     }
 
     func testSeededInclineWalkSummaryUsesBlocksAndWorkTime() throws {

@@ -197,8 +197,12 @@ struct ProfileToolbarButton: View {
         NavigationLink {
             ProfileView()
         } label: {
-            Label("Settings", systemImage: "person.crop.circle")
+            Text("Me")
+                .font(GymTheme.navAction)
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Settings")
+        .accessibilityIdentifier("profileToolbar")
     }
 }
 

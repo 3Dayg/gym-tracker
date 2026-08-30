@@ -27,28 +27,48 @@ final class PlanSeederTests: XCTestCase {
         defaults = nil
     }
 
-    func testSeedsBoxingConditioningPlan() throws {
+    func testSeedsBoxingConditioningPlans() throws {
         ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
 
-        let boxing = try XCTUnwrap(
-            try context.fetch(FetchDescriptor<WorkoutPlan>()).first { $0.name == "Boxing Conditioning" }
+        let plans = Dictionary(
+            uniqueKeysWithValues: try context.fetch(FetchDescriptor<WorkoutPlan>()).map { ($0.name, $0) }
         )
+        XCTAssertNil(plans["Boxing Conditioning"])
 
-        XCTAssertFalse(boxing.notes.isEmpty)
-        XCTAssertEqual(boxing.orderedExercises.count, 9)
-        XCTAssertEqual(boxing.orderedExercises.map(\.exerciseName).first, "Jump Rope")
-        XCTAssertEqual(boxing.orderedExercises.map(\.exerciseName).last, "Plank")
-        XCTAssertTrue(boxing.orderedExercises.allSatisfy { $0.exercise != nil })
+        let planA = try XCTUnwrap(plans["Boxing Conditioning A"])
+        XCTAssertFalse(planA.notes.isEmpty)
+        XCTAssertEqual(planA.targetRestSeconds, 60)
+        XCTAssertEqual(planA.orderedExercises.map(\.exerciseName), [
+            "Jump Rope", "Push-Up", "Chest Dip", "Bodyweight Squat", "Sit-Up", "Heavy Bag Rounds",
+        ])
+        XCTAssertTrue(planA.orderedExercises.allSatisfy { $0.exercise != nil })
+        XCTAssertEqual(planA.orderedExercises[0].kind, .timed)
+        XCTAssertEqual(planA.orderedExercises[0].targetDurationSeconds, 120)
+        XCTAssertEqual(planA.orderedExercises[1].targetReps, 15)
+        XCTAssertEqual(planA.orderedExercises.last?.targetSets, 5)
+        XCTAssertEqual(planA.orderedExercises.last?.targetDurationSeconds, 180)
 
-        // Timed work carries real durations, not the old reps-as-minutes hack.
-        let jumpRope = boxing.orderedExercises[0]
-        XCTAssertEqual(jumpRope.kind, .timed)
-        XCTAssertEqual(jumpRope.targetDurationSeconds, 180)
-        XCTAssertEqual(boxing.targetRestSeconds, 60)
-        let plank = try XCTUnwrap(boxing.orderedExercises.last)
-        XCTAssertEqual(plank.kind, .timed)
-        XCTAssertEqual(plank.targetDurationSeconds, 45)
+        let planB = try XCTUnwrap(plans["Boxing Conditioning B"])
+        XCTAssertEqual(planB.targetRestSeconds, 60)
+        XCTAssertEqual(planB.orderedExercises.map(\.exerciseName), [
+            "Stationary Bike", "Pull-Up", "Barbell Shrug", "Neck Isometric", "Plank", "Sprint Intervals",
+        ])
+        XCTAssertEqual(planB.orderedExercises[0].kind, .cardio)
+        XCTAssertEqual(planB.orderedExercises[0].targetDurationSeconds, 540)
+        XCTAssertEqual(planB.orderedExercises[3].kind, .timed)
+        XCTAssertEqual(planB.orderedExercises[3].targetDurationSeconds, 15)
+        XCTAssertEqual(planB.orderedExercises.last?.targetSets, 8)
+
+        let planC = try XCTUnwrap(plans["Boxing Conditioning C"])
+        XCTAssertEqual(planC.targetRestSeconds, 60)
+        XCTAssertEqual(planC.orderedExercises.map(\.exerciseName), [
+            "Jump Rope", "Push-Up", "Bodyweight Squat", "Inverted Row",
+            "Russian Twist", "Shadow Boxing", "Heavy Bag Rounds",
+        ])
+        XCTAssertEqual(planC.orderedExercises[0].targetDurationSeconds, 150)
+        XCTAssertEqual(planC.orderedExercises[5].kind, .timed)
+        XCTAssertEqual(planC.orderedExercises.last?.targetSets, 4)
     }
 
     func testSeedsInclineWalkPlan() throws {
@@ -78,7 +98,7 @@ final class PlanSeederTests: XCTestCase {
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
 
         let boxing = try XCTUnwrap(
-            try context.fetch(FetchDescriptor<WorkoutPlan>()).first { $0.name == "Boxing Conditioning" }
+            try context.fetch(FetchDescriptor<WorkoutPlan>()).first { $0.name == "Boxing Conditioning A" }
         )
         context.delete(boxing)
         try context.save()
@@ -86,29 +106,33 @@ final class PlanSeederTests: XCTestCase {
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
 
         let names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
-        XCTAssertFalse(names.contains("Boxing Conditioning"))
+        XCTAssertFalse(names.contains("Boxing Conditioning A"))
+        XCTAssertTrue(names.contains("Boxing Conditioning B"))
         XCTAssertTrue(names.contains("Incline Walk"))
     }
 
-    func testUpgradesExistingBoxingPlanRestOnce() throws {
+    func testRetiresLegacyBoxingConditioningPlanOnce() throws {
         ExerciseSeeder.seedIfNeeded(in: context, bundle: appBundle)
-        let boxing = WorkoutPlan(name: "Boxing Conditioning")
-        context.insert(boxing)
-        XCTAssertNil(boxing.targetRestSeconds)
+        let legacy = WorkoutPlan(name: "Boxing Conditioning", notes: "Old all-in-one session")
+        context.insert(legacy)
 
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
-        XCTAssertEqual(boxing.targetRestSeconds, 60)
+        var names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
+        XCTAssertFalse(names.contains("Boxing Conditioning"))
+        XCTAssertTrue(names.contains("Boxing Conditioning A"))
 
-        boxing.targetRestSeconds = nil
+        let revived = WorkoutPlan(name: "Boxing Conditioning", notes: "User rebuilt this name")
+        context.insert(revived)
         PlanSeeder.seedIfNeeded(in: context, bundle: appBundle, defaults: defaults)
-        XCTAssertNil(boxing.targetRestSeconds, "A later seed must not restore rest the user cleared")
+        names = Set(try context.fetch(FetchDescriptor<WorkoutPlan>()).map(\.name))
+        XCTAssertTrue(names.contains("Boxing Conditioning"), "A later seed must not delete a plan the user recreated")
     }
 
     func testSeedPlanExercisesAllExistInTheLibrary() {
         let exerciseNames = Set(ExerciseSeeder.loadSeedExercises(from: appBundle).map(\.name))
         let plans = PlanSeeder.loadSeedPlans(from: appBundle)
 
-        XCTAssertGreaterThanOrEqual(plans.count, 2)
+        XCTAssertGreaterThanOrEqual(plans.count, 4)
         for plan in plans {
             for exercise in plan.exercises {
                 XCTAssertTrue(

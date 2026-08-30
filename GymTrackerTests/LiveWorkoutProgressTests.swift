@@ -25,6 +25,7 @@ final class LiveWorkoutProgressTests: XCTestCase {
         let session = WorkoutSessionService.startEmptySession(in: context)
         let progress = LiveWorkoutProgress.from(session)
         XCTAssertEqual(progress.caption, "No rows yet")
+        XCTAssertEqual(progress.displayCaption, "No rows yet")
         XCTAssertEqual(progress.percentComplete, 0)
         XCTAssertEqual(progress.nextLine, "Add an exercise to log a set")
     }
@@ -42,9 +43,11 @@ final class LiveWorkoutProgressTests: XCTestCase {
         XCTAssertEqual(progress.loggedCount, 1)
         XCTAssertEqual(progress.totalCount, 3)
         XCTAssertEqual(progress.caption, "1 of 3")
+        XCTAssertEqual(progress.displayCaption, "1 / 3 logged")
         XCTAssertEqual(progress.percentComplete, 33)
         XCTAssertEqual(progress.percentCaption, "33%")
-        XCTAssertEqual(progress.nextLine, "Next: Bench Press · Set 2")
+        XCTAssertEqual(progress.nextLine, "Next · Bench Press · set 2")
+        XCTAssertEqual(progress.upNextLine, "Up next · Bench Press · set 2 of 3")
         XCTAssertTrue(LiveWorkoutProgress.nextPendingSet(in: session) === entry.orderedSets[1])
     }
 
@@ -93,7 +96,8 @@ final class LiveWorkoutProgressTests: XCTestCase {
         LiveWorkoutProgress.jump(to: flyEntry, in: session)
 
         let progress = LiveWorkoutProgress.from(session)
-        XCTAssertEqual(progress.nextLine, "Next: Cable Fly · Set 1")
+        XCTAssertEqual(progress.nextLine, "Next · Cable Fly · set 1")
+        XCTAssertEqual(progress.upNextLine, "Up next · Cable Fly · set 1 of 1")
         XCTAssertTrue(LiveWorkoutProgress.nextPendingSet(in: session) === flyEntry.orderedSets.first)
         XCTAssertEqual(LiveWorkoutProgress.firstPendingSet(in: session)?.sessionExercise?.exerciseName, "Bench Press")
     }

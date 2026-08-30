@@ -29,51 +29,56 @@ struct ExerciseProgressView: View {
 
     private var strengthProgress: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Chart(points) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.topSetWeight)),
-                    series: .value("Series", "Top set")
+            if points.count >= 2 {
+                Chart(points) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.topSetWeight)),
+                        series: .value("Series", "Top set")
+                    )
+                    .foregroundStyle(Color.primary)
+                    .lineStyle(StrokeStyle(lineWidth: 2))
+                    .symbol(.circle)
+
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.bestEstimatedOneRepMax)),
+                        series: .value("Series", "Est. 1RM")
+                    )
+                    .foregroundStyle(GymTheme.sport)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
+                    .symbol(.square)
+                }
+                .chartYAxisLabel(unitSystem.weightLabel)
+                .chartLegend(.visible)
+                .frame(height: 220)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Top set and estimated one-rep max")
+                .accessibilityValue(strengthChartSummary)
+
+                HStack(spacing: 4) {
+                    ChartLegendStroke(color: .primary, label: "Top set")
+                    ChartLegendStroke(color: GymTheme.sport, dashed: true, label: "Est. 1RM")
+                }
+                .font(GymTheme.caption)
+            }
+
+            if let records, points.count == 1 {
+                recordCell(
+                    title: "Heaviest set · one session so far",
+                    value: Formatters.weight(records.heaviestWeight, unit: unitSystem)
                 )
-                .foregroundStyle(Color.primary)
-                .lineStyle(StrokeStyle(lineWidth: 2))
-                .symbol(.circle)
-
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Weight", unitSystem.displayWeight(fromKilograms: point.bestEstimatedOneRepMax)),
-                    series: .value("Series", "Est. 1RM")
-                )
-                .foregroundStyle(GymTheme.red)
-                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
-                .symbol(.square)
-            }
-            .chartYAxisLabel(unitSystem.weightLabel)
-            .chartLegend(.visible)
-            .frame(height: 220)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Top set and estimated one-rep max")
-            .accessibilityValue(strengthChartSummary)
-
-            HStack(spacing: 4) {
-                ChartLegendStroke(color: .primary, label: "Top set")
-                ChartLegendStroke(color: GymTheme.red, dashed: true, label: "Est. 1RM")
-            }
-            .font(.caption)
-
-            if points.count == 1 {
-                Text("One workout so far. Log another session to see a trend.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("onePointGuidance")
-            }
-
-            Text("Est. 1RM is an estimated one-rep max using the Epley formula: weight × (1 + reps ÷ 30). Failed sets are left out.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("oneRepMaxFootnote")
-
-            if let records {
+                HStack(alignment: .top, spacing: GymTheme.pt(16)) {
+                    recordCell(
+                        title: "Est. 1RM",
+                        value: Formatters.weight(records.bestEstimatedOneRepMax, unit: unitSystem)
+                    )
+                    recordCell(
+                        title: "Most reps",
+                        value: "\(records.mostRepsInASet)"
+                    )
+                }
+            } else if let records {
                 Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 6) {
                     GridRow {
                         recordCell(
@@ -81,7 +86,7 @@ struct ExerciseProgressView: View {
                             value: Formatters.weight(records.heaviestWeight, unit: unitSystem)
                         )
                         recordCell(
-                            title: "Best est. 1RM",
+                            title: "Est. 1RM",
                             value: Formatters.weight(records.bestEstimatedOneRepMax, unit: unitSystem)
                         )
                         recordCell(
@@ -91,6 +96,18 @@ struct ExerciseProgressView: View {
                     }
                 }
             }
+
+            if points.count == 1 {
+                Text("Log a second day to see a trend.")
+                    .font(GymTheme.caption)
+                    .foregroundStyle(GymTheme.muted)
+                    .accessibilityIdentifier("onePointGuidance")
+            }
+
+            Text("Est. 1RM is an estimated one-rep max using the Epley formula: weight × (1 + reps ÷ 30). Failed sets are left out.")
+                .font(GymTheme.caption)
+                .foregroundStyle(GymTheme.muted)
+                .accessibilityIdentifier("oneRepMaxFootnote")
         }
         .padding(.vertical, 8)
     }
@@ -101,30 +118,32 @@ struct ExerciseProgressView: View {
         let records = ProgressMath.timedRecords(from: samples)
 
         return VStack(alignment: .leading, spacing: 16) {
-            Chart(points) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Minutes", point.totalMinutes),
-                    series: .value("Series", "Time")
-                )
-                .foregroundStyle(Color.primary)
-                .lineStyle(StrokeStyle(lineWidth: 2))
-                .symbol(.circle)
-            }
-            .chartYAxisLabel("min")
-            .frame(height: 220)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Minutes per day")
-            .accessibilityValue(timedChartSummary(points))
+            if points.count >= 2 {
+                Chart(points) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Minutes", point.totalMinutes),
+                        series: .value("Series", "Time")
+                    )
+                    .foregroundStyle(Color.primary)
+                    .lineStyle(StrokeStyle(lineWidth: 2))
+                    .symbol(.circle)
+                }
+                .chartYAxisLabel("min")
+                .frame(height: 220)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Minutes per day")
+                .accessibilityValue(timedChartSummary(points))
 
-            HStack(spacing: 4) {
-                ChartLegendStroke(color: .primary, label: "Total minutes per day")
+                HStack(spacing: 4) {
+                    ChartLegendStroke(color: .primary, label: "Total minutes per day")
+                }
+                .font(GymTheme.caption)
             }
-            .font(.caption)
 
             if points.count == 1 {
                 Text("One day so far. Log another session to see a trend.")
-                    .font(.caption)
+                    .font(GymTheme.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("onePointGuidance")
             }
@@ -154,74 +173,76 @@ struct ExerciseProgressView: View {
         let hasDistance = points.contains { $0.totalDistance > 0 }
 
         return VStack(alignment: .leading, spacing: 16) {
-            Chart(points) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Minutes", point.totalMinutes),
-                    series: .value("Series", "Time")
-                )
-                .foregroundStyle(Color.primary)
-                .lineStyle(StrokeStyle(lineWidth: 2))
-                .symbol(.circle)
-            }
-            .chartYAxisLabel("min")
-            .frame(height: 220)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Cardio minutes")
-            .accessibilityValue(cardioTimeChartSummary(points))
-
-            HStack(spacing: 4) {
-                ChartLegendStroke(color: .primary, label: "Minutes")
-            }
-            .font(.caption)
-
-            if points.count == 1 {
-                Text("One day so far. Log another session to see a trend.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("onePointGuidance")
-            }
-
-            Chart(points) { point in
-                LineMark(
-                    x: .value("Date", point.date),
-                    y: .value("Incline", point.averageIncline)
-                )
-                .foregroundStyle(GymTheme.red)
-                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
-                .symbol(.square)
-            }
-            .chartYAxisLabel("%")
-            .frame(height: 160)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Average incline")
-            .accessibilityValue(cardioInclineChartSummary(points))
-
-            HStack(spacing: 4) {
-                ChartLegendStroke(color: GymTheme.red, dashed: true, label: "Avg incline %")
-            }
-            .font(.caption)
-
-            if hasDistance {
+            if points.count >= 2 {
                 Chart(points) { point in
                     LineMark(
                         x: .value("Date", point.date),
-                        y: .value("Distance", unitSystem.displayDistance(fromKilometers: point.totalDistance))
+                        y: .value("Minutes", point.totalMinutes),
+                        series: .value("Series", "Time")
                     )
                     .foregroundStyle(Color.primary)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [2, 3]))
+                    .lineStyle(StrokeStyle(lineWidth: 2))
                     .symbol(.circle)
                 }
-                .chartYAxisLabel(unitSystem.distanceLabel)
-                .frame(height: 160)
+                .chartYAxisLabel("min")
+                .frame(height: 220)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Distance per day")
-                .accessibilityValue(cardioDistanceChartSummary(points))
+                .accessibilityLabel("Cardio minutes")
+                .accessibilityValue(cardioTimeChartSummary(points))
 
                 HStack(spacing: 4) {
-                    ChartLegendStroke(color: .primary, dotted: true, label: "Distance per day")
+                    ChartLegendStroke(color: .primary, label: "Minutes")
                 }
-                .font(.caption)
+                .font(GymTheme.caption)
+
+                Chart(points) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Incline", point.averageIncline)
+                    )
+                    .foregroundStyle(GymTheme.sport)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
+                    .symbol(.square)
+                }
+                .chartYAxisLabel("%")
+                .frame(height: 160)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Average incline")
+                .accessibilityValue(cardioInclineChartSummary(points))
+
+                HStack(spacing: 4) {
+                    ChartLegendStroke(color: GymTheme.sport, dashed: true, label: "Avg incline %")
+                }
+                .font(GymTheme.caption)
+
+                if hasDistance {
+                    Chart(points) { point in
+                        LineMark(
+                            x: .value("Date", point.date),
+                            y: .value("Distance", unitSystem.displayDistance(fromKilometers: point.totalDistance))
+                        )
+                        .foregroundStyle(Color.primary)
+                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [2, 3]))
+                        .symbol(.circle)
+                    }
+                    .chartYAxisLabel(unitSystem.distanceLabel)
+                    .frame(height: 160)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Distance per day")
+                    .accessibilityValue(cardioDistanceChartSummary(points))
+
+                    HStack(spacing: 4) {
+                        ChartLegendStroke(color: .primary, dotted: true, label: "Distance per day")
+                    }
+                    .font(GymTheme.caption)
+                }
+            }
+
+            if points.count == 1 {
+                Text("One day so far. Log another session to see a trend.")
+                    .font(GymTheme.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("onePointGuidance")
             }
 
             if let records {
@@ -283,11 +304,11 @@ struct ExerciseProgressView: View {
 
     private func recordCell(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.weight(.semibold))
+                .font(GymTheme.rowName)
+            Text(title)
+                .font(GymTheme.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }

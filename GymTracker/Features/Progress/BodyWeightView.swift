@@ -33,18 +33,22 @@ struct BodyWeightView: View {
 
         if measurements.isEmpty {
             Text("Log your weight to see a trend over time. This stays on this iPhone.")
+                .font(GymTheme.caption)
                 .foregroundStyle(.secondary)
         } else if measurements.count == 1 {
             Text("Log another weight to see a trend over time.")
+                .font(GymTheme.caption)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("onePointBodyWeightGuidance")
         }
 
         if let latest = measurements.last {
-            LabeledContent("Latest") {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(Formatters.weight(latest.weight, unit: unitSystem))
-                + Text("  ·  ").foregroundStyle(.secondary)
-                + Text(latest.date, format: .dateTime.day().month())
+                    .font(GymTheme.rowName)
+                Text("Latest · \(measurements.count) \(measurements.count == 1 ? "entry" : "entries")")
+                    .font(GymTheme.caption)
+                    .foregroundStyle(GymTheme.muted)
             }
         }
 

@@ -11,6 +11,7 @@ struct OnboardingView: View {
     @State private var heightCentimeters: Int = 170
     @State private var heightFeet: Int = 5
     @State private var heightInches: Int = 7
+    @State private var showMeasurements = false
 
     private var resolvedHeightCentimeters: Double {
         switch unitSystem {
@@ -23,64 +24,95 @@ struct OnboardingView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Text("Your workouts stay on this iPhone — no account or internet needed.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("onboardingPrivacyCopy")
-                    NavigationLink {
-                        PrivacyPolicyView()
-                    } label: {
-                        Text("Privacy")
-                    }
-                    .accessibilityIdentifier("onboardingPrivacyPolicy")
-                }
+            ScrollView {
+                VStack(alignment: .leading, spacing: GymTheme.cardGap) {
+                    GymScreenTitle(title: "Welcome")
 
-                Section {
-                    Picker("Units", selection: $unitSystem) {
-                        ForEach(UnitSystem.allCases) { unit in
-                            Text(unit.displayName).tag(unit)
+                    GymCard(padding: 0) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Your workouts stay on this iPhone — no account or internet needed.")
+                                .font(GymTheme.caption)
+                                .foregroundStyle(GymTheme.muted)
+                                .padding(.horizontal, GymTheme.rowPadX)
+                                .padding(.vertical, GymTheme.rowPadY)
+                                .accessibilityIdentifier("onboardingPrivacyCopy")
+                            GymTheme.hairline.frame(height: 0.5)
+                            NavigationLink {
+                                PrivacyPolicyView()
+                            } label: {
+                                Text("Privacy")
+                                    .font(GymTheme.rowName)
+                                    .foregroundStyle(.primary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal, GymTheme.rowPadX)
+                                    .padding(.vertical, GymTheme.rowPadY)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("onboardingPrivacyPolicy")
                         }
                     }
-                    .pickerStyle(.segmented)
-                    .accessibilityIdentifier("onboardingUnits")
-                } header: {
-                    Text("Units")
-                }
 
-                Section {
-                    HeightWheelPicker(
-                        unit: unitSystem,
-                        centimeters: $heightCentimeters,
-                        feet: $heightFeet,
-                        inches: $heightInches
-                    )
-                } header: {
-                    Text("Height")
-                } footer: {
-                    Text("Optional. You can add this later in Settings. Save & Continue stores the numbers on these wheels; Skip for now leaves them unset.")
-                }
+                    GymSectionLabel(title: "Units")
+                    GymCard {
+                        Picker("Units", selection: $unitSystem) {
+                            ForEach(UnitSystem.allCases) { unit in
+                                Text(unit.displayName).tag(unit)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .accessibilityIdentifier("onboardingUnits")
+                    }
 
-                Section {
-                    WeightWheelPicker(weight: $weight, unit: unitSystem)
-                } header: {
-                    Text("Body weight")
-                } footer: {
-                    Text("Optional. Used for the body-weight trend on the Progress tab — not required to start training.")
-                        .accessibilityIdentifier("onboardingWeightFooter")
+                    GymCard {
+                        if showMeasurements {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HeightWheelPicker(
+                                    unit: unitSystem,
+                                    centimeters: $heightCentimeters,
+                                    feet: $heightFeet,
+                                    inches: $heightInches
+                                )
+                                WeightWheelPicker(weight: $weight, unit: unitSystem)
+                                Text("Optional. Used for the body-weight trend on the Progress tab — not required to start training.")
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityIdentifier("onboardingWeightFooter")
+                            }
+                        } else {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Height & weight")
+                                    .font(GymTheme.rowName)
+                                Text("Optional. Used only for the Progress trend. Add later in Settings.")
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(GymTheme.muted)
+                            }
+                            .accessibilityElement(children: .combine)
+                        }
+                    }
+
+                    Button("Get started") {
+                        if showMeasurements {
+                            save()
+                        } else {
+                            skip()
+                        }
+                    }
+                    .gymPrimaryButton()
+                    .accessibilityIdentifier(showMeasurements ? "continueOnboarding" : "skipOnboarding")
+
+                    if !showMeasurements {
+                        Button("Add measurements") {
+                            showMeasurements = true
+                        }
+                        .gymGhostButton()
+                        .accessibilityIdentifier("addOnboardingMeasurements")
+                    }
                 }
+                .padding(.horizontal, GymTheme.pageGutter)
+                .padding(.bottom, GymTheme.pt(12))
             }
-            .navigationTitle("Welcome")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Skip for now") { skip() }
-                        .accessibilityIdentifier("skipOnboarding")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save & Continue") { save() }
-                        .accessibilityIdentifier("continueOnboarding")
-                }
-            }
+            .background(GymTheme.pageFill)
+            .gymMockScreenChrome("Welcome")
             .onChange(of: unitSystem) { oldUnit, newUnit in
                 convertInputs(from: oldUnit, to: newUnit)
             }

@@ -45,51 +45,60 @@ private struct StartWorkoutView: View {
     private var plans: [WorkoutPlan]
 
     @State private var planToPreview: WorkoutPlan?
-    @AppStorage(SettingsKeys.hasDismissedWorkoutOrientation)
-    private var hasDismissedOrientation = false
 
     var body: some View {
-        List {
-            if !hasDismissedOrientation {
-                Section {
-                    FirstWorkoutOrientationCard {
-                        hasDismissedOrientation = true
-                    }
-                }
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: GymTheme.cardGap) {
+                GymScreenTitle(title: "Workout")
 
-            Section {
-                Button {
-                    WorkoutSessionService.startEmptySession(in: modelContext)
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "bolt.fill")
-                            .foregroundStyle(GymTheme.red)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Quick Start")
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                            Text("Add exercises as you go")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                GymCard(padding: 0) {
+                    Button {
+                        WorkoutSessionService.startEmptySession(in: modelContext)
+                    } label: {
+                        HStack(spacing: GymTheme.pt(10)) {
+                            Image(systemName: "bolt.fill")
+                                .font(.system(size: GymTheme.pt(16), weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: GymTheme.boltMark, height: GymTheme.boltMark)
+                                .background(GymTheme.sport, in: RoundedRectangle(cornerRadius: GymTheme.pt(10), style: .continuous))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Quick Start")
+                                    .font(GymTheme.rowName)
+                                    .foregroundStyle(.primary)
+                                Text("Add exercises as you go")
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(GymTheme.muted)
+                            }
+                            Spacer()
                         }
-                        Spacer()
+                        .padding(.horizontal, GymTheme.rowPadX)
+                        .padding(.vertical, GymTheme.rowPadY)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("quickStart")
                 }
-                .accessibilityIdentifier("quickStart")
-            }
 
-            if !plans.isEmpty {
-                Section("Start from a plan") {
-                    ForEach(plans) { plan in
-                        PlanStartRow(plan: plan) {
-                            planToPreview = plan
+                if !plans.isEmpty {
+                    GymSectionLabel(title: "Start from a plan")
+                    GymCard(padding: 0) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(Array(plans.enumerated()), id: \.element.persistentModelID) { index, plan in
+                                if index > 0 { GymTheme.hairline.frame(height: 0.5) }
+                                PlanStartRow(plan: plan) {
+                                    planToPreview = plan
+                                }
+                                .padding(.horizontal, GymTheme.rowPadX)
+                                .padding(.vertical, GymTheme.rowPadY)
+                            }
                         }
                     }
                 }
             }
+            .padding(.horizontal, GymTheme.pageGutter)
+            .padding(.bottom, GymTheme.pt(12))
         }
-        .navigationTitle("Workout")
+        .background(GymTheme.pageFill)
+        .gymMockScreenChrome("Workout")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 ProfileToolbarButton()
@@ -124,29 +133,6 @@ private struct StartWorkoutView: View {
     }
 }
 
-private struct FirstWorkoutOrientationCard: View {
-    let onDismiss: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Your first workout")
-                .font(.headline)
-            VStack(alignment: .leading, spacing: 6) {
-                Label("Pick Quick Start or a plan below.", systemImage: "1.circle.fill")
-                Label("Tick what you did, or Start a timed round.", systemImage: "2.circle.fill")
-                Label("Finish, then open History and Progress.", systemImage: "3.circle.fill")
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            Button("Got it", action: onDismiss)
-                .accessibilityIdentifier("dismissOrientation")
-        }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("firstWorkoutOrientation")
-    }
-}
-
 private struct PlanStartRow: View {
     let plan: WorkoutPlan
     let action: () -> Void
@@ -155,21 +141,18 @@ private struct PlanStartRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .center, spacing: 12) {
-                Image(systemName: summary.modalitySymbol)
-                    .foregroundStyle(summary.canStart ? Color.primary : GymTheme.red)
-                    .frame(width: 28)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(plan.name)
-                        .foregroundStyle(.primary)
-                    Text(summary.listCaption())
-                        .font(.caption)
-                        .foregroundStyle(summary.canStart ? Color.secondary : GymTheme.red)
-                        .lineLimit(2)
-                }
-                Spacer()
+            VStack(alignment: .leading, spacing: 2) {
+                Text(plan.name)
+                    .font(GymTheme.rowName)
+                    .foregroundStyle(.primary)
+                Text(summary.listCaption())
+                    .font(GymTheme.caption)
+                    .foregroundStyle(summary.canStart ? GymTheme.muted : GymTheme.red)
+                    .lineLimit(2)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier("startPlan-\(plan.name)")
     }
 }
@@ -184,53 +167,78 @@ private struct PlanPreviewSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    Text(plan.name)
-                        .font(.title2.weight(.semibold))
-                        .accessibilityIdentifier("planPreviewTitle")
-                    Text(summary.detailBits().joined(separator: " · "))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("planPreviewSummary")
-                    if !summary.canStart {
-                        Text(summary.blockedReason)
-                            .foregroundStyle(.secondary)
-                            .accessibilityIdentifier("planPreviewBlockedReason")
+            ScrollView {
+                VStack(alignment: .leading, spacing: GymTheme.cardGap) {
+                    GymCard(padding: 0) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(plan.name)
+                                .font(GymTheme.sheetTitle)
+                                .accessibilityIdentifier("planPreviewTitle")
+                            Text(summary.detailBits().joined(separator: " · "))
+                                .font(GymTheme.caption)
+                                .foregroundStyle(GymTheme.muted)
+                                .accessibilityIdentifier("planPreviewSummary")
+                            if !summary.canStart {
+                                Text(summary.blockedReason)
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(GymTheme.muted)
+                                    .accessibilityIdentifier("planPreviewBlockedReason")
+                            }
+                        }
+                        .padding(.horizontal, GymTheme.rowPadX)
+                        .padding(.vertical, GymTheme.rowPadY)
                     }
-                }
 
-                if !summary.notes.isEmpty {
-                    Section("How to follow this plan") {
-                        Text(summary.notes)
-                            .accessibilityIdentifier("planPreviewNotes")
-                    }
-                }
-
-                if !summary.exerciseNames.isEmpty {
-                    Section("Exercises") {
-                        ForEach(Array(summary.exerciseNames.enumerated()), id: \.offset) { _, name in
-                            Text(name)
+                    if !summary.notes.isEmpty {
+                        GymSectionLabel(title: "How to follow this plan")
+                        GymCard(padding: 0) {
+                            Text(summary.notes)
+                                .font(GymTheme.caption)
+                                .foregroundStyle(GymTheme.muted)
+                                .padding(.horizontal, GymTheme.rowPadX)
+                                .padding(.vertical, GymTheme.rowPadY)
+                                .accessibilityIdentifier("planPreviewNotes")
                         }
                     }
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("cancelPlanPreview")
-                }
-                ToolbarItem(placement: .confirmationAction) {
+
+                    if !summary.exerciseNames.isEmpty {
+                        GymSectionLabel(title: "Exercises")
+                        GymCard(padding: 0) {
+                            VStack(alignment: .leading, spacing: 0) {
+                                ForEach(Array(summary.exerciseNames.enumerated()), id: \.offset) { index, name in
+                                    if index > 0 { GymTheme.hairline.frame(height: 0.5) }
+                                    Text(name)
+                                        .font(.system(size: GymTheme.pt(15), weight: .medium))
+                                        .padding(.horizontal, GymTheme.rowPadX)
+                                        .padding(.vertical, GymTheme.rowPadY)
+                                }
+                            }
+                        }
+                    }
+
                     if summary.canStart {
                         Button("Start Workout", action: onStart)
-                            .fontWeight(.semibold)
+                            .gymPrimaryButton()
                             .accessibilityIdentifier("startPlanFromPreview")
                     } else {
                         Button("Edit Plan", action: onEdit)
-                            .fontWeight(.semibold)
+                            .gymGhostButton()
                             .accessibilityIdentifier("editBrokenPlan")
                     }
+                }
+                .padding(.horizontal, GymTheme.pageGutter)
+                .padding(.top, GymTheme.pt(8))
+                .padding(.bottom, GymTheme.pt(12))
+            }
+            .background(GymTheme.pageFill)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                        .font(GymTheme.navAction)
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("cancelPlanPreview")
                 }
             }
         }

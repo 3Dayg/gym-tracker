@@ -12,3 +12,6 @@ build-device/
 
 # macOS
 .DS_Store
+
+# Design inventory (HTML mock + Simulator captures)
+docs/screen-inventory/

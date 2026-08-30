@@ -86,13 +86,13 @@ final class HistorySummaryUITests: XCTestCase {
         app.launchArguments = ["-inMemoryStore", "-seedFinishableWorkout", "-failFinishSave"]
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Push Day"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.waitForLiveSession("Push Day"))
         app.buttons["finishWorkout"].tap()
         XCTAssertTrue(app.buttons["confirmFinish"].waitForExistence(timeout: 8))
         app.buttons["confirmFinish"].tap()
 
         XCTAssertTrue(app.buttons["retrySaveWorkout"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.navigationBars["Push Day"].exists)
+        XCTAssertTrue(app.buttons["finishWorkout"].exists)
         app.buttons["retrySaveWorkout"].tap()
 
         XCTAssertTrue(app.navigationBars["Workout saved"].waitForExistence(timeout: 8))

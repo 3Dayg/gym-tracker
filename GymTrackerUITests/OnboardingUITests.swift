@@ -15,14 +15,12 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["onboardingPrivacyCopy"].exists)
         XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "calorie")).firstMatch.exists)
         XCTAssertTrue(app.buttons["skipOnboarding"].exists)
-        XCTAssertTrue(app.buttons["continueOnboarding"].exists)
-        app.swipeUp()
-        XCTAssertTrue(
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Skip for now leaves them unset")).firstMatch.waitForExistence(timeout: 5)
-        )
+        XCTAssertTrue(app.buttons["addOnboardingMeasurements"].exists)
+        XCTAssertFalse(app.buttons["continueOnboarding"].exists)
         XCTAssertTrue(app.buttons["onboardingPrivacyPolicy"].exists)
-        app.swipeUp()
-        XCTAssertTrue(app.staticTexts["Body weight"].waitForExistence(timeout: 5))
+        app.buttons["addOnboardingMeasurements"].tap()
+        XCTAssertTrue(app.buttons["continueOnboarding"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["onboardingWeightFooter"].waitForExistence(timeout: 5))
     }
 
     func testSkipForNowReachesQuickStart() {
@@ -32,12 +30,16 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.tabBars.buttons["Workout"].exists)
         XCTAssertFalse(app.navigationBars["Welcome"].exists)
-        XCTAssertTrue(app.staticTexts["Boxing Conditioning"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Boxing Conditioning A"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Boxing Conditioning B"].exists)
+        XCTAssertTrue(app.staticTexts["Boxing Conditioning C"].exists)
         XCTAssertTrue(app.staticTexts["Incline Walk"].exists)
     }
 
     func testContinueReachesQuickStartAndHonestProfileCopy() {
         XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
+        app.buttons["addOnboardingMeasurements"].tap()
+        XCTAssertTrue(app.buttons["continueOnboarding"].waitForExistence(timeout: 5))
         app.buttons["continueOnboarding"].tap()
 
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))

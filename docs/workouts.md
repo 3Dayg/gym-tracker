@@ -31,7 +31,7 @@ The card shows the current exercise and the next pending set, round, or cardio s
 Timed rounds and cardio sets have a work countdown. Rest is a separate bar at the bottom — only one of them runs at a time.
 
 - **Work:** tap **Start**. Pause and Resume keep the remaining time. At zero, the row is marked done. Timed rounds then start rest; cardio does not. A notification fires if the phone is locked (“Time’s up”).
-- **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning uses **1:00**; other plans use the rest timer on Settings (default 1:30) unless you set rest on the plan itself. **−15** / **+15** nudge the countdown (capped at 10 minutes). **Skip** dismisses it early.
+- **Rest:** starts after a completed strength set or timed round (not after cardio). Boxing Conditioning A–C use **1:00**; other plans use the rest timer on Settings (default 1:30) unless you set rest on the plan itself. **−15** / **+15** nudge the countdown (capped at 10 minutes). **Skip** dismisses it early.
 - If you leave the app, remaining time still follows the clock, and a notification fires when rest is over (allow notifications when the app asks).
 - If you **quit** the app mid-countdown, the same remaining time is waiting when you come back. If the countdown already finished, the timer does not come back — a timed round that ended while closed is marked complete and the app tells you.
 - The live workout shows a **completion bar** and **Next**. If a session has been sitting unfinished for half a day, the app asks whether to resume or discard it.

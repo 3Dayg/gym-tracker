@@ -125,6 +125,7 @@ private struct SessionSummaryRow: View {
                 HStack {
                     Text(session.planName ?? "Workout")
                         .font(.headline)
+                        .foregroundStyle(.primary)
                     Spacer()
                     Text(session.startedAt, format: .dateTime.day().month())
                         .font(.subheadline)

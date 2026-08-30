@@ -8,7 +8,7 @@ New to the app? Read the **[User Guide](docs/README.md)** — it walks through e
 
 - **Settings** — first-launch units, optional height and body weight, then Settings to update them. Data stays on the phone.
 - **Exercise library** — built-in gym and boxing exercises, searchable and filterable by muscle group, plus custom exercises.
-- **Workout plans** — build reusable plans with target sets, reps, and weight per exercise. **Boxing Conditioning** and **Incline Walk** plans are included.
+- **Workout plans** — build reusable plans with target sets, reps, and weight per exercise. **Boxing Conditioning A / B / C** and **Incline Walk** plans are included.
 - **Live workout logging** — start from a plan (targets and last-used weights pre-filled) or from scratch; check off sets as you go, with an automatic rest timer between sets.
 - **History** — browse past sessions with strength, timed, and cardio summaries.
 - **Progress** — per-exercise charts (top set weight and estimated 1RM over time), personal records, and body weight tracking.

@@ -24,7 +24,8 @@ final class ProgressClarityUITests: XCTestCase {
         XCTAssertTrue(app.buttons["selectProgressExercise-Jump Rope"].exists)
         app.buttons["selectProgressExercise-Treadmill Walk"].tap()
 
-        XCTAssertTrue(app.staticTexts["Avg incline %"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["Minutes"].exists)
+        XCTAssertTrue(app.staticTexts["Longest session"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Steepest incline"].exists)
+        XCTAssertTrue(app.staticTexts["onePointGuidance"].exists)
     }
 }

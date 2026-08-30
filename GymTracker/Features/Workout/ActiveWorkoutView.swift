@@ -61,29 +61,20 @@ struct ActiveWorkoutView: View {
         .navigationTitle(session.planName ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Discard", role: .destructive) {
-                    isConfirmingDiscard = true
+        .toolbar(.hidden, for: .navigationBar)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            LiveWorkoutNavBar(
+                title: session.planName ?? "Workout",
+                onDiscard: { isConfirmingDiscard = true },
+                onFinish: attemptFinish,
+                onAddExercise: { isPickingExercise = true },
+                onAddSet: {
+                    if let exercise = nextPendingSet?.sessionExercise
+                        ?? session.orderedExercises.last {
+                        WorkoutSessionService.addSet(to: exercise)
+                    }
                 }
-                .accessibilityIdentifier("discardWorkout")
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    WorkoutSettingsPickers()
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
-                }
-                Button {
-                    isPickingExercise = true
-                } label: {
-                    Label("Add Exercise", systemImage: "plus")
-                }
-                .accessibilityIdentifier("addExerciseToolbar")
-                Button("Finish") { attemptFinish() }
-                    .fontWeight(.semibold)
-                    .accessibilityIdentifier("finishWorkout")
-            }
+            )
         }
         .safeAreaInset(edge: .bottom) {
             if !session.isFollowAlong, sessionTimer.phase == .rest {
@@ -394,46 +385,64 @@ private struct FinishWorkoutSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    Text("Save this workout?")
-                        .font(.title2.weight(.semibold))
-                        .accessibilityIdentifier("finishWorkoutTitle")
-                    LabeledContent("Completed", value: "\(preview.completedCount)")
-                    if preview.failedCount > 0 {
-                        LabeledContent("Failed (kept, not in PRs)", value: "\(preview.failedCount)")
+            ScrollView {
+                VStack(alignment: .leading, spacing: GymTheme.cardGap) {
+                    GymCard(padding: 0) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Save this workout?")
+                                    .font(GymTheme.sheetTitle)
+                                    .accessibilityIdentifier("finishWorkoutTitle")
+                                Text(planName ?? "Workout")
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(GymTheme.muted)
+                            }
+                            .padding(.horizontal, GymTheme.rowPadX)
+                            .padding(.vertical, GymTheme.rowPadY)
+                            finishRow("Completed", "\(preview.completedCount)")
+                            if preview.failedCount > 0 {
+                                finishRow("Failed (kept, not in PRs)", "\(preview.failedCount)")
+                            }
+                            finishRow("Skipped", "\(preview.skippedCount)")
+                            finishRow("Incomplete · dropped", "\(preview.incompleteCount)")
+                        }
                     }
-                    LabeledContent("Skipped", value: "\(preview.skippedCount)")
-                    LabeledContent("Incomplete", value: "\(preview.incompleteCount)")
-                } header: {
-                    Text(planName ?? "Workout")
-                } footer: {
-                    Text(footerCopy)
+                    Button("Save") { onConfirm() }
+                        .gymPrimaryButton()
+                        .accessibilityIdentifier("confirmFinish")
                 }
+                .padding(.horizontal, GymTheme.pageGutter)
+                .padding(.top, GymTheme.pt(8))
             }
+            .background(GymTheme.pageFill)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Keep Going", action: onCancel)
+                        .font(GymTheme.navAction)
+                        .buttonStyle(.plain)
                         .accessibilityIdentifier("keepGoing")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { onConfirm() }
-                        .fontWeight(.semibold)
-                        .accessibilityIdentifier("confirmFinish")
                 }
             }
         }
     }
 
-    private var footerCopy: String {
-        var parts: [String] = []
-        if preview.incompleteCount > 0 {
-            parts.append("Incomplete rows will not be saved.")
+    private func finishRow(_ title: String, _ value: String) -> some View {
+        VStack(spacing: 0) {
+            GymTheme.hairline.frame(height: 0.5)
+            HStack {
+                Text(title)
+                    .font(GymTheme.rowName)
+                Spacer()
+                Text(value)
+                    .font(GymTheme.rowName)
+            }
+            .padding(.horizontal, GymTheme.rowPadX)
+            .padding(.vertical, GymTheme.rowPadY)
         }
-        parts.append("Missed a target? Lower the reps or time, then tap Fail — it logs the set and keeps it out of PRs.")
-        return parts.joined(separator: " ")
     }
+
 }
 
 struct WorkoutSavedSheet: View {
@@ -678,7 +687,7 @@ private struct SetRow: View {
                     .accessibilityIdentifier("resumeWork")
             } else if isTimingThisSet {
                 Button("Pause") { sessionTimer.pause() }
-                    .gymSecondaryButton()
+                    .gymPrimaryButton()
                     .controlSize(.large)
                     .accessibilityIdentifier("pauseWork")
             } else if kind == .timed {

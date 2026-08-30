@@ -7,6 +7,17 @@ enum UITestFixtures {
         let args = ProcessInfo.processInfo.arguments
         guard args.contains("-inMemoryStore") else { return }
 
+        if args.contains("-skipOnboarding") {
+            ProfileService.skipOnboarding(in: context)
+        }
+
+        if args.contains("-seedBodyWeight") {
+            ProfileService.skipOnboarding(in: context)
+            ProfileService.upsertWeight(72, on: Date().addingTimeInterval(-14 * 24 * 60 * 60), in: context)
+            ProfileService.upsertWeight(70.5, on: Date().addingTimeInterval(-7 * 24 * 60 * 60), in: context)
+            ProfileService.upsertWeight(70, on: Date(), in: context)
+        }
+
         if args.contains("-seedStaleWorkout") {
             ProfileService.skipOnboarding(in: context)
             let session = WorkoutSession(
@@ -82,6 +93,13 @@ enum UITestFixtures {
             return
         }
 
+        if args.contains("-seedLiveStrength") {
+            ProfileService.skipOnboarding(in: context)
+            seedLiveStrength(in: context)
+            try? context.save()
+            return
+        }
+
         if args.contains("-seedUnstartablePlans") {
             ProfileService.skipOnboarding(in: context)
             seedUnstartablePlans(in: context)
@@ -109,6 +127,18 @@ enum UITestFixtures {
 
     private static func exerciseNamed(_ name: String, in context: ModelContext) -> Exercise? {
         ((try? context.fetch(FetchDescriptor<Exercise>())) ?? []).first { $0.name == name }
+    }
+
+    private static func seedLiveStrength(in context: ModelContext) {
+        guard let bench = exerciseNamed("Barbell Bench Press", in: context) else { return }
+        let session = WorkoutSessionService.startEmptySession(in: context)
+        session.planName = "Push Day"
+        let entry = WorkoutSessionService.addExercise(bench, to: session, in: context)
+        WorkoutSessionService.addSet(to: entry)
+        entry.sets.forEach { set in
+            set.weight = 80
+            set.reps = 8
+        }
     }
 
     private static func seedFinishableWorkout(in context: ModelContext) {

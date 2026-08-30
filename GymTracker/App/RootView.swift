@@ -21,8 +21,8 @@ struct RootView: View {
             AppSettings.migrateUnitPreferenceIfNeeded()
             if ProcessInfo.processInfo.arguments.contains("-inMemoryStore") {
                 // Plan seeds also write UserDefaults; reset so a blank store
-                // still gets Boxing Conditioning and Incline Walk.
-                UserDefaults.standard.removeObject(forKey: PlanSeeder.seededNamesKey)
+                // still gets Boxing Conditioning A–C and Incline Walk.
+                PlanSeeder.resetSeedTracking()
                 UserDefaults.standard.removeObject(forKey: SettingsKeys.hasDismissedWorkoutOrientation)
                 UserDefaults.standard.removeObject(forKey: SettingsKeys.appearance)
             }
@@ -67,6 +67,7 @@ private struct MainTabView: View {
                 .tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(AppTab.progress)
         }
+        .tint(GymTheme.sport)
     }
 }
 

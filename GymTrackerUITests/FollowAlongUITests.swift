@@ -23,10 +23,10 @@ final class FollowAlongUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
         app.buttons["skipOnboarding"].tap()
 
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 8))
-        app.buttons["startPlan-Boxing Conditioning"].tap()
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].waitForExistence(timeout: 8))
+        app.buttons["startPlan-Boxing Conditioning A"].tap()
         XCTAssertTrue(app.staticTexts["planPreviewTitle"].waitForExistence(timeout: 8))
-        XCTAssertEqual(app.staticTexts["planPreviewTitle"].label, "Boxing Conditioning")
+        XCTAssertEqual(app.staticTexts["planPreviewTitle"].label, "Boxing Conditioning A")
         XCTAssertTrue(app.buttons["startPlanFromPreview"].exists)
         XCTAssertFalse(app.buttons["startFollowAlongFromPreview"].exists)
         app.buttons["startPlanFromPreview"].tap()
@@ -99,7 +99,7 @@ final class FollowAlongUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["followAlongDone"].waitForExistence(timeout: 8))
         XCTAssertTrue(
-            app.staticTexts["nextSetCue"].label.contains("Set 2"),
+            app.staticTexts["nextSetCue"].label.contains("set 2"),
             app.staticTexts["nextSetCue"].label
         )
     }

@@ -62,29 +62,55 @@ struct SessionDetailView: View {
             }
 
             ForEach(session.orderedExercises) { sessionExercise in
-                Section(sessionExercise.exerciseName) {
-                    ForEach(Array(sessionExercise.orderedSets.enumerated()), id: \.element) { index, set in
-                        HStack {
-                            Text("\(sessionExercise.kind.setLabel) \(index + 1)")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(
-                                Formatters.setSummary(
-                                    set,
-                                    kind: sessionExercise.kind,
-                                    unit: unitSystem
-                                )
-                            )
-                            .monospacedDigit()
-                            .foregroundStyle(
-                                set.isFailed ? GymTheme.failed : (set.isSkipped ? .secondary : .primary)
-                            )
-                        }
-                    }
-                }
+                SessionExerciseHistorySection(
+                    sessionExercise: sessionExercise,
+                    unitSystem: unitSystem
+                )
             }
         }
         .navigationTitle(session.planName ?? "Workout")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct SessionExerciseHistorySection: View {
+    let sessionExercise: SessionExercise
+    let unitSystem: UnitSystem
+
+    var body: some View {
+        Section(sessionExercise.exerciseName) {
+            ForEach(Array(sessionExercise.orderedSets.enumerated()), id: \.offset) { index, set in
+                HistorySetRow(
+                    label: "\(sessionExercise.kind.setLabel) \(index + 1)",
+                    summary: Formatters.setSummary(set, kind: sessionExercise.kind, unit: unitSystem),
+                    isFailed: set.isFailed,
+                    isSkipped: set.isSkipped
+                )
+            }
+        }
+    }
+}
+
+private struct HistorySetRow: View {
+    let label: String
+    let summary: String
+    let isFailed: Bool
+    let isSkipped: Bool
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(summary)
+                .monospacedDigit()
+                .foregroundStyle(valueColor)
+        }
+    }
+
+    private var valueColor: Color {
+        if isFailed { return GymTheme.failed }
+        if isSkipped { return .secondary }
+        return .primary
     }
 }

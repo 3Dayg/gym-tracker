@@ -7,10 +7,17 @@ struct LiveWorkoutProgress: Equatable {
     var totalCount: Int = 0
     var nextExerciseName: String? = nil
     var nextSetLabel: String? = nil
+    var nextSetOf: String? = nil
 
     var caption: String {
         guard totalCount > 0 else { return "No rows yet" }
         return "\(loggedCount) of \(totalCount)"
+    }
+
+    /// Shown on the live card. Percent alone reads as empty at the start.
+    var displayCaption: String {
+        guard totalCount > 0 else { return "No rows yet" }
+        return "\(loggedCount) / \(totalCount) logged"
     }
 
     var fractionComplete: Double {
@@ -26,9 +33,26 @@ struct LiveWorkoutProgress: Equatable {
         "\(percentComplete)%"
     }
 
-    var nextLine: String {
+    var nextLine: String { restNextLine }
+
+    /// Strength/work header cue: "Up next · set 1 of 2"
+    var upNextLine: String {
+        if let nextExerciseName, let nextSetOf {
+            return "Up next · \(nextExerciseName) · \(nextSetOf)"
+        }
+        if let nextSetOf {
+            return "Up next · \(nextSetOf)"
+        }
+        if totalCount == 0 {
+            return "Add an exercise to log a set"
+        }
+        return "All rows logged"
+    }
+
+    /// Rest cue: "Next · Bench Press · set 2"
+    var restNextLine: String {
         if let nextExerciseName, let nextSetLabel {
-            return "Next: \(nextExerciseName) · \(nextSetLabel)"
+            return "Next · \(nextExerciseName) · \(nextSetLabel)"
         }
         if totalCount == 0 {
             return "Add an exercise to log a set"
@@ -48,8 +72,11 @@ struct LiveWorkoutProgress: Equatable {
         }
         if let set = nextPendingSet(in: session), let exercise = set.sessionExercise {
             let index = (exercise.orderedSets.firstIndex { $0 === set } ?? 0) + 1
+            let count = exercise.orderedSets.count
+            let label = exercise.kind.setLabel.lowercased()
             progress.nextExerciseName = exercise.exerciseName
-            progress.nextSetLabel = "\(exercise.kind.setLabel) \(index)"
+            progress.nextSetLabel = "\(label) \(index)"
+            progress.nextSetOf = "\(label) \(index) of \(count)"
         }
         return progress
     }

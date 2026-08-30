@@ -3,6 +3,10 @@ import SwiftUI
 
 @main
 struct GymTrackerApp: App {
+    init() {
+        GymTheme.applyChrome()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()

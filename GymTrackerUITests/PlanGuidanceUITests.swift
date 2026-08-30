@@ -15,17 +15,17 @@ final class PlanGuidanceUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
         app.buttons["skipOnboarding"].tap()
 
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "9 exercises")).firstMatch.exists)
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "6 exercises")).firstMatch.exists)
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "1:00 rest")).firstMatch.exists)
 
-        app.buttons["startPlan-Boxing Conditioning"].tap()
+        app.buttons["startPlan-Boxing Conditioning A"].tap()
         XCTAssertTrue(app.staticTexts["planPreviewNotes"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["planPreviewNotes"].label.contains("Tap Start on a timed round"))
         XCTAssertTrue(app.buttons["startPlanFromPreview"].exists)
         app.buttons["startPlanFromPreview"].tap()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning A"))
         XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["planGuidance"].exists)
     }
@@ -43,7 +43,7 @@ final class PlanGuidanceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["planPreviewNotes"].label.contains("keep walking"))
         XCTAssertTrue(app.staticTexts["planPreviewSummary"].label.contains("5 sets"))
         app.buttons["startPlanFromPreview"].tap()
-        XCTAssertTrue(app.navigationBars["Incline Walk"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.waitForLiveSession("Incline Walk"))
         XCTAssertTrue(app.buttons["startWork"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["planGuidance"].exists)
     }
@@ -80,7 +80,7 @@ final class PlanGuidanceUITests: XCTestCase {
         app.launchArguments = ["-inMemoryStore", "-seedDraftPlan"]
         app.launch()
 
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Unfinished Draft"].exists)
         XCTAssertFalse(app.buttons["startPlan-Unfinished Draft"].exists)
     }

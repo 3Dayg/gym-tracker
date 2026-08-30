@@ -2,7 +2,7 @@
 
 ## First launch
 
-On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional. **Skip for now** leaves them unset so you can train immediately. **Save & Continue** stores the numbers currently on the wheels. Two plans are ready immediately: **[Boxing Conditioning](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
+On first launch the app asks you to pick **Metric or Imperial**. Height and body weight are optional. **Skip for now** leaves them unset so you can train immediately. **Save & Continue** stores the numbers currently on the wheels. Four plans are ready immediately: **[Boxing Conditioning A, B, and C](boxing-conditioning.md)** and **[Incline Walk](incline-walk.md)**.
 
 The Workout tab shows a short **Your first workout** card: pick Quick Start or a plan, complete sets, then find results in History and Progress. Tap **Got it** to hide it. Empty History and Progress offer **Start Workout**; empty Plans offer **Create Plan**.
 
@@ -10,7 +10,7 @@ The Workout tab shows a short **Your first workout** card: pick Quick Start or a
 
 Open **Settings** from the person icon at the top-left of any tab:
 
-- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning uses **1:00**. During rest, **−15** / **+15** adjust the remaining time.
+- **Rest timer** — default rest after a completed set or timed round (30 seconds to 5 minutes, default 1:30). A plan can override this; Boxing Conditioning A–C use **1:00**. During rest, **−15** / **+15** adjust the remaining time.
 - **Appearance** — Light, Dark, or Auto (default). Auto follows the iPhone, including scheduled Dark Mode.
 - Timed rounds also have a **Start / Pause** work countdown. Allow notifications so “Time’s up” and “Rest over” still fire when the phone is locked.
 - **Units** — Metric or Imperial. Switching converts every stored number for display; the values themselves stay in metric on the phone.

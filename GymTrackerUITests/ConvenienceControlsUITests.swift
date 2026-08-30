@@ -53,8 +53,8 @@ final class ConvenienceControlsUITests: XCTestCase {
         app.launchArguments = ["-inMemoryStore", "-restoreRest", "90"]
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 10))
-        app.navigationBars["Boxing Conditioning"].tap()
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning"))
+        app.dismissLiveKeyboard("Boxing Conditioning")
         XCTAssertTrue(app.buttons["incrementRest"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.buttons["decrementRest"].exists)
         app.buttons["incrementRest"].tap()

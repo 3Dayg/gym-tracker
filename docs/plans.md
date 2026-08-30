@@ -2,9 +2,11 @@
 
 A plan is a reusable template — for example "Push Day" or "Leg Day". Starting a workout from a plan pre-fills all its exercises and sets so you spend the gym session lifting, not typing.
 
-The app ships with two ready-made plans:
+The app ships with four ready-made plans:
 
-- **[Boxing Conditioning](boxing-conditioning.md)** — ring stamina plus a bit of muscle
+- **[Boxing Conditioning A](boxing-conditioning.md)** — push-ups, dips, squats, core, bag rounds
+- **[Boxing Conditioning B](boxing-conditioning.md)** — pulling, shrugs, neck, sprints
+- **[Boxing Conditioning C](boxing-conditioning.md)** — full-body circuit and bag rounds
 - **[Incline Walk](incline-walk.md)** — treadmill incline walking for fat loss
 
 You can edit them or add your own.
@@ -13,7 +15,7 @@ You can edit them or add your own.
 
 1. Go to the **Plans** tab and tap **+** (or **Create Plan** if the list is empty).
 2. Give the plan a name (and optional notes). **Cancel** throws the draft away; nothing is saved until you tap **Create**.
-3. Optionally set **Rest between sets**. Boxing Conditioning ships at 1:00; leave it on “Use app setting” to follow Settings (default 1:30). Timed rounds start this rest when their countdown hits zero.
+3. Optionally set **Rest between sets**. Boxing Conditioning A–C ship at 1:00; leave it on “Use app setting” to follow Settings (default 1:30). Timed rounds start this rest when their countdown hits zero.
 4. Tap **Add Exercise**, tick every lift or round you want, then **Add**. You can open the picker again to add more. After you have trained, **Recent** sits at the top of the picker.
 5. Tap **Create**. **Cancel** throws the draft away.
 

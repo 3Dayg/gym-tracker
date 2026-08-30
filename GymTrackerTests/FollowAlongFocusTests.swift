@@ -112,7 +112,7 @@ final class FollowAlongFocusTests: XCTestCase {
             .currentSet(exerciseName: "Cable Fly", setNumber: 1, setCount: 1, kind: .strength)
         )
         XCTAssertTrue(session.orderedExercises[0].orderedSets[0].isPending)
-        XCTAssertEqual(LiveWorkoutProgress.from(session).nextLine, "Next: Cable Fly · Set 1")
+        XCTAssertEqual(LiveWorkoutProgress.from(session).nextLine, "Next · Cable Fly · set 1")
     }
 
     func testCompletingFocusedExerciseReturnsToFirstPending() throws {

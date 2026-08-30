@@ -90,27 +90,32 @@ enum PlanSeeder {
         }
 
         defaults.set(Array(alreadySeeded).sorted(), forKey: seededNamesKey)
-        applyBoxingRestIfNeeded(in: context, defaults: defaults)
+        retireLegacyBoxingPlanIfNeeded(in: context, defaults: defaults)
     }
 
+    /// The original all-in-one boxing plan was replaced by A / B / C.
+    private static let retiredLegacyBoxingPlanKey = "retiredLegacyBoxingConditioningPlan"
+    private static let legacyBoxingPlanName = "Boxing Conditioning"
     /// Existing installs seeded Boxing before rest lived on the plan.
     private static let boxingRestUpgradeKey = "upgradedBoxingPlanRest"
 
-    private static func applyBoxingRestIfNeeded(in context: ModelContext, defaults: UserDefaults) {
-        guard !defaults.bool(forKey: boxingRestUpgradeKey) else { return }
+    private static func retireLegacyBoxingPlanIfNeeded(in context: ModelContext, defaults: UserDefaults) {
+        guard !defaults.bool(forKey: retiredLegacyBoxingPlanKey) else { return }
         let plans = (try? context.fetch(FetchDescriptor<WorkoutPlan>())) ?? []
-        if let boxing = plans.first(where: { $0.name == "Boxing Conditioning" }),
-           boxing.targetRestSeconds == nil
-        {
-            boxing.targetRestSeconds = 60
+        if let boxing = plans.first(where: { $0.name == legacyBoxingPlanName }) {
+            context.delete(boxing)
         }
-        defaults.set(true, forKey: boxingRestUpgradeKey)
+        var alreadySeeded = Set(defaults.stringArray(forKey: seededNamesKey) ?? [])
+        alreadySeeded.insert(legacyBoxingPlanName)
+        defaults.set(Array(alreadySeeded).sorted(), forKey: seededNamesKey)
+        defaults.set(true, forKey: retiredLegacyBoxingPlanKey)
     }
 
     /// Clears seed bookkeeping so a full reset can re-import bundled plans.
     static func resetSeedTracking(defaults: UserDefaults = .standard) {
         defaults.removeObject(forKey: seededNamesKey)
         defaults.removeObject(forKey: boxingRestUpgradeKey)
+        defaults.removeObject(forKey: retiredLegacyBoxingPlanKey)
     }
 
     static func loadSeedPlans(from bundle: Bundle = .main) -> [SeedPlan] {

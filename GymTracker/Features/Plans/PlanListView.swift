@@ -140,6 +140,7 @@ private struct PlanListRow: View {
                     .frame(width: 28)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(plan.name)
+                        .foregroundStyle(.primary)
                     Text(summary.listCaption())
                         .font(.caption)
                         .foregroundStyle(summary.canStart ? Color.secondary : GymTheme.red)

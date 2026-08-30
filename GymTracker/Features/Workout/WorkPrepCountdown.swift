@@ -46,6 +46,7 @@ struct WorkPrepCountdownLabel: View {
     var body: some View {
         Text("\(remaining)")
             .font(font)
+            .tracking(-1.56)
             .monospacedDigit()
             .accessibilityIdentifier("workPrepCountdown")
             .accessibilityLabel("Starting in \(remaining)")

@@ -8,9 +8,14 @@ enum Formatters {
         value.formatted(.number.precision(.fractionLength(0...1)))
     }
 
+    /// "82.5" — display weight without the unit label.
+    static func weightNumber(_ kilograms: Double, unit: UnitSystem) -> String {
+        number(unit.displayWeight(fromKilograms: kilograms))
+    }
+
     /// "82.5 kg" / "181.9 lb" — from canonical kilograms.
     static func weight(_ kilograms: Double, unit: UnitSystem) -> String {
-        "\(number(unit.displayWeight(fromKilograms: kilograms))) \(unit.weightLabel)"
+        "\(weightNumber(kilograms, unit: unit)) \(unit.weightLabel)"
     }
 
     /// "1h 12m" / "45m" / "0m"

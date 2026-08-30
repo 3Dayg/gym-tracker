@@ -24,20 +24,20 @@ final class BoxingWorkTimerUITests: XCTestCase {
         app.buttons["skipOnboarding"].tap()
 
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "9 exercises")).firstMatch.exists)
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "6 exercises")).firstMatch.exists)
 
-        app.buttons["startPlan-Boxing Conditioning"].tap()
+        app.buttons["startPlan-Boxing Conditioning A"].tap()
         XCTAssertTrue(app.buttons["startPlanFromPreview"].waitForExistence(timeout: 8))
         app.buttons["startPlanFromPreview"].tap()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning A"))
         XCTAssertTrue(app.descendants(matching: .any)["timedRestHint"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["startWork"].firstMatch.waitForExistence(timeout: 5))
 
         app.buttons["startWork"].firstMatch.tap()
         // Deliver a possible notification-permission interruption.
-        app.navigationBars["Boxing Conditioning"].tap()
+        app.dismissLiveKeyboard("Boxing Conditioning A")
 
         XCTAssertTrue(app.staticTexts["workPrepCountdown"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["pauseWork"].firstMatch.waitForExistence(timeout: 8))

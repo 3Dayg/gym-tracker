@@ -24,7 +24,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
         app.buttons["resumeStaleWorkout"].tap()
 
-        XCTAssertTrue(app.navigationBars["Push Day"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.waitForLiveSession("Push Day", timeout: 5))
         XCTAssertFalse(app.buttons["resumeStaleWorkout"].exists)
     }
 
@@ -32,8 +32,8 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         app.launchArguments = ["-inMemoryStore", "-restoreRest", "45"]
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 10))
-        app.navigationBars["Boxing Conditioning"].tap()
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning"))
+        app.dismissLiveKeyboard("Boxing Conditioning")
         XCTAssertTrue(app.staticTexts["restBarCountdown"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["workoutProgress"].exists)
     }
@@ -42,7 +42,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
         app.launchArguments = ["-inMemoryStore", "-restoreExpiredRest"]
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning"))
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["restBarCountdown"].exists)
     }
@@ -58,7 +58,7 @@ final class LiveWorkoutPersistenceUITests: XCTestCase {
             ).firstMatch.exists
         )
         app.alerts["Round finished"].buttons["OK"].tap()
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning", timeout: 5))
         XCTAssertFalse(app.staticTexts["restBarCountdown"].exists)
     }
 }

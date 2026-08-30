@@ -15,15 +15,10 @@ final class FirstWorkoutOrientationUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
         app.buttons["skipOnboarding"].tap()
 
-        XCTAssertTrue(app.staticTexts["Your first workout"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Quick Start")).firstMatch.exists)
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "History")).firstMatch.exists)
-        XCTAssertTrue(app.buttons["quickStart"].exists)
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].exists)
-
-        app.buttons["dismissOrientation"].tap()
-        XCTAssertFalse(app.buttons["dismissOrientation"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.buttons["quickStart"].exists)
+        XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.staticTexts["Your first workout"].exists)
+        XCTAssertFalse(app.buttons["dismissOrientation"].exists)
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].exists)
     }
 
     func testEmptyHistoryAndProgressOfferStartWorkout() {
@@ -36,8 +31,10 @@ final class FirstWorkoutOrientationUITests: XCTestCase {
             app.buttons["dismissOrientation"].tap()
         }
 
-        XCTAssertTrue(app.tabBars.buttons["History"].waitForExistence(timeout: 8))
-        app.tabBars.buttons["History"].tap()
+        let historyTab = app.tabBars.buttons["History"]
+        let historyAny = app.buttons["History"]
+        XCTAssertTrue(historyTab.waitForExistence(timeout: 8) || historyAny.waitForExistence(timeout: 2))
+        if historyTab.exists { historyTab.tap() } else { historyAny.tap() }
         XCTAssertTrue(app.buttons["emptyHistoryStartWorkout"].waitForExistence(timeout: 8))
         app.buttons["emptyHistoryStartWorkout"].tap()
         XCTAssertTrue(app.buttons["quickStart"].waitForExistence(timeout: 8))

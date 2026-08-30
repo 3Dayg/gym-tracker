@@ -13,6 +13,7 @@
   { "name": "Barbell Row", "muscleGroup": "back", "equipment": "barbell" },
   { "name": "Dumbbell Row", "muscleGroup": "back", "equipment": "dumbbell" },
   { "name": "Pull-Up", "muscleGroup": "back", "equipment": "bodyweight" },
+  { "name": "Inverted Row", "muscleGroup": "back", "equipment": "bodyweight", "notes": "Keep the shoulders moving; stop if they shrug toward the ears." },
   { "name": "Chin-Up", "muscleGroup": "back", "equipment": "bodyweight" },
   { "name": "Lat Pulldown", "muscleGroup": "back", "equipment": "cable" },
   { "name": "Seated Cable Row", "muscleGroup": "back", "equipment": "cable" },
@@ -27,6 +28,8 @@
   { "name": "Front Raise", "muscleGroup": "shoulders", "equipment": "dumbbell" },
   { "name": "Rear Delt Fly", "muscleGroup": "shoulders", "equipment": "dumbbell" },
   { "name": "Upright Row", "muscleGroup": "shoulders", "equipment": "barbell" },
+  { "name": "Barbell Shrug", "muscleGroup": "shoulders", "equipment": "barbell", "notes": "Pause at the top." },
+  { "name": "Neck Isometric", "muscleGroup": "shoulders", "equipment": "bodyweight", "kind": "timed", "notes": "Gentle, controlled pressure in each direction. Stop if you feel dizziness, numbness, or radiating pain." },
   { "name": "Machine Shoulder Press", "muscleGroup": "shoulders", "equipment": "machine" },
 
   { "name": "Barbell Curl", "muscleGroup": "biceps", "equipment": "barbell" },
@@ -48,6 +51,7 @@
   { "name": "Leg Press", "muscleGroup": "legs", "equipment": "machine" },
   { "name": "Leg Extension", "muscleGroup": "legs", "equipment": "machine" },
   { "name": "Leg Curl", "muscleGroup": "legs", "equipment": "machine" },
+  { "name": "Bodyweight Squat", "muscleGroup": "legs", "equipment": "bodyweight", "notes": "Controlled pace; keep a steady rhythm." },
   { "name": "Walking Lunge", "muscleGroup": "legs", "equipment": "dumbbell" },
   { "name": "Bulgarian Split Squat", "muscleGroup": "legs", "equipment": "dumbbell" },
   { "name": "Standing Calf Raise", "muscleGroup": "legs", "equipment": "machine" },
@@ -56,6 +60,7 @@
   { "name": "Glute Kickback", "muscleGroup": "glutes", "equipment": "cable" },
 
   { "name": "Plank", "muscleGroup": "core", "equipment": "bodyweight", "kind": "timed", "notes": "Brace as if someone will punch your stomach." },
+  { "name": "Sit-Up", "muscleGroup": "core", "equipment": "bodyweight", "notes": "Swap for crunches if hips or back complain." },
   { "name": "Crunch", "muscleGroup": "core", "equipment": "bodyweight" },
   { "name": "Hanging Leg Raise", "muscleGroup": "core", "equipment": "bodyweight" },
   { "name": "Russian Twist", "muscleGroup": "core", "equipment": "dumbbell" },

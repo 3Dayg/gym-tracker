@@ -1,18 +1,42 @@
 [
   {
-    "name": "Boxing Conditioning",
+    "name": "Boxing Conditioning A",
     "targetRestSeconds": 60,
-    "notes": "Ring stamina plus a bit of muscle. Tap Start on a timed round — when it hits zero, rest starts automatically (1:00). You can still tick a round by hand if you finish early. Aim for 2–3 sessions a week on non-sparring days.",
+    "notes": "Monday session from the practical Tyson split: jump rope, push-ups, dips, squats, core, then bag rounds. Tap Start on a timed round — when it hits zero, rest starts automatically (1:00). Leave 1–3 reps in reserve on push-ups and dips. Pair with B on Wednesday and C on Friday.",
     "exercises": [
-      { "name": "Jump Rope", "targetSets": 5, "targetDurationSeconds": 180 },
-      { "name": "Shadow Boxing", "targetSets": 3, "targetDurationSeconds": 180 },
-      { "name": "Heavy Bag Rounds", "targetSets": 4, "targetDurationSeconds": 180 },
+      { "name": "Jump Rope", "targetSets": 4, "targetDurationSeconds": 120 },
       { "name": "Push-Up", "targetSets": 4, "targetReps": 15 },
-      { "name": "Dumbbell Row", "targetSets": 3, "targetReps": 10 },
-      { "name": "Walking Lunge", "targetSets": 3, "targetReps": 12 },
-      { "name": "Burpee", "targetSets": 3, "targetReps": 12 },
+      { "name": "Chest Dip", "targetSets": 3, "targetReps": 12 },
+      { "name": "Bodyweight Squat", "targetSets": 4, "targetReps": 25 },
+      { "name": "Sit-Up", "targetSets": 4, "targetReps": 20 },
+      { "name": "Heavy Bag Rounds", "targetSets": 5, "targetDurationSeconds": 180 }
+    ]
+  },
+  {
+    "name": "Boxing Conditioning B",
+    "targetRestSeconds": 60,
+    "notes": "Wednesday session: easy bike warm-up, pulling, shrugs, neck, plank, then short sprints. The warm-up is cardio — tick it and keep moving; rest starts after pull-ups, shrugs, and timed work. Neck holds are gentle; stop if you feel dizziness or radiating pain. Rest is 1:00. Pair with A on Monday and C on Friday.",
+    "exercises": [
+      { "name": "Stationary Bike", "targetSets": 1, "targetDurationSeconds": 540 },
+      { "name": "Pull-Up", "targetSets": 4, "targetReps": 8 },
+      { "name": "Barbell Shrug", "targetSets": 4, "targetReps": 15 },
+      { "name": "Neck Isometric", "targetSets": 3, "targetDurationSeconds": 15 },
+      { "name": "Plank", "targetSets": 3, "targetDurationSeconds": 45 },
+      { "name": "Sprint Intervals", "targetSets": 8, "targetDurationSeconds": 15 }
+    ]
+  },
+  {
+    "name": "Boxing Conditioning C",
+    "targetRestSeconds": 60,
+    "notes": "Friday full-body circuit plus bag work. Stay relaxed on the rope, stop push-ups before form breaks, and keep shadowboxing on defense and counters. Tap Start on timed rounds — rest starts at zero (1:00). Use this with A on Monday and B on Wednesday.",
+    "exercises": [
+      { "name": "Jump Rope", "targetSets": 3, "targetDurationSeconds": 150 },
+      { "name": "Push-Up", "targetSets": 3, "targetReps": 20 },
+      { "name": "Bodyweight Squat", "targetSets": 3, "targetReps": 30 },
+      { "name": "Inverted Row", "targetSets": 3, "targetReps": 10 },
       { "name": "Russian Twist", "targetSets": 3, "targetReps": 20 },
-      { "name": "Plank", "targetSets": 3, "targetDurationSeconds": 45 }
+      { "name": "Shadow Boxing", "targetSets": 3, "targetDurationSeconds": 150 },
+      { "name": "Heavy Bag Rounds", "targetSets": 4, "targetDurationSeconds": 180 }
     ]
   },
   {

@@ -76,7 +76,7 @@ final class PlanEditorLoopUITests: XCTestCase {
         XCTAssertTrue(app.tabBars.buttons["Plans"].waitForExistence(timeout: 8))
         app.tabBars.buttons["Plans"].tap()
 
-        let boxing = app.descendants(matching: .any)["planRow-Boxing Conditioning"]
+        let boxing = app.descendants(matching: .any)["planRow-Boxing Conditioning A"]
         XCTAssertTrue(boxing.waitForExistence(timeout: 8))
         boxing.swipeLeft()
         XCTAssertTrue(app.buttons["deletePlan"].waitForExistence(timeout: 5))
@@ -84,7 +84,7 @@ final class PlanEditorLoopUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons["keepPlan"].waitForExistence(timeout: 8))
         app.buttons["keepPlan"].tap()
-        XCTAssertTrue(app.descendants(matching: .any)["planRow-Boxing Conditioning"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["planRow-Boxing Conditioning A"].waitForExistence(timeout: 5))
 
         boxing.swipeLeft()
         XCTAssertTrue(app.buttons["deletePlan"].waitForExistence(timeout: 5))
@@ -92,7 +92,7 @@ final class PlanEditorLoopUITests: XCTestCase {
         XCTAssertTrue(app.buttons["confirmDeletePlan"].waitForExistence(timeout: 8))
         app.buttons["confirmDeletePlan"].tap()
         XCTAssertFalse(
-            app.descendants(matching: .any)["planRow-Boxing Conditioning"].waitForExistence(timeout: 2)
+            app.descendants(matching: .any)["planRow-Boxing Conditioning A"].waitForExistence(timeout: 2)
         )
     }
 

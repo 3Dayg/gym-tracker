@@ -20,7 +20,14 @@ struct ProgressTabView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Exercise progress") {
+                Section {
+                    GymScreenTitle(title: "Progress")
+                        .listRowInsets(EdgeInsets(top: GymTheme.titlePadTop, leading: 0, bottom: GymTheme.titlePadBottom, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+
+                Section {
                     if exercisesWithHistory.isEmpty {
                         EmptyStateBlock(
                             title: "No progress yet",
@@ -38,7 +45,14 @@ struct ProgressTabView: View {
                                 selection: $selectedExercise
                             )
                         } label: {
-                            LabeledContent("Exercise", value: selectedExercise?.name ?? "Choose…")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(selectedExercise?.name ?? "Choose…")
+                                    .font(GymTheme.rowName)
+                                    .foregroundStyle(.primary)
+                                Text("Change exercise")
+                                    .font(GymTheme.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         .accessibilityIdentifier("chooseProgressExercise")
 
@@ -46,13 +60,20 @@ struct ProgressTabView: View {
                             ExerciseProgressView(exercise: exercise)
                         }
                     }
+                } header: {
+                    GymSectionLabel(title: "Exercise")
                 }
 
-                Section("Body weight") {
+                Section {
                     BodyWeightView()
+                } header: {
+                    GymSectionLabel(title: "Body weight")
                 }
             }
-            .navigationTitle("Progress")
+            .font(GymTheme.rowName)
+            .scrollContentBackground(.hidden)
+            .background(GymTheme.pageFill)
+            .gymMockScreenChrome("Progress")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ProfileToolbarButton()
@@ -87,6 +108,7 @@ private struct ExerciseProgressPicker: View {
             } label: {
                 HStack {
                     Text(exercise.name)
+                        .font(GymTheme.rowName)
                         .foregroundStyle(.primary)
                     Spacer()
                     if exercise.persistentModelID == selection?.persistentModelID {

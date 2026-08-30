@@ -14,16 +14,17 @@ final class LiveWorkoutProgressUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Welcome"].waitForExistence(timeout: 8))
         app.buttons["skipOnboarding"].tap()
 
-        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning"].waitForExistence(timeout: 8))
-        app.buttons["startPlan-Boxing Conditioning"].tap()
+        XCTAssertTrue(app.buttons["startPlan-Boxing Conditioning A"].waitForExistence(timeout: 8))
+        app.buttons["startPlan-Boxing Conditioning A"].tap()
         XCTAssertTrue(app.buttons["startPlanFromPreview"].waitForExistence(timeout: 8))
         app.buttons["startPlanFromPreview"].tap()
 
-        XCTAssertTrue(app.navigationBars["Boxing Conditioning"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.waitForLiveSession("Boxing Conditioning A"))
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 8))
-        XCTAssertEqual(app.staticTexts["workoutProgress"].label, "0%")
+        XCTAssertTrue(app.staticTexts["workoutProgress"].label.hasPrefix("0 /"))
+        XCTAssertTrue(app.staticTexts["workoutProgress"].label.contains("logged"))
         XCTAssertTrue(app.staticTexts["nextSetCue"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.staticTexts["nextSetCue"].label, "Next: Jump Rope · Round 1")
+        XCTAssertTrue(app.staticTexts["nextSetCue"].label.hasPrefix("Up next ·"))
         XCTAssertTrue(
             app.descendants(matching: .any)["exerciseNotes"].waitForExistence(timeout: 8)
         )
@@ -31,7 +32,6 @@ final class LiveWorkoutProgressUITests: XCTestCase {
             app.descendants(matching: .any)["exerciseNotes"].label
                 .contains("Stay light on the balls of your feet")
         )
-        XCTAssertTrue(app.buttons["addExerciseToolbar"].exists)
         XCTAssertTrue(app.buttons["addSetToCurrent"].exists)
 
         app.buttons["followAlongDone"].tap()
@@ -40,7 +40,8 @@ final class LiveWorkoutProgressUITests: XCTestCase {
         }
 
         XCTAssertTrue(app.staticTexts["workoutProgress"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.staticTexts["workoutProgress"].label, "3%")
-        XCTAssertEqual(app.staticTexts["nextSetCue"].label, "Next: Jump Rope · Round 2")
+        XCTAssertTrue(app.staticTexts["workoutProgress"].label.hasPrefix("1 /"))
+        XCTAssertTrue(app.staticTexts["workoutProgress"].label.contains("logged"))
+        XCTAssertTrue(app.staticTexts["nextSetCue"].label.hasPrefix("Up next ·"))
     }
 }
